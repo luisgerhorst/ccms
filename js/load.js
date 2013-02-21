@@ -1,0 +1,1 @@
+/* Loads the depended CouchDB Documents using couchdb.js's CouchDB object */
