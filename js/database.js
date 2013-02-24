@@ -1,7 +1,5 @@
 /* CouchDB Web Client */
 
-var couchdb;
-
 var CouchDB = function (proxyPath, database, username, password) {
 	
 	var editor = false;
@@ -59,13 +57,13 @@ var CouchDB = function (proxyPath, database, username, password) {
 	
 }
 
-couchdb = new CouchDB('/ccms-couchdb-proxy', 'ccms');
+var couchdb = new CouchDB('/ccms-couchdb-proxy', 'ccms');
 
 couchdb.read('meta', function (response) {
 	console.log(response);
 });
 
-adminCouchDB = new CouchDB('/ccms-couchdb-proxy', 'ccms', 'admin', 'samplePassword');
+var adminCouchDB = new CouchDB('/ccms-couchdb-proxy', 'ccms', 'admin', 'samplePassword');
 
 adminCouchDB.save('meta2', { hello: 'string' }, function (response) {
 	console.log(response);
