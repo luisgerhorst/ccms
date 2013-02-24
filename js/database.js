@@ -1,70 +1,73 @@
-/* CouchDB Web Client */
 
 var CouchDB = function (proxyPath, database, username, password) {
 	
 	var editor = false;
 	if (typeof username !== 'undefined' && typeof password !== 'undefined') editor = true;
 
-	var request = function (document, method, callback, data) {
+	var request = function (options) {
 		
-		// setting defaults if undefined
-		if (typeof callback === 'undefined') callback = function (response) {};
-		if (typeof data === 'undefined') data = '';
+		if (options.callback == null) options.callback = function () {};
+		if (options.data == null) options.data = '';
 		
-		// ajax request options
-		var options = {
-			type: method,
-			url: proxyPath + '/' + database + '/' + document,
-			data: data
-		};
+		var ajaxOptions = new (function () {
+	
+			this.type = options.method;
+			this.url = proxyPath + '/' + database + '/' + options.document;
+			this.data = JSON.stringify(options.data);
+			this.error = options.errorCallback;
+			
+			if (editor) {
+				this.beforeSend = function (xhr) {
+					xhr.setRequestHeader('Authorization', 'Basic ' + btoa(username + ':' + password));
+				}; // don't know why the jQuery ajax username and password properties didn't work instead of this
+			}
+			
+		})();
 		
-		if (editor) {
-			options.username = username;
-			options.password = password;
-		}
-		
-		// callback
 		var done = function (msg) {
-			console.log('Received response.', msg);
-			callback(msg);
-		};
+			console.log('Received response to ' + ajaxOptions.type + ' request to ' + ajaxOptions.url + '.', msg);
+			options.callback(msg);
+		}; // callback
 		
-		console.log(options);
-		
-		// send
-		$.ajax(options).done(done);
-		
-		// log
-		console.log('Sent ' + options.type + ' request to ' + options.url + ' ...');
+		$.ajax(ajaxOptions).done(done); // send
+		console.log('Sent ' + ajaxOptions.type + ' request to ' + ajaxOptions.url + ' ...'); // log
 		
 	};
 	
 	this.read = function (document, callback) {
-		request(document, 'GET', callback);
+		request({
+			document: document,
+			method: 'GET',
+			callback: callback
+		});
 	};
 	
 	this.view = function (doc, func, callback) {
-		request(database + '_design/' + doc + '/_view/' + func, 'GET', callback);
+		request({
+			document: '_design/' + doc + '/_view/' + func,
+			method: 'GET',
+			callback: callback
+		});
 	};
 	
 	if (editor) {
 		
 		this.save = function (document, data, callback) {
-			request(document, 'PUT', callback, data);
+			request({
+				document: document,
+				method: 'HEAD',
+				errorCallback: function (jqXHR, textStatus, errorThrown) {
+					// console.log('Function errorCallback called.', jqXHR);
+					if (jqXHR.status === 404) request({
+						document: document,
+						method: 'PUT',
+						callback: callback,
+						data: data
+					});
+				}
+			});
 		};
 		
 	}
 	
 }
-
-var couchdb = new CouchDB('/ccms-couchdb-proxy', 'ccms');
-
-couchdb.read('meta', function (response) {
-	console.log(response);
-});
-
-var adminCouchDB = new CouchDB('/ccms-couchdb-proxy', 'ccms', 'admin', 'samplePassword');
-
-adminCouchDB.save('meta2', { hello: 'string' }, function (response) {
-	console.log(response);
-});
