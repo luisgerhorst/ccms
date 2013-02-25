@@ -6,66 +6,77 @@ var CouchDB = function (proxyPath, database, username, password) {
 
 	var request = function (options) {
 		
-		if (options.callback == null) options.callback = function () {};
-		if (options.data == null) options.data = '';
+		options.url = proxyPath + '/' + database + '/' + options.document;
+		options.document = null;
+		options.data = JSON.stringify(options.data);
 		
-		var ajaxOptions = new (function () {
-	
-			this.type = options.method;
-			this.url = proxyPath + '/' + database + '/' + options.document;
-			this.data = JSON.stringify(options.data);
-			this.error = options.errorCallback;
-			
-			if (editor) {
-				this.beforeSend = function (xhr) {
-					xhr.setRequestHeader('Authorization', 'Basic ' + btoa(username + ':' + password));
-				}; // don't know why the jQuery ajax username and password properties didn't work instead of this
-			}
-			
-		})();
+		var success = options.success;
+		options.success = function (data, textStatus, jqXHR) {
+			data = JSON.parse(data);
+			console.log('Received response to ' + options.type + ' request to ' + options.url + '.', data);
+			if (success != null) success(data);
+		}
 		
-		var done = function (msg) {
-			console.log('Received response to ' + ajaxOptions.type + ' request to ' + ajaxOptions.url + '.', msg);
-			options.callback(msg);
-		}; // callback
+		var error = options.error;
+		options.error = function (jqXHR, textStatus, errorThrown) {
+			console.log('Error while ' + options.type + ' request to ' + options.url + '.', jqXHR);
+			if (error != null) error(jqXHR, textStatus, errorThrown);
+		}
 		
-		$.ajax(ajaxOptions).done(done); // send
-		console.log('Sent ' + ajaxOptions.type + ' request to ' + ajaxOptions.url + ' ...'); // log
+		if (editor) {
+			options.beforeSend = function (xhr) {
+				xhr.setRequestHeader('Authorization', 'Basic ' + btoa(username + ':' + password));
+			}; // don't know why the jQuery ajax username and password properties didn't work instead of this
+		}
+		
+		$.ajax(options); // send
+		console.log('Sent ' + options.type + ' request to ' + options.url + ' ...'); // log
 		
 	};
 	
 	this.read = function (document, callback) {
 		request({
 			document: document,
-			method: 'GET',
-			callback: callback
+			type: 'GET',
+			success: callback
 		});
 	};
 	
 	this.view = function (doc, func, callback) {
 		request({
 			document: '_design/' + doc + '/_view/' + func,
-			method: 'GET',
-			callback: callback
+			type: 'GET',
+			success: callback
 		});
 	};
 	
 	if (editor) {
 		
 		this.save = function (document, data, callback) {
+			
+			var saveRequest = function (data) {
+				
+				request({
+					document: document,
+					type: 'PUT',
+					success: callback,
+					data: data
+				});
+				
+			};
+			
 			request({
 				document: document,
-				method: 'HEAD',
-				errorCallback: function (jqXHR, textStatus, errorThrown) {
-					// console.log('Function errorCallback called.', jqXHR);
-					if (jqXHR.status === 404) request({
-						document: document,
-						method: 'PUT',
-						callback: callback,
-						data: data
-					});
+				type: 'GET',
+				success: function (oldData) {
+					data._rev = oldData._rev;
+					saveRequest(data);
+				},
+				error: function (error) {
+					if (error.status == 404) saveRequest(data);
 				}
 			});
+
 		};
 		
 	}
