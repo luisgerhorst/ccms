@@ -1,5 +1,28 @@
 
-var CouchDB = function (proxyPath, database, log, editor, username, password) {
+/*
+
+
+To create a read-only database connection. This object does not have the methods 'save' and 'remove'.
+
+var couchdb = new CouchDB('/ccms-couchdb-proxy', 'ccms');
+
+
+To create a database connection with read and write access (for the CMS' admin). If the username and the password aren't accepted by the server, the browser's native HTTP-Auth dialoge will pop up asking the user to enter a valid username or password.
+
+var couchdbAdmin = new CouchDB('/ccms-couchdb-proxy', 'ccms', 'myUsername', 'mySecretPassword');
+
+
+To make the Browser ask the user for it's HTTP-Auth username and password.
+
+var couchdbAdminWithHTTPAuthPopup = new CouchDB('/ccms-couchdb-proxy', 'ccms', true, true);
+
+
+*/
+
+var CouchDB = function (proxyPath, database, username, password) {
+	
+	var editor = false;
+	if (typeof username !== 'undefined' && typeof password !== 'undefined') editor = true;
 
 	var request = function (options, done) {
 		
@@ -48,18 +71,6 @@ var CouchDB = function (proxyPath, database, log, editor, username, password) {
 		
 		this.save = function (document, data, callback) {
 			
-			var save = function (data) {
-				
-				request({
-					document: document,
-					type: 'PUT',
-					data: data
-				}, function (data, textStatus, jqXHR) {
-					callback(JSON.parse(data), parseError(jqXHR));
-				});
-				
-			};
-			
 			request({
 				document: document,
 				type: 'HEAD'
@@ -69,7 +80,18 @@ var CouchDB = function (proxyPath, database, log, editor, username, password) {
 				
 				if (status === 200) data._rev = jqXHR.getResponseHeader('Etag').replace(/"/g, '');
 				
-				if (status === 404 || status === 200) save(data);
+				if (status === 404 || status === 200) {
+					
+					request({
+						document: document,
+						type: 'PUT',
+						data: data
+					}, function (data, textStatus, jqXHR) {
+						callback(JSON.parse(data), parseError(jqXHR));
+					});
+					
+				}
+				
 				else callback(JSON.parse(data), parseError(jqXHR));
 				
 			});
@@ -93,7 +115,7 @@ var CouchDB = function (proxyPath, database, log, editor, username, password) {
 				}
 				
 				else {
-					callback(null, { code: 404, message: 'Object Not Found' });
+					callback(null, parseError(jqXHR));
 				}
 				
 			});
@@ -104,7 +126,7 @@ var CouchDB = function (proxyPath, database, log, editor, username, password) {
 	
 	function parseError(jqXHR) {
 		var status = jqXHR.status;
-		if (status !== 200 && status !== 201 ) return {
+		if (status !== 200 && status !== 201) return {
 			code: status,
 			message: jqXHR.statusText
 		};

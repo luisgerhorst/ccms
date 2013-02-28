@@ -19,7 +19,7 @@ Created 21. February 2013 by Luis Gerhorst (luis@luisgerhorst.de).
 
 -->
 
-	<title>CCMS Blog</title>
+	<title></title>
 	
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<meta http-equiv="content-language" content="de-de" />
@@ -32,18 +32,26 @@ Created 21. February 2013 by Luis Gerhorst (luis@luisgerhorst.de).
 	<link rel="apple-touch-icon" href="" />
 	
 	<link rel="stylesheet" type="text/css" href="" />
-	
-	<script type="text/javascript" src="js/lib/jquery-1.9.1.min.js"></script>
-	<script type="text/javascript" src="js/lib/ember-1.0.0-rc.1.min.js"></script>
-	<script type="text/javascript" src="js/database.js"></script>
-	<script type="text/javascript" src="js/load.js"></script>
-	<script type="text/javascript" src="js/render.js"></script>
-	<script type="text/javascript" src="js/tests.js"></script>
 
 </head>
 <body>
+	
+<script type="text/x-handlebars">
+	
+	<h1>{{title}}</h1>
+	<h3>{{description}}</h3>
+	<p>{{postsPerPage}} posts per page.</p>
 
-<p>Hello.</p>
+</script>
+
+<!-- javascript -->
+<script type="text/javascript" src="js/lib/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="js/lib/handlebars.js"></script>
+<script type="text/javascript" src="js/lib/ember-1.0.0-rc.1.js"></script>
+<script type="text/javascript" src="js/database.js"></script>
+<script type="text/javascript" src="js/render.js"></script>
+<script type="text/javascript" src="js/load-config.js"></script>
+<script type="text/javascript" src="js/tests.js"></script>
 
 </body>
 </html>
