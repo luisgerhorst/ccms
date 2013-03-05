@@ -1,7 +1,5 @@
 /* Ember.js */
 
-
-
 /* CouchDB */
 
 /* var couchdb = new CouchDB('/ccms-couchdb-proxy', 'ccms');

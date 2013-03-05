@@ -35,13 +35,33 @@ Created 21. February 2013 by Luis Gerhorst (luis@luisgerhorst.de).
 
 </head>
 <body>
-	
-<script type="text/x-handlebars">
-	
-	<h1>{{title}}</h1>
-	<h3>{{description}}</h3>
-	<p>{{postsPerPage}} posts per page.</p>
 
+<script type="text/x-handlebars" data-template-name="application">
+	{{firstName}} {{lastName}}
+	<nav>
+		{{#linkTo "index"}}Home{{/linkTo}}
+		{{#linkTo "posts"}}Posts{{/linkTo}}
+	</nav>
+	{{outlet}}
+</script>
+
+<script type="text/x-handlebars" data-template-name="index">
+	<div>{{hello}}</div>
+</script>
+
+<script type="text/x-handlebars" data-template-name="posts">
+	<ul>
+		{{#each post in controller}}
+			<li>{{#linkTo post post}}{{post.title}}{{/linkTo}}</li>
+		{{/each}}
+	</ul>
+</script>
+
+<script type="text/x-handlebars" data-template-name="post">
+	<article>
+		<h3 id="post-title">{{title}}</h3>
+		<div id="post">{{postContent}}</div>
+	</article>
 </script>
 
 <!-- javascript -->
