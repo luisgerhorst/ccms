@@ -30,6 +30,8 @@ var CouchDB = function (proxyPath, database, username, password) {
 		options.document = null;
 		options.data = JSON.stringify(options.data);
 		
+		console.log(options.url);
+		
 		if (editor && options.type !== 'GET' && options.type !== 'HEAD') { // if it's a write access to the db
 			options.beforeSend = function (xhr) {
 				xhr.setRequestHeader('Authorization', 'Basic ' + btoa(username + ':' + password));

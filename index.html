@@ -36,41 +36,11 @@ Created 21. February 2013 by Luis Gerhorst (luis@luisgerhorst.de).
 </head>
 <body>
 
-<script type="text/x-handlebars" data-template-name="application">
-	{{firstName}} {{lastName}}
-	<nav>
-		{{#linkTo "index"}}Home{{/linkTo}}
-		{{#linkTo "posts"}}Posts{{/linkTo}}
-	</nav>
-	{{outlet}}
-</script>
-
-<script type="text/x-handlebars" data-template-name="index">
-	<div>{{hello}}</div>
-</script>
-
-<script type="text/x-handlebars" data-template-name="posts">
-	<ul>
-		{{#each post in controller}}
-			<li>{{#linkTo post post}}{{post.title}}{{/linkTo}}</li>
-		{{/each}}
-	</ul>
-</script>
-
-<script type="text/x-handlebars" data-template-name="post">
-	<article>
-		<h3 id="post-title">{{title}}</h3>
-		<div id="post">{{postContent}}</div>
-	</article>
-</script>
-
 <!-- javascript -->
 <script type="text/javascript" src="js/lib/jquery-1.9.1.min.js"></script>
-<script type="text/javascript" src="js/lib/handlebars.js"></script>
-<script type="text/javascript" src="js/lib/ember-1.0.0-rc.1.js"></script>
 <script type="text/javascript" src="js/database.js"></script>
 <script type="text/javascript" src="js/render.js"></script>
-<script type="text/javascript" src="js/load-config.js"></script>
+<script type="text/javascript" src="js/start.js"></script>
 <script type="text/javascript" src="js/tests.js"></script>
 
 </body>
