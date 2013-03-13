@@ -2,23 +2,6 @@
 <html>
 <head>
 
-<!--
-
-000   0000000000000
-000   00
-000   00
-000   00     000000
-000   00         00
-000   00         00
-000   0000000000000
-000
-0000000000000000000
-0000000000000000000
-
-Created 21. February 2013 by Luis Gerhorst (luis@luisgerhorst.de).
-
--->
-
 	<title></title>
 	
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -31,17 +14,60 @@ Created 21. February 2013 by Luis Gerhorst (luis@luisgerhorst.de).
 	<link rel="shortcut icon" type="image/png" href="" />
 	<link rel="apple-touch-icon" href="" />
 	
-	<link rel="stylesheet" type="text/css" href="" />
+	<link rel="stylesheet" type="text/css" href="template/style.css" />
+	
+	<script type="text/javascript" src="js/lib/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" src="js/lib/jquery.ba-hashchange.min.js"></script>
+	<script type="text/javascript" src="js/lib/mustache.js"></script>
+	
+	<script type="text/javascript" src="js/database.js"></script>
+	<script type="text/javascript" src="js/template.js"></script>
+	<script type="text/javascript" src="js/start.js"></script>
+	<script type="text/javascript" src="js/tests.js"></script>
+	
+	<script type="text/mustache" data-template-name="header">
+	
+		<h1>{{title}}</h1>
+	
+	</script>
+	
+	<script type="text/mustache" data-template-name="index">
+	
+		<ol id="posts">
+	
+			{{#posts}}
+			<li class="post">
+				<h2 class="title">{{title}}</h2>
+				<span class="content">{{content}}</span>
+			</li>
+			{{/posts}}
+	
+			{{^posts}}
+			<li class="error">
+				<h2 class="title">404 Not Found</h2>
+				<span class="content">No posts found.</span>
+			</li>
+			{{/posts}}
+	
+		</ol>
+	
+	</script>
+	
+	<script type="text/mustache" data-template-name="post">
+	
+		<article class="post">
+			<h2 class="title">{{title}}</h2>
+			<span class="content">{{content}}</span>
+		</article>
+	
+	</script>
+	
+	<script type="text/mustache" data-template-name="footer">
+	
+		<span id="copyright">ⓒ {{copyrightYearsStart}} - {{copyrightYearsEnd}} {{copyright}}</span>
+	
+	</script>
 
 </head>
-<body>
-
-<!-- javascript -->
-<script type="text/javascript" src="js/lib/jquery-1.9.1.min.js"></script>
-<script type="text/javascript" src="js/database.js"></script>
-<script type="text/javascript" src="js/render.js"></script>
-<script type="text/javascript" src="js/start.js"></script>
-<script type="text/javascript" src="js/tests.js"></script>
-
-</body>
+<body></body>
 </html>
