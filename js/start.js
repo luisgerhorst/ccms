@@ -18,10 +18,29 @@ $(document).ready(function () {
 	
 	function defineTemplates(couchdb, template, meta) {
 		
-		template.createPage(/^\/$/, 'index', function (callback) {
+		template.createTemplate('header', function (callback, path) {
+			callback(meta);
+		});
+		
+		template.createTemplate('footer', function (callback, path) {
+			callback(meta);
+		});
+		
+		template.createTemplate('post', function (callback, path) {
 			
+			var postID = path.replace(/^\/posts\//, '');
+			
+			couchdb.read('post-' + postID, function (response, error) {
+				if (error) console.log('Error while getting view "' + func + '" of design document "posts".', error);
+				callback(response);
+			}); // loads the newest posts
+			
+		});
+		
+		template.createTemplate('index', function (callback) {
+	
 			var func = 'all?limit=' + meta.postsPerPage + '&descending=true'; // 2 will be meta.postsPerPage later
-
+		
 			couchdb.view('posts', func, function (response, error) {
 				
 				if (error) console.log('Error while getting view "' + func + '" of design document "posts".', error);
@@ -36,16 +55,9 @@ $(document).ready(function () {
 			
 		});
 		
-		template.createPage(/^\/posts\/.+$/, 'post', function (callback, path) {
-			
-			var postID = path.replace(/^\/posts\//, '');
-			
-			couchdb.read('post-' + postID, function (response, error) {
-				if (error) console.log('Error while getting view "' + func + '" of design document "posts".', error);
-				callback(response);
-			}); // loads the newest posts
-			
-		});
+		template.createRoute(/^\/$/, ['header', 'index', 'footer']);
+		
+		template.createRoute(/^\/posts\/.+$/, ['header', 'post', 'footer']);
 		
 		template.reload();
 		

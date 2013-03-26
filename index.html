@@ -14,7 +14,7 @@
 	<link rel="shortcut icon" type="image/png" href="" />
 	<link rel="apple-touch-icon" href="" />
 	
-	<link rel="stylesheet" type="text/css" href="template/style.css" />
+	<link rel="stylesheet" type="text/css" href="theme/style.css" />
 	
 	<script type="text/javascript" src="js/lib/jquery-1.9.1.min.js"></script>
 	<script type="text/javascript" src="js/lib/jquery.ba-hashchange.min.js"></script>
@@ -25,13 +25,13 @@
 	<script type="text/javascript" src="js/start.js"></script>
 	<script type="text/javascript" src="js/tests.js"></script>
 	
-	<script type="text/mustache" data-template-name="header">
+	<script type="text/mustache" data-template-id="header">
 	
 		<h1>{{title}}</h1>
 	
 	</script>
 	
-	<script type="text/mustache" data-template-name="index">
+	<script type="text/mustache" data-template-id="index">
 	
 		<ol id="posts">
 	
@@ -53,7 +53,7 @@
 	
 	</script>
 	
-	<script type="text/mustache" data-template-name="post">
+	<script type="text/mustache" data-template-id="post">
 	
 		<article class="post">
 			<h2 class="title">{{title}}</h2>
@@ -62,7 +62,7 @@
 	
 	</script>
 	
-	<script type="text/mustache" data-template-name="footer">
+	<script type="text/mustache" data-template-id="footer">
 	
 		<span id="copyright">ⓒ {{copyrightYearsStart}} - {{copyrightYearsEnd}} {{copyright}}</span>
 	

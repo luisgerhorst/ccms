@@ -7,18 +7,61 @@ var Template = function (meta) {
 		else return '/';
 	};
 	
-	var pages = [];
+	var routes = [];
+	/*
+		{
+			/pathRegExp/, // RegExp for the path
+			[templateIDs] // array of template IDs that should be rendered when the RegExp matches the current URL
+		}
+	*/
+	
+	var templates = {};
+	/*
+		key: "templateID" // id of the template
+		value: load() // function to load the required data for this template
+	*/
+	
+	var render = function (templateIDs) {
+		
+		var stringify = function (array) {
+			
+			var string = '';
+			var length = array.length;
+			for (var i = 0; i < length; i++) string += array[i];
+			return string;
+			
+		}; // stringify an array
+		
+		var html = [];
+		
+		$.each(templateIDs, function(i, templateID) {
+			
+			var load = templates[templateID];
+			
+			var template = $('script[data-template-id="' + templateID + '"]').html();
+			
+			load(function (view) {
+				
+				html[i] = Mustache.render(template, view);
+				
+				$('body').html(stringify(html));
+				
+			}, currentPath());
+			
+		});
+	
+	};
 	
 	var reload = function () { // called when the path changes
 		
 		var path = currentPath();
 		
-		for (var i = pages.length; i--;) { // counts down from array.length-1 to 0
+		for (var i = routes.length; i--;) { // counts down from array.length-1 to 0
 			
-			var page = pages[i];
+			var route = routes[i];
 			
-			if (page.pathRegExp.test(path)) {
-				page.render(path);
+			if (route.pathRegExp.test(path)) {
+				render(route.templateIDs);
 				i = 0; // stop the loop
 			}
 			
@@ -26,30 +69,17 @@ var Template = function (meta) {
 		
 	}
 	
-	var header = Mustache.render($('script[data-template-name="header"]').html(), meta);
-	var footer = Mustache.render($('script[data-template-name="footer"]').html(), meta);
-	
-	var createPage = function (pathRegExp, templateName, load) {
+	var createRoute = function (pathRegExp, templateIDs) {
 		
-		var render = function (path) {
-			
-			var template = $('script[data-template-name="' + templateName + '"]').html();
-			
-			load(function (view) {
-				
-				var content = Mustache.render(template, view);
-				
-				var body = header + content + footer;
-				
-				$('body').html(body);
-				
-			}, path);
-			
-		};
-		
-		pages.push({ pathRegExp: pathRegExp, render: render });
+		routes.push({ pathRegExp: pathRegExp, templateIDs: templateIDs });
 		
 	};
+	
+	var createTemplate = function (templateID, load) {
+		
+		templates[templateID] = load;
+		
+	}
 	
 	// Actions
 	
@@ -58,6 +88,7 @@ var Template = function (meta) {
 	});
 	
 	this.reload = reload;
-	this.createPage = createPage;
+	this.createRoute = createRoute;
+	this.createTemplate = createTemplate;
 	
 };
