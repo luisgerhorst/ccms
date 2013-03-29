@@ -19,6 +19,8 @@ $(document).ready(function () {
 	
 	function defineTemplates(couchdb, template, meta) {
 		
+		document.title = meta.title;
+		
 		template.createTemplate('header', function (callback) {
 			
 			callback(meta);

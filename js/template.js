@@ -21,7 +21,7 @@ var Template = function () {
 		value: load() // function to load the required data for this template
 	*/
 	
-	var render = function (templateIDs) {
+	var render = function (templateIDs, func) {
 		
 		var stringify = function (array) {
 			
@@ -46,6 +46,11 @@ var Template = function () {
 				
 				$('body').html(stringify(html));
 				
+				var done = true;
+				if (html.length != templateIDs.length) done = false;
+				else for (var j = html.length; j--;) if (html[j] == null) done = false;
+				if (done) func(); // if every template is rendered
+				
 			}, currentPath());
 			
 		});
@@ -61,7 +66,7 @@ var Template = function () {
 			var route = routes[i];
 			
 			if (route.pathRegExp.test(path)) {
-				render(route.templateIDs);
+				render(route.templateIDs, route.func); // render the templates into the body
 				i = 0; // stop the loop
 			}
 			
@@ -69,9 +74,11 @@ var Template = function () {
 		
 	}
 	
-	var createRoute = function (pathRegExp, templateIDs) {
+	var createRoute = function (pathRegExp, templateIDs, func) {
 		
-		routes.push({ pathRegExp: pathRegExp, templateIDs: templateIDs });
+		if (typeof func === "undefined") func = function () {};
+		
+		routes.push({ pathRegExp: pathRegExp, templateIDs: templateIDs, func: func });
 		
 	};
 	
@@ -88,5 +95,6 @@ var Template = function () {
 	this.load = reload;
 	this.createRoute = createRoute;
 	this.createTemplate = createTemplate;
+	this.currentPath = currentPath;
 	
 };
