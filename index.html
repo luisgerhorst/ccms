@@ -27,7 +27,7 @@
 	
 	<script type="text/mustache" data-template-id="header">
 	
-		<h1>{{title}}</h1>
+		<a href="#/"><h1>{{title}}</h1></a>
 	
 	</script>
 	
@@ -37,7 +37,7 @@
 	
 			{{#posts}}
 			<li class="post">
-				<h2 class="title">{{title}}</h2>
+				<a class="title" href="#/posts/{{postID}}"><h2>{{title}}</h2></a>
 				<span class="content">{{content}}</span>
 			</li>
 			{{/posts}}
@@ -64,7 +64,7 @@
 	
 	<script type="text/mustache" data-template-id="footer">
 	
-		<span id="copyright">ⓒ {{copyrightYearsStart}} - {{copyrightYearsEnd}} {{copyright}}</span>
+		<p id="copyright">ⓒ {{copyrightYearsStart}} - {{copyrightYearsEnd}} {{copyright}}</p>
 	
 	</script>
 

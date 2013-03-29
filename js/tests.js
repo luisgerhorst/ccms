@@ -3,7 +3,7 @@
 
 /* CouchDB */
 
-/* var couchdb = new CouchDB('/ccms-couchdb-proxy', 'ccms');
+/*var couchdb = new CouchDB('/ccms-couchdb-proxy', 'ccms');
 
 console.log('Test: CouchDB reading (404 expected) ...');
 
@@ -65,4 +65,4 @@ couchdb.read('test', function (response, error) {
 	
 	});
 	
-}); */
+});*/

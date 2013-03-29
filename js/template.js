@@ -1,5 +1,5 @@
 
-var Template = function (meta) {
+var Template = function () {
 	
 	var currentPath = function () {
 		var url = document.URL;
@@ -83,11 +83,9 @@ var Template = function (meta) {
 	
 	// Actions
 	
-	$(window).hashchange(function(){
-		reload();
-	});
+	$(window).hashchange(reload);
 	
-	this.reload = reload;
+	this.load = reload;
 	this.createRoute = createRoute;
 	this.createTemplate = createTemplate;
 	
