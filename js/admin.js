@@ -39,7 +39,7 @@ $(document).ready(function () {
 		
 		template.createTemplate('index', function (callback) {
 		
-			var func = 'all?limit=' + meta.postsPerPage + '&descending=true'; // 2 will be meta.postsPerPage later
+			var func = 'all?limit=10&descending=true';
 			
 			couchdb.view('posts', func, function (response, error) {
 				
@@ -70,11 +70,70 @@ $(document).ready(function () {
 		
 		template.createRoute(/^(\/posts\/).+$/, ['header', 'post', 'footer'], function () {
 			
-			var date = $('input#post-date');
-			var time = moment.unix(date.data('unix-timestamp')).format("YYYY-MM-DD, HH:mm");
-			date.val(time);
+			var content = $('#post-edit-content'), date = $('#post-edit-date'), postID = $('#post-edit-postID'), title = $('#post-edit-title'), autoCreateURL = $('#post-edit-auto-create-url');
 			
-			$('button#post-save').click(function () {
+			var postIDByTitle = function () {
+				return title.val().replace(/[^\w\s]/gi, '').replace(/[ ]+/g, '-').toLowerCase(); // removed all special characters and replace spaces by "-"
+			}, checkPostIDIsByTitle = function () {
+				
+				if (postIDByTitle() != postID.val()) { // if postID wasn't created using the title
+					autoCreateURL.attr('checked', false); // uncheck autoCreateURL
+					postID.removeAttr('readonly'); // remove postID readonly
+				}
+				
+			};
+			
+			checkPostIDIsByTitle();
+			date.val(moment.unix(date.data('unix-timestamp')).format("YYYY-MM-DD HH:mm"));
+			
+			autoCreateURL.mousedown(function() {
+				if (!autoCreateURL.is(':checked')) { // on check
+					postID.attr('readonly', 'true'); // add readonly
+					postID.val(postIDByTitle());
+				}
+				else postID.removeAttr('readonly'); // on uncheck remove readonly
+			});
+			
+			title.blur(checkPostIDIsByTitle);
+			
+			$('#post-edit').submit(function () { // on save
+				
+				checkPostIDIsByTitle();
+				
+				var post = {
+					content: content.val(),
+					date: moment(date.val(), "YYYY-MM-DD HH:mm").unix(),
+					postID: postID.val(),
+					title: title.val(),
+					type: 'post'
+				};
+				
+				console.log(post);
+				
+				couchdb.save('post-' + post.postID, post, function (response, error) {
+					
+					if (error) console.log('Error.', error);
+					
+					else {
+						
+						var oldPostID = postID.data('old-post-id');
+						
+						if (post.postID != oldPostID) { // if postID has changed
+							
+							couchdb.remove('post-' + oldPostID, function (response, error) {
+								if (error) console.log('Error.', error);
+								else window.location = '#/';
+							});
+							
+						}
+						
+						else window.location = '#/';
+						
+					}
+					
+				});
+				
+				return false; // so the page doesn't reload
 				
 			});
 			
@@ -82,10 +141,6 @@ $(document).ready(function () {
 		
 		template.load();
 
-	}
-	
-	function forms() {
-	
 	}
 
 });
