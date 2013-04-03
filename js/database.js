@@ -30,8 +30,6 @@ var CouchDB = function (proxyPath, database, username, password) {
 		options.document = null;
 		options.data = JSON.stringify(options.data);
 		
-		console.log(options.url);
-		
 		if (editor && options.type !== 'GET' && options.type !== 'HEAD') { // if it's a write access to the db
 			options.beforeSend = function (xhr) {
 				xhr.setRequestHeader('Authorization', 'Basic ' + btoa(username + ':' + password));
@@ -54,6 +52,21 @@ var CouchDB = function (proxyPath, database, username, password) {
 			type: 'GET'
 		}, function (data, textStatus, jqXHR) {
 			callback(JSON.parse(data), parseError(jqXHR));
+		});
+		
+	};
+	
+	this.exists = function (document, callback) {
+		
+		request({
+			document: document,
+			type: 'HEAD'
+		}, function (oldData, textStatus, jqXHR) {
+			
+			if (jqXHR.status === 200) callback(jqXHR.getResponseHeader('Etag').replace(/"/g, ''), parseError(jqXHR)); // if file exists
+			
+			else callback(false, parseError(jqXHR)); // if file doesn't exist
+			
 		});
 		
 	};
