@@ -1,1 +1,1 @@
-var ccmsVersion = '0.0.1'; // used to check if the used database is compatible with this version
+var ccmsVersion = '0.0.1'; // used to check if the used database is compatible with this version of CCMS

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+	<title></title>
+
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="content-language" content="de-de" />
+	<meta name="keywords" content="" />
+
+	<meta name="viewport" content="initial-scale=1.0; maximum-scale=1.0;"/>
+
+	<link rel="alternate" type="application/rss+xml" title="" href="" />
+	<link rel="shortcut icon" type="image/png" href="" />
+	<link rel="apple-touch-icon" href="" />
+
+	<link rel="stylesheet" type="text/css" href="templates/light/style.css" />
+
+	<script type="text/javascript" src="js/library/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" src="js/library/jquery.ba-hashchange.min.js"></script>
+	<script type="text/javascript" src="js/library/mustache.js"></script>
+	<script type="text/javascript" src="js/library/moment.min.js"></script>
+
+	<script type="text/javascript" src="js/global.js"></script>
+	<script type="text/javascript" src="js/database.js"></script>
+	<script type="text/javascript" src="js/template.js"></script>
+	
+	<script type="text/javascript" src="js/install/render.js"></script>
+	<script type="text/javascript" src="js/install/routes.js"></script>
+	<script type="text/javascript" src="js/install/start.js"></script>
+
+	<script type="text/mustache" data-template-id="header">
+
+		<header><h1>CCMS Setup</h1></header>
+
+	</script>
+	
+	<script type="text/mustache" data-template-id="setup-db">
+	
+		<form id="setup-db-login">
+			
+			Path to proxy: <code>{{couchdbProxy}}</code><br />
+			Database name: <code>{{database}}</code><br />
+			
+			<label for="username">Username:</label>
+			<input type="text" id="setup-db-username" name="username" value="admin" placeholder="Username"><br />
+			
+			<label for="username">Password:</label>
+			<input type="password" id="setup-db-password" name="password" value="" placeholder="Password"><br />
+			
+			<input id="setup-db-submit" type="submit" value="Create Database">
+			
+		</form>
+		
+		<button id="db-reload">Reload</button><br />
+	
+	</script>
+	
+	<script type="text/mustache" data-template-id="setup-meta">
+	
+		<p><form id="meta-create">
+			
+			<label for="title">Title:</label>
+			<input type="text" id="meta-create-title" name="title" value="" placeholder="Title"><br />
+			
+			<input id="meta-create-submit" type="submit" value="Save">
+			
+		</form></p>
+	
+	</script>
+
+	<script type="text/mustache" data-template-id="footer">
+
+		<footer><p>Powered by <a href="https://github.com/luisgerhorst/ccms">CCMS</a>.</p></footer>
+
+	</script>
+
+</head>
+<body></body>
+</html>

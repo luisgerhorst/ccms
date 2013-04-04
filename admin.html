@@ -25,30 +25,19 @@
 	<script type="text/javascript" src="js/database.js"></script>
 	<script type="text/javascript" src="js/template.js"></script>
 	
-	<script type="text/javascript" src="js/admin/start.js"></script>
+	<script type="text/javascript" src="js/admin/render.js"></script>
+	<script type="text/javascript" src="js/admin/routes.js"></script>
 	
-	<script type="text/mustache" data-template-id="login">
+	<script type="text/javascript" src="js/start.js"></script>
 	
-		<form>
-			
-			<p><input type="text" id="username"></p>
-			
-			<p><input type="password" id="password"></p>
-			
-			<p><button id="login">Login</button></p>
-			
-		</form>
-	
-	</script>
-
 	<script type="text/mustache" data-template-id="header">
 
 		<header>
 			
-			<nav><ol>
+			<nav><ul>
 				<li><a href="#/">Posts</a></li>
 				<li><a href="#/meta">Meta</a></li>
-			</ol></nav>
+			</ul></nav>
 			
 		</header>
 
@@ -92,8 +81,8 @@
 			
 			<input type="checkbox" id="post-edit-auto-create-post-id" name="autoCreatePostID" checked> <label for="autoCreatePostID">Create URL automatically using the title</label>: <code>/posts/</code> <input type="text" id="post-edit-postID" data-old-post-id="{{postID}}" value="{{postID}}" readonly="true"><br />
 			
-			<input id="post-edit-submit" type="submit" value="Save"><br />
-			<input id="post-edit-cancel" type="button" value="Cancel"><br />
+			<input id="post-edit-submit" type="submit" value="Save">
+			<input id="post-edit-cancel" type="button" value="Cancel">
 			<input id="post-edit-delete" type="button" value="Delete"><br />
 			
 		</form></p>
@@ -115,7 +104,7 @@
 			
 			<input type="checkbox" id="post-create-auto-create-post-id" name="autoCreatePostID" checked> <label for="autoCreatePostID">Create URL automatically using the title</label>: <code>/posts/</code> <input type="text" id="post-create-postID" readonly="true"><br />
 			
-			<input id="post-create-submit" type="submit" value="Save"><br />
+			<input id="post-create-submit" type="submit" value="Save">
 			<input id="post-create-cancel" type="button" value="Cancel"><br />
 			
 		</form></p>
@@ -139,6 +128,7 @@
 			<input type="text" id="meta-edit-copyright" name="copyright" value="{{copyright}}" placeholder="Copyright"><br />
 			
 			<input id="meta-edit-submit" type="submit" value="Save">
+			<input id="meta-edit-cancel" type="button" value="Cancel"><br />
 			
 		</form></p>
 		

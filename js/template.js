@@ -21,7 +21,7 @@ var Template = function () {
 		value: load() // function to load the required data for this template
 	*/
 	
-	var render = function (templateIDs, func) {
+	var render = function (templateIDs, doneFunc) {
 		
 		var stringify = function (array) {
 			
@@ -33,27 +33,35 @@ var Template = function () {
 		}; // stringify an array
 		
 		var html = [];
+		var views = {}; // contains the views of all loaded templates, using the templateID as key
 		
-		$.each(templateIDs, function(i, templateID) {
+		if (templateIDs.length > 0) {
 			
-			var load = templates[templateID];
+			$.each(templateIDs, function(i, templateID) {
+				
+				var load = templates[templateID];
+				
+				var template = $('script[data-template-id="' + templateID + '"]').html();
+				
+				load(function (view) {
+					
+					html[i] = Mustache.render(template, view);
+					views[templateID] = view;
+					
+					$('body').html(stringify(html));
+					
+					var done = true;
+					if (html.length != templateIDs.length) done = false;
+					else for (var j = html.length; j--;) if (html[j] == null) done = false;
+					if (done) doneFunc(views); // if every template is rendered
+					
+				}, currentPath());
+				
+			});
 			
-			var template = $('script[data-template-id="' + templateID + '"]').html();
-			
-			load(function (view) {
-				
-				html[i] = Mustache.render(template, view);
-				
-				$('body').html(stringify(html));
-				
-				var done = true;
-				if (html.length != templateIDs.length) done = false;
-				else for (var j = html.length; j--;) if (html[j] == null) done = false;
-				if (done) func(); // if every template is rendered
-				
-			}, currentPath());
-			
-		});
+		}
+		
+		else doneFunc(views) // if no template should be rendered -> execute done function
 	
 	};
 	
@@ -74,7 +82,7 @@ var Template = function () {
 		
 	}
 	
-	var createRoute = function (pathRegExp, templateIDs, func) {
+	var addRoute = function (pathRegExp, templateIDs, func) {
 		
 		if (typeof func === "undefined") func = function () {};
 		
@@ -82,7 +90,7 @@ var Template = function () {
 		
 	};
 	
-	var createTemplate = function (templateID, load) {
+	var addTemplateView = function (templateID, load) {
 		
 		templates[templateID] = load;
 		
@@ -93,8 +101,8 @@ var Template = function () {
 	$(window).hashchange(reload);
 	
 	this.load = reload;
-	this.createRoute = createRoute;
-	this.createTemplate = createTemplate;
+	this.route = addRoute;
+	this.render = addTemplateView;
 	this.currentPath = currentPath;
 	
 };
