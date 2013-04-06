@@ -21,7 +21,7 @@ var Template = function () {
 		value: load() // function to load the required data for this template
 	*/
 	
-	var render = function (templateIDs, doneFunc) {
+	var render = function (templateIDs, doneFunc, beforeFunc) {
 		
 		var stringify = function (array) {
 			
@@ -31,6 +31,8 @@ var Template = function () {
 			return string;
 			
 		}; // stringify an array
+		
+		beforeFunc();
 		
 		var html = [];
 		var views = {}; // contains the views of all loaded templates, using the templateID as key
@@ -74,7 +76,7 @@ var Template = function () {
 			var route = routes[i];
 			
 			if (route.pathRegExp.test(path)) {
-				render(route.templateIDs, route.func); // render the templates into the body
+				render(route.templateIDs, route.done, route.before); // render the templates into the body
 				i = 0; // stop the loop
 			}
 			
@@ -82,11 +84,12 @@ var Template = function () {
 		
 	}
 	
-	var addRoute = function (pathRegExp, templateIDs, func) {
+	var addRoute = function (pathRegExp, templateIDs, done, before) {
 		
-		if (typeof func === "undefined") func = function () {};
+		if (typeof done === "undefined" || done == null) done = function () {};
+		if (typeof before === "undefined") before = function () {};
 		
-		routes.push({ pathRegExp: pathRegExp, templateIDs: templateIDs, func: func });
+		routes.push({ pathRegExp: pathRegExp, templateIDs: templateIDs, done: done, before: before });
 		
 	};
 	

@@ -27,8 +27,23 @@
 	
 	<script type="text/javascript" src="js/admin/render.js"></script>
 	<script type="text/javascript" src="js/admin/routes.js"></script>
+	<script type="text/javascript" src="js/admin/start.js"></script>
 	
-	<script type="text/javascript" src="js/start.js"></script>
+	<script type="text/mustache" data-template-id="login">
+	
+		<p><form id="login">
+			
+			<label for="username">Username:</label>
+			<input type="text" id="login-username" name="username" placeholder="Username"><br />
+			
+			<label for="password">Password:</label>
+			<input type="password" id="login-password" name="password" placeholder="Password"><br />
+			
+			<input id="login-submit" type="submit" value="Login">
+			
+		</form></p>
+	
+	</script>
 	
 	<script type="text/mustache" data-template-id="header">
 

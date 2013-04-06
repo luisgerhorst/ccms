@@ -35,14 +35,20 @@
 
 	</script>
 	
-	<script type="text/mustache" data-template-id="setup-meta">
+	<script type="text/mustache" data-template-id="setup-db-docs">
 	
-		<p><form id="meta-create">
+		<p><form id="setup-db-docs">
 			
 			<label for="title">Title:</label>
-			<input type="text" id="meta-create-title" name="title" value="" placeholder="Title"><br />
+			<input type="text" id="setup-db-docs-title" name="title" placeholder="Title"><br />
 			
-			<input id="meta-create-submit" type="submit" value="Save">
+			<label for="username">Username:</label>
+			<input type="text" id="setup-db-docs-username" value="admin" name="username" placeholder="Username"><br />
+			
+			<label for="password">Password:</label>
+			<input type="password" id="setup-db-docs-password" value="" name="password" placeholder="Password"><br />
+			
+			<input id="setup-db-docs-submit" type="submit" value="Save">
 			
 		</form></p>
 	

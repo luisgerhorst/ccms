@@ -1,4 +1,4 @@
 {
-	"couchdbProxy": "/ccms-couchdb-proxy",
-	"database": "ccmsTest"
+	"couchdbProxy": "/ccms-couchdb-proxy-local",
+	"database": "ccms"
 }

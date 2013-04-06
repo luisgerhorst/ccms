@@ -1,6 +1,6 @@
 function setRoutes(template, couchdb, meta) {
 	
-	template.route(/^\/$/, ['header', 'index', 'footer'], function () {
+	template.route(/^\/$/, ['header', 'index', 'footer'], null, function () {
 		document.title = meta.title;
 	});
 	

@@ -21,6 +21,9 @@ var couchdbAdminWithHTTPAuthPopup = new CouchDB('/ccms-couchdb-proxy', 'ccms', t
 
 var CouchDB = function (proxyPath, database, username, password) {
 	
+	this.proxyPath = proxyPath;
+	this.database = database;
+	
 	var editor = false;
 	if (typeof username !== 'undefined' && typeof password !== 'undefined') editor = true;
 

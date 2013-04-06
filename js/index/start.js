@@ -5,7 +5,7 @@ $(document).ready(function () {
 	}).done(function (config) {
 
 		var template = new Template();
-		var couchdb = new CouchDB(config.couchdbProxy, config.database, true, true);
+		var couchdb = new CouchDB(config.couchdbProxy, config.database);
 
 		couchdb.read('meta', function (meta, error) {
 
