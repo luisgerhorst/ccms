@@ -34,10 +34,23 @@ var Template = function () {
 		
 		beforeFunc();
 		
-		var html = [];
 		var views = {}; // contains the views of all loaded templates, using the templateID as key
 		
 		if (templateIDs.length > 0) { // if templateIDs isn't empty
+		
+			var html = [];
+			var jQueryBody = $('body');
+			
+			var ready = function () {
+				
+				jQueryBody.html(stringify(html));
+				
+				var done = true;
+				if (html.length != templateIDs.length) done = false;
+				else for (var j = html.length; j--;) if (typeof html[j] !== 'string') done = false;
+				if (done) doneFunc(views); // if every template is rendered
+				
+			};
 			
 			$.each(templateIDs, function(i, templateID) {
 				
@@ -45,19 +58,8 @@ var Template = function () {
 				
 				var template = $('script[type="text/ccms-template"][data-template-id="' + templateID + '"]').html();
 				
-				var ready = function () {
-					
-					$('body').html(stringify(html));
-					
-					var done = true;
-					if (html.length != templateIDs.length) done = false;
-					else for (var j = html.length; j--;) if (typeof html[j] !== 'string') done = false;
-					if (done) doneFunc(views); // if every template is rendered
-					
-				};
-				
 				var type = typeof view;
-				if (view == null) type = 'null'; // because typeof null returns object
+				if (view === null) type = 'null'; // typeof null === 'object'
 				
 				console.log(type, view);
 				
@@ -139,13 +141,6 @@ var Template = function () {
 	// Actions
 	
 	$(window).hashchange(reload);
-	
-	$('script[type="text/ccms-template"]').each(function() {
-		
-		var id = $(this).data('template-id');
-		templates[id] = null;
-		
-	});
 	
 	this.load = reload;
 	this.route = addRoute;

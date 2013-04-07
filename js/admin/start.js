@@ -8,9 +8,7 @@ $(document).ready(function () {
 		
 		window.location = '#/login';
 		
-		template.render('login', function (cb) { cb({}); });
-		
-		template.route(/^\/login$/, ['login'], function () {
+		template.route('/login', ['login'], function () {
 			
 			$('#login').submit(function () { // on save
 			
