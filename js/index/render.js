@@ -1,16 +1,8 @@
 function render(template, couchdb, meta) {
 	
-	template.render('header', function (callback) {
-		
-		callback(meta);
-		
-	});
+	template.render('header', meta);
 	
-	template.render('footer', function (callback) {
-		
-		callback(meta);
-		
-	});
+	template.render('footer', meta);
 	
 	
 	var indexCache = null;

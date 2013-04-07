@@ -41,30 +41,11 @@ var Template = function () {
 			
 			$.each(templateIDs, function(i, templateID) {
 				
-				var load = templates[templateID];
+				var view = templates[templateID];
 				
 				var template = $('script[type="text/ccms-template"][data-template-id="' + templateID + '"]').html();
 				
-				if (typeof load === 'function') {
-					
-					load(function (view) {
-						
-						html[i] = Mustache.render(template, view);
-						views[templateID] = view;
-						
-						$('body').html(stringify(html));
-						
-						var done = true;
-						if (html.length != templateIDs.length) done = false;
-						else for (var j = html.length; j--;) if (typeof html[j] !== 'string') done = false;
-						if (done) doneFunc(views); // if every template is rendered
-						
-					}, currentPath());
-					
-				} else {
-					
-					html[i] = template;
-					views[templateID] = {};
+				var ready = function () {
 					
 					$('body').html(stringify(html));
 					
@@ -73,6 +54,31 @@ var Template = function () {
 					else for (var j = html.length; j--;) if (typeof html[j] !== 'string') done = false;
 					if (done) doneFunc(views); // if every template is rendered
 					
+				};
+				
+				var type = typeof view;
+				if (view == null) type = 'null'; // because typeof null returns object
+				
+				console.log(type, view);
+				
+				switch (type) {
+					case 'function':
+						view(function (response) {
+							html[i] = Mustache.render(template, response);
+							views[templateID] = response;
+							ready();
+						}, currentPath());
+						break;
+					case 'object':
+						html[i] = Mustache.render(template, view);
+						views[templateID] = view;
+						ready();
+						break;
+					default:
+						html[i] = template;
+						views[templateID] = {};
+						ready();
+						break;
 				}
 				
 			});
@@ -89,10 +95,9 @@ var Template = function () {
 			
 			var route = routes[i];
 			var path = route.path;
+			
 			var type = typeof path;
 			if (path instanceof RegExp) type = 'regexp';
-			
-			console.log(type);
 			
 			var found = function () {
 				render(route.templateIDs, route.done, route.before); // render the templates into the body
@@ -125,9 +130,9 @@ var Template = function () {
 		
 	};
 	
-	var addTemplateView = function (templateID, load) {
+	var addTemplateView = function (id, view) {
 		
-		templates[templateID] = load;
+		templates[id] = view;
 		
 	}
 	
@@ -137,12 +142,8 @@ var Template = function () {
 	
 	$('script[type="text/ccms-template"]').each(function() {
 		
-		var template = $(this);
-		var id = template.data('template-id');
-		
-		templates[id] = function (cb) {
-			cb({});
-		};
+		var id = $(this).data('template-id');
+		templates[id] = null;
 		
 	});
 	

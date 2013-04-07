@@ -1,11 +1,11 @@
 function setRoutes(template, config) {
 	
-	template.route(/^\/$/, [], function () {
+	template.route('/', null, function () {
 		document.title = 'CCMS';
 		window.location = '#/setup-db-docs'
 	});
 	
-	template.route(/^\/setup-db-docs$/, ['header', 'setup-db-docs', 'footer'], function () {
+	template.route('/setup-db-docs', ['header', 'setup-db-docs', 'footer'], function () {
 		
 		document.title = 'CCMS';
 		
