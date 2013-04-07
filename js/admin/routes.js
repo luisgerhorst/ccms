@@ -1,6 +1,6 @@
 function setRoutes(template, couchdb, meta) {
 	
-	template.route(/^\/$/, ['header', 'index', 'footer'], null, function () {
+	template.route('/', ['header', 'index', 'footer'], null, function () {
 		document.title = meta.title;
 	});
 	
@@ -221,8 +221,8 @@ function setRoutes(template, couchdb, meta) {
 	
 	})();
 	
-	template.route(/^\/meta$/, ['header', 'meta', 'footer'], metaEdit);
+	template.route('/meta', ['header', 'meta', 'footer'], metaEdit);
 	template.route(/^(\/posts\/).+$/, ['header', 'post', 'footer'], postEdit);
-	template.route(/^\/create-post$/, ['header', 'post-create', 'footer'], postCreate);
+	template.route('/create-post', ['header', 'post-create', 'footer'], postCreate);
 	
 }
