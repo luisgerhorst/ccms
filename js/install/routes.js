@@ -11,7 +11,6 @@ function setRoutes(template, config) {
 		
 		$('#setup-db-docs').submit(function () { // on save
 			
-			var title = $('#setup-db-docs-title').val();
 			var username = $('#setup-db-docs-username').val();
 			var password = $('#setup-db-docs-password').val();
 			
@@ -32,22 +31,31 @@ function setRoutes(template, config) {
 						language: "javascript",
 						views: {
 							all: {
-								map: "function (doc) { if (doc.type === 'post') emit([doc.date, doc._id], doc); }"
+								map: "function (doc) { if (doc.type === 'post') emit([doc.date, doc.postID], doc); }"
+							},
+							date: {
+								map: "function (doc) { if (doc.type === 'post') emit(doc.date, doc.postID); }"
 							}
 						}
 					}, function (response, error) {
 						if (error) alert('Error ' + error.code + ' ' + error.message + ' occured while saving the document "_design/auth" to the database "ccms".');
 						else {
 							
-							couchdb.save('meta', { // meta
+							var title = $('#setup-db-docs-title').val();
+							var year = parseInt(moment().format('YYYY'));
+							
+							var meta = { // meta
 								ccmsVersion: ccmsVersion,
 								copyright: title,
-								copyrightYearsEnd: parseInt(moment().format('YYYY')),
-								copyrightYearsStart: parseInt(moment().format('YYYY')),
+								copyrightYears: year + '',
+								copyrightYearsEnd: year,
+								copyrightYearsStart: year,
 								description: '',
 								postsPerPage: 10,
 								title: title
-							}, function (response, error) {
+							}
+							
+							couchdb.save('meta', meta, function (response, error) {
 								if (error) alert('Error ' + error.code + ' ' + error.message + ' occured while saving the document "_design/auth" to the database "ccms".');
 								else window.location = 'admin.html#/';
 							});

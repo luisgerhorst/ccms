@@ -4,6 +4,10 @@ function setRoutes(template, couchdb, meta) {
 		document.title = meta.title;
 	});
 	
+	template.route(/^\/page\/\d+$/, ['header', 'index', 'footer'], function () {
+		document.title = meta.title;
+	});
+	
 	var metaEdit, postCreate, postEdit;
 	
 	(function () {
@@ -104,6 +108,8 @@ function setRoutes(template, couchdb, meta) {
 				$('#post-create').submit(function () { // on save
 	
 					var post = new Post(content, date, postID, title);
+					
+					updateCopyrightYears(couchdb);
 	
 					if (post.postID && post.title) {
 	
@@ -175,6 +181,8 @@ function setRoutes(template, couchdb, meta) {
 				$('#post-edit').submit(function () { // on save
 	
 					var post = new Post(content, date, postID, title);
+					
+					updateCopyrightYears(couchdb);
 	
 					if (post.postID && post.title) {
 	
@@ -193,7 +201,7 @@ function setRoutes(template, couchdb, meta) {
 						});
 	
 					}
-	
+					
 					else alert('Please enter title and URL.');
 	
 					return false; // so the page doesn't reload
@@ -208,10 +216,12 @@ function setRoutes(template, couchdb, meta) {
 				$('#post-edit-delete').click(function () {
 					var remove = confirm('Do you really want to delete this post?');
 					if (remove) {
+						
 						couchdb.remove('post-' + postID.data('old-post-id'), function (response, error) {
 							if (error) console.log('Error.', error);
 							else window.location = '#/';
 						});
+						
 					}
 				});
 	
@@ -222,7 +232,7 @@ function setRoutes(template, couchdb, meta) {
 	})();
 	
 	template.route('/meta', ['header', 'meta', 'footer'], metaEdit);
-	template.route(/^(\/posts\/).+$/, ['header', 'post', 'footer'], postEdit);
+	template.route(/^\/post\/.+$/, ['header', 'post', 'footer'], postEdit);
 	template.route('/create-post', ['header', 'post-create', 'footer'], postCreate);
 	
 }

@@ -5,13 +5,36 @@ function render(template, couchdb, meta) {
 	template.render('footer', meta);
 	
 	
-	var indexCache = null;
+	var postsCache = [];
 	
-	template.render('index', function (callback) {
-	
-		var func = 'all?limit=' + meta.postsPerPage + '&descending=true'; // 2 will be meta.postsPerPage later
+	template.render('index', function (callback, path) {
 		
-		if (indexCache == null) {
+		var postsPerPage = meta.postsPerPage, page = 0;
+		if (path !== '/') page = parseInt(path.replace(/^\/page\//, ''), 10);
+		var skip = postsPerPage * page;
+		
+		var posts = [], loaded = true;
+		for (var k = skip; k < skip+postsPerPage; k++) {
+			var post = postsCache[k];
+			if (typeof post === 'undefined') loaded = false;
+			posts.push(post);
+		} // check if posts are already loaded and put them into an array
+		
+		function View(posts) {
+			this.previousPage = function () {
+				if (page === 0) return false;
+				else return { number: page-1 };
+			};
+			this.nextPage = function () {
+				if (posts.length !== postsPerPage) return false; // if there are less posts then possible
+				else return { number: page+1 };
+			};
+			this.posts = posts;
+		}
+		
+		if (!loaded) {
+			
+			var func = 'all?descending=true&skip=' + skip + '&limit=' + postsPerPage;
 			
 			couchdb.view('posts', func, function (response, error) {
 				
@@ -19,17 +42,17 @@ function render(template, couchdb, meta) {
 				
 				var posts = [];
 				var rows = response.rows;
-				for (var i = rows.length; i--;) posts[i] = rows[i].value;
+				for (var i = rows.length; i--;) posts[i] = rows[i].value; // create array with posts
 				
-				indexCache = { posts: posts };
+				for (var j = posts.length; j--;) postsCache[skip+j] = posts[j]; // cache posts
 				
-				callback(indexCache);
+				callback(new View(posts));
 				
 			}); // loads the newest posts
 			
 		}
 		
-		else callback(indexCache);
+		else callback(new View(posts));
 		
 	});
 	
@@ -38,7 +61,7 @@ function render(template, couchdb, meta) {
 	
 	template.render('post', function (callback, path) {
 		
-		var postID = path.replace(/^\/posts\//, '');
+		var postID = path.replace(/^\/post\//, '');
 		
 		if (postCache[postID] != null) { // if 
 			
@@ -46,13 +69,24 @@ function render(template, couchdb, meta) {
 			callback(postCache[postID]);
 			return;
 			
-		}
-		
-		else {
+		} else {
 			
-			var loadFromDB = function () {
+			var postsCacheIndex = null;
+			for (var i = postsCache.length; i--;) {
+				if (postsCache[i].postID == postID) {
+					postsCacheIndex = i;
+					i = 0; // stop loop
+				}
+			}
+			
+			if (postsCacheIndex !== null) { // if post is in posts cache
 				
-				// console.log('Post with ID ' + postID + ' will be loaded from the DB.');
+				// console.log('Post with ID ' + postID + ' already loaded into indexCache at ' + indexCachePlace + '.');
+				var post = postsCache[postsCacheIndex];
+				postCache[postID] = post;
+				callback(post);
+				
+			} else {
 				
 				couchdb.read('post-' + postID, function (response, error) {
 					if (error) console.log('Error while getting view "' + func + '" of design document "posts".', error);
@@ -61,33 +95,6 @@ function render(template, couchdb, meta) {
 				}); // loads the newest posts
 				
 			}
-			
-			if (indexCache != null) {
-				
-				// console.log("indexCache isn't null.");
-				
-				var indexCachePlace = null;
-				for (var i = indexCache.posts.length; i--;) {
-					if (indexCache.posts[i].postID == postID) {
-						indexCachePlace = i;
-						i = 0; // stop loop
-					}
-				}
-				
-				if (indexCachePlace != null) { // if post is in indexCache
-					
-					// console.log('Post with ID ' + postID + ' already loaded into indexCache at ' + indexCachePlace + '.');
-					var post = indexCache.posts[indexCachePlace];
-					postCache[postID] = post;
-					callback(post);
-					
-				}
-				
-				else loadFromDB();
-				
-			}
-			
-			else loadFromDB();
 			
 		}
 		

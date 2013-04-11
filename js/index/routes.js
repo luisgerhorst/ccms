@@ -4,8 +4,12 @@ function setRoutes(template, couchdb, meta) {
 		document.title = meta.title;
 	});
 	
-	template.route(/^\/posts\/.+$/, ['header', 'post', 'footer'], function (views) {
+	template.route(/^\/post\/.+$/, ['header', 'post', 'footer'], function (views) {
 		document.title = meta.title + ' - ' + views.post.title;
+	});
+	
+	template.route(/^\/page\/\d+$/, ['header', 'index', 'footer'], function (views) {
+		document.title = meta.title;
 	});
 	
 }

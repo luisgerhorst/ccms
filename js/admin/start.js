@@ -6,6 +6,8 @@ $(document).ready(function () {
 
 		var template = new Template();
 		
+		var redirectPath = template.currentPath();
+		if (redirectPath === '/login') redirectPath = '/';
 		window.location = '#/login';
 		
 		template.route('/login', ['login'], function () {
@@ -29,7 +31,7 @@ $(document).ready(function () {
 							if (error) console.log('Error while loading document "meta".', error);
 						
 							else {
-								window.location = '#/';
+								window.location = '#' + redirectPath;
 								render(template, couchdb, meta);
 								setRoutes(template, couchdb, meta);
 								template.load();

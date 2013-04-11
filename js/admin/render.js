@@ -18,9 +18,25 @@ function render(template, couchdb, meta) {
 		
 	});
 	
-	template.render('index', function (callback) {
+	template.render('index', function (callback, path) {
+		
+		var postsPerPage = meta.postsPerPage, page = 0;
+		if (path !== '/') page = parseInt(path.replace(/^\/page\//, ''), 10);
+		var skip = postsPerPage * page;
+		
+		function View(posts) {
+			this.previousPage = function () {
+				if (page === 0) return false;
+				else return { number: page-1 };
+			};
+			this.nextPage = function () {
+				if (posts.length !== postsPerPage) return false; // if there are less posts then possible
+				else return { number: page+1 };
+			};
+			this.posts = posts;
+		}
 	
-		var func = 'all?limit=10&descending=true';
+		var func = 'all?descending=true&skip=' + skip + '&limit=' + postsPerPage;
 		
 		couchdb.view('posts', func, function (response, error) {
 			
@@ -30,7 +46,7 @@ function render(template, couchdb, meta) {
 			var rows = response.rows;
 			for (var i = rows.length; i--;) posts[i] = rows[i].value;
 			
-			callback({ posts: posts });
+			callback(new View(posts));
 			
 		}); // loads the newest posts
 		
@@ -38,7 +54,7 @@ function render(template, couchdb, meta) {
 	
 	template.render('post', function (callback, path) {
 		
-		var postID = path.replace(/^\/posts\//, '');
+		var postID = path.replace(/^\/post\//, '');
 		
 		couchdb.read('post-' + postID, function (response, error) {
 			if (error) console.log('Error while getting view "' + func + '" of design document "posts".', error);

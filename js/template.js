@@ -3,8 +3,11 @@ var Template = function () {
 	
 	var currentPath = function () {
 		var url = document.URL;
-		if (/#.+$/.test(url)) return url.replace(/^.*#/, ''); // path will be everything after "#"
-		else return '/';
+		if (/#.+$/.test(url)) {
+			url = url.replace(/^.*#/, '').replace(/\/$/, '');
+			if (url === '') url = '/';
+		} else url = '/';
+		return url;
 	};
 	
 	var routes = [];
@@ -60,8 +63,6 @@ var Template = function () {
 				
 				var type = typeof view;
 				if (view === null) type = 'null'; // typeof null === 'object'
-				
-				console.log(type, view);
 				
 				switch (type) {
 					case 'function':
