@@ -9,8 +9,9 @@ function render(template, couchdb, meta) {
 	
 	template.render('index', function (callback, path) {
 		
-		var postsPerPage = meta.postsPerPage, page = 0;
-		if (path !== '/') page = parseInt(path.replace(/^\/page\//, ''), 10);
+		var postsPerPage = meta.postsPerPage, page;
+		if (path === '/') page = 0;
+		else page = parseInt(path.replace(/^\/page\//, ''), 10);
 		var skip = postsPerPage * page;
 		
 		var posts = [], loaded = true;

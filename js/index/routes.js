@@ -10,6 +10,8 @@ function setRoutes(template, couchdb, meta) {
 	
 	template.route(/^\/page\/\d+$/, ['header', 'index', 'footer'], function (views) {
 		document.title = meta.title;
+	}, function (path) {
+		if (path === '/page/0') window.location = '#/';
 	});
 	
 }

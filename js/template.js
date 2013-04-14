@@ -31,11 +31,11 @@ var Template = function () {
 		var stringify = function (array) {
 			var string = '';
 			var length = array.length;
-			for (var i = 0; i < length; i++) string += array[i];
+			for (var i = 0; i < length; i++) string += array[i] || '';
 			return string;
 		};
 		
-		beforeFunc();
+		beforeFunc(currentPath());
 		
 		var views = {}; // contains the views of all loaded templates, using the templateID as key
 		
@@ -49,9 +49,9 @@ var Template = function () {
 				jQueryBody.html(stringify(html));
 				
 				var done = true;
-				if (html.length != templateIDs.length) done = false;
+				if (html.length !== templateIDs.length) done = false;
 				else for (var j = html.length; j--;) if (typeof html[j] !== 'string') done = false;
-				if (done) doneFunc(views); // if every template is rendered
+				if (done) doneFunc(views, currentPath()); // if every template is rendered
 				
 			};
 			
@@ -86,7 +86,7 @@ var Template = function () {
 				
 			});
 			
-		} else doneFunc(views) // if no template should be rendered -> execute done function
+		} else doneFunc(views, currentPath()) // if no template should be rendered -> execute done function
 	
 	};
 	
