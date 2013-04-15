@@ -14,7 +14,9 @@
 	<link rel="shortcut icon" type="image/png" href="" />
 	<link rel="apple-touch-icon" href="" />
 
-	<link rel="stylesheet" type="text/css" href="templates/light/style.css" />
+	<link rel="stylesheet" type="text/css" href="css/normalize.css" />
+	<link rel="stylesheet" type="text/css" href="css/admin/global.css" />
+	<link rel="stylesheet" type="text/css" href="css/admin/login.css" />
 
 	<script type="text/javascript" src="js/library/jquery-1.9.1.min.js"></script>
 	<script type="text/javascript" src="js/library/jquery.ba-hashchange.min.js"></script>
@@ -31,17 +33,15 @@
 	
 	<script type="text/ccms-template" data-template-id="login">
 	
-		<p><form id="login" action="javascript:void(0);">
+		<form id="login" action="javascript:void(0);">
 			
-			<label for="username">Username:</label>
-			<input type="text" id="login-username" name="username" placeholder="Username"><br />
+			<input type="text" id="login-username" name="username" placeholder="Username">
 			
-			<label for="password">Password:</label>
-			<input type="password" id="login-password" name="password" placeholder="Password"><br />
+			<input type="password" id="login-password" name="password" placeholder="Password">
 			
 			<input id="login-submit" type="submit" value="Login">
 			
-		</form></p>
+		</form>
 	
 	</script>
 	
@@ -97,7 +97,7 @@
 			<label for="date">Date:</label>
 			<input type="datetime" id="post-edit-date" data-unix-timestamp="{{date}}" name="date" placeholder="YYYY-MM-DD HH:mm"><br />
 			
-			<input type="checkbox" id="post-edit-auto-create-post-id" name="autoCreatePostID" checked> <label for="autoCreatePostID">Create URL automatically using the title</label>: <code>/posts/</code> <input type="text" id="post-edit-postID" data-old-post-id="{{postID}}" value="{{postID}}" readonly="true"><br />
+			<input type="checkbox" id="post-edit-auto-create-post-id" name="autoCreatePostID" checked> <label for="autoCreatePostID">Create URL automatically using the title</label>: <code>/post/</code> <input type="text" id="post-edit-postID" data-old-post-id="{{postID}}" value="{{postID}}" readonly="true"><br />
 			
 			<input id="post-edit-submit" type="submit" value="Save">
 			<input id="post-edit-cancel" type="button" value="Cancel">
@@ -120,7 +120,7 @@
 			<label for="date">Date:</label>
 			<input type="text" id="post-create-date" name="date" placeholder="YYYY-MM-DD HH:mm"><br />
 			
-			<input type="checkbox" id="post-create-auto-create-post-id" name="autoCreatePostID" checked> <label for="autoCreatePostID">Create URL automatically using the title</label>: <code>/posts/</code> <input type="text" id="post-create-postID" readonly="true"><br />
+			<input type="checkbox" id="post-create-auto-create-post-id" name="autoCreatePostID" checked> <label for="autoCreatePostID">Create URL automatically using the title</label>: <code>/post/</code> <input type="text" id="post-create-postID" readonly="true"><br />
 			
 			<input id="post-create-submit" type="submit" value="Save">
 			<input id="post-create-cancel" type="button" value="Cancel"><br />
