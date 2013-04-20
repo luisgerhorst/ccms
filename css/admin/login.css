@@ -1,8 +1,6 @@
 #login {
 	margin: 150px auto;
 	width: 250px;
-	padding: 20px;
-	background: rgb(250,250,250);
 	border-radius: 3px;
 }
 
@@ -28,11 +26,6 @@
 	line-height: 14px;
 	color: rgb(140,140,142);
 	text-shadow: 0 1px 0 #fff;
-}
-
-#login input:focus::input-placeholder, #login input:focus::-webkit-input-placeholder {
-	color: transparent;
-	text-shadow: none;
 }
 
 #login-username {

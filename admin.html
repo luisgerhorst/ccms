@@ -17,6 +17,8 @@
 	<link rel="stylesheet" type="text/css" href="css/normalize.css" />
 	<link rel="stylesheet" type="text/css" href="css/admin/global.css" />
 	<link rel="stylesheet" type="text/css" href="css/admin/login.css" />
+	<link rel="stylesheet" type="text/css" href="css/admin/sidebar.css" />
+	<link rel="stylesheet" type="text/css" href="css/admin/footer.css" />
 
 	<script type="text/javascript" src="js/library/jquery-1.9.1.min.js"></script>
 	<script type="text/javascript" src="js/library/jquery.ba-hashchange.min.js"></script>
@@ -46,21 +48,26 @@
 	</script>
 	
 	<script type="text/ccms-template" data-template-id="header">
-
-		<header>
+		
+		<div id="center">
+		<div id="wrapper">
 			
-			<nav><ul>
-				<li><a href="#/">Posts</a></li>
-				<li><a href="#/meta">Meta</a></li>
-			</ul></nav>
+		<nav id="sidebar">
 			
-		</header>
+			<ul>
+				<a href="#/"><li>Posts</li></a>
+				<a href="#/meta"><li>Meta</li></a>
+			</ul>
+		
+		</nav>
+		
+		<div id="content">
 
 	</script>
 
 	<script type="text/ccms-template" data-template-id="index">
 
-		<p><a href="#/create-post"><button>Create Post</button></a></p>
+		<a href="#/create-post"><button id="create-post">Create Post</button></a>
 
 		<ol>
 
@@ -79,8 +86,8 @@
 
 		</ol>
 		
-		{{#previousPage}}<a href="#/page/{{number}}"><button>← Previous</button></a>{{/previousPage}}
-		{{#nextPage}}<a href="#/page/{{number}}"><button>Next →</button></a>{{/nextPage}}
+		{{#previousPage}}<a href="#/page/{{number}}"><button id="previous-page" class="page-nav grey">← Previous</button></a>{{/previousPage}}
+		{{#nextPage}}<a href="#/page/{{number}}"><button id="next-page" class="page-nav grey">Next →</button></a>{{/nextPage}}
 
 	</script>
 
@@ -155,8 +162,14 @@
 	</script>
 
 	<script type="text/ccms-template" data-template-id="footer">
-
+		
+		</div> <!-- #content -->
+		
+		</div> <!-- #wrapper -->
+	
 		<footer><p>Powered by <a href="https://github.com/luisgerhorst/ccms">CCMS</a>.</p></footer>
+	
+		</div> <!-- #center -->
 
 	</script>
 

@@ -1,0 +1,22 @@
+footer {
+	float: left;
+	width: 100%;
+}
+
+footer p {
+	color: rgb(160,160,162);
+	text-align: right;
+	font-size: 13px;
+}
+
+footer p a {
+	color: rgb(160,160,162);
+}
+
+footer p a:hover {
+	color: rgb(120,120,122);
+}
+
+footer p a:active {
+	color: rgb(80,80,82);
+}

@@ -21,6 +21,7 @@ $(document).ready(function () {
 				
 				couchdbTest.save('test', { time: new Date().getTime() }, function (response, error) {
 					if (error && error.code == 401) alert('Your username/password seems to be incorrect.');
+					else if (error && error.code == 403) alert('Please enter username and password.');
 					else if (error) alert('Error ' + error.code + ' ' + error.message + ' occured while testing credentials.');
 					else {
 						
