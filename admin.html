@@ -19,10 +19,10 @@
 	<link rel="stylesheet" type="text/css" href="css/admin/login.css" />
 	<link rel="stylesheet" type="text/css" href="css/admin/sidebar.css" />
 	<link rel="stylesheet" type="text/css" href="css/admin/footer.css" />
+	<link rel="stylesheet" type="text/css" href="css/admin/posts.css" />
 
-	<script type="text/javascript" src="js/library/jquery-1.9.1.min.js"></script>
-	<script type="text/javascript" src="js/library/jquery.ba-hashchange.min.js"></script>
-	<script type="text/javascript" src="js/library/mustache.js"></script>
+	<script type="text/javascript" src="js/library/jquery-2.0.0.min.js"></script>
+	<script type="text/javascript" src="js/library/mustache.min.js"></script>
 	<script type="text/javascript" src="js/library/moment.min.js"></script>
 	
 	<script type="text/javascript" src="js/global.js"></script>
@@ -66,28 +66,32 @@
 	</script>
 
 	<script type="text/ccms-template" data-template-id="index">
-
-		<a href="#/create-post"><button id="create-post">Create Post</button></a>
-
-		<ol>
-
-			{{#posts}}
-			<li class="post">
-				<a class="title" href="#/post/{{postID}}"><h2>{{title}}</h2></a>
-			</li>
-			{{/posts}}
-
-			{{^posts}}
-			<li class="error">
-				<h2 class="title">404 Not Found</h2>
-				<span class="content">No posts found.</span>
-			</li>
-			{{/posts}}
-
-		</ol>
 		
-		{{#previousPage}}<a href="#/page/{{number}}"><button id="previous-page" class="page-nav grey">← Previous</button></a>{{/previousPage}}
-		{{#nextPage}}<a href="#/page/{{number}}"><button id="next-page" class="page-nav grey">Next →</button></a>{{/nextPage}}
+		<div id="posts">
+
+			<a href="#/create-post"><button id="create-post">Create Post</button></a>
+	
+			<ol>
+	
+				{{#posts}}
+				<li class="post">
+					<a class="title" href="#/post/{{postID}}"><h2>{{title}}</h2></a>
+				</li>
+				{{/posts}}
+	
+				{{^posts}}
+				<li class="error">
+					<h2 class="title">404 Not Found</h2>
+					<span class="content">No posts found.</span>
+				</li>
+				{{/posts}}
+	
+			</ol>
+			
+			{{#previousPage}}<a href="#/page/{{number}}"><button id="previous-page" class="page-nav grey">← Previous</button></a>{{/previousPage}}
+			{{#nextPage}}<a href="#/page/{{number}}"><button id="next-page" class="page-nav grey">Next →</button></a>{{/nextPage}}
+		
+		</div> <!-- #posts -->
 
 	</script>
 
@@ -106,9 +110,9 @@
 			
 			<input type="checkbox" id="post-edit-auto-create-post-id" name="autoCreatePostID" checked> <label for="autoCreatePostID">Create URL automatically using the title</label>: <code>/post/</code> <input type="text" id="post-edit-postID" data-old-post-id="{{postID}}" value="{{postID}}" readonly="true"><br />
 			
-			<input id="post-edit-submit" type="submit" value="Save">
+			<input id="post-edit-delete" type="button" value="Delete">
 			<input id="post-edit-cancel" type="button" value="Cancel">
-			<input id="post-edit-delete" type="button" value="Delete"><br />
+			<input id="post-edit-submit" type="submit" value="Save"><br />
 			
 		</form></p>
 
@@ -129,8 +133,8 @@
 			
 			<input type="checkbox" id="post-create-auto-create-post-id" name="autoCreatePostID" checked> <label for="autoCreatePostID">Create URL automatically using the title</label>: <code>/post/</code> <input type="text" id="post-create-postID" readonly="true"><br />
 			
-			<input id="post-create-submit" type="submit" value="Save">
-			<input id="post-create-cancel" type="button" value="Cancel"><br />
+			<input id="post-create-cancel" type="button" value="Cancel">
+			<input id="post-create-submit" type="submit" value="Save"><br />
 			
 		</form></p>
 	
@@ -152,8 +156,8 @@
 			<label for="copyright">Copyright:</label>
 			<input type="text" id="meta-edit-copyright" name="copyright" value="{{copyright}}" placeholder="Copyright"><br />
 			
-			<input id="meta-edit-submit" type="submit" value="Save">
-			<input id="meta-edit-cancel" type="button" value="Cancel"><br />
+			<input id="meta-edit-cancel" type="button" value="Cancel">
+			<input id="meta-edit-submit" type="submit" value="Save"><br />
 			
 		</form></p>
 		

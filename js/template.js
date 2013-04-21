@@ -141,7 +141,20 @@ var Template = function () {
 	
 	// Actions
 	
-	$(window).hashchange(reload);
+	/* url change detection via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js */
+	if ("onhashchange" in window) { // event supported?
+		window.onhashchange = function () {
+			reload();
+		}
+	} else { // event not supported:
+		var hash = window.location.hash;
+		window.setInterval(function () {
+			if (window.location.hash != hash) {
+				hash = window.location.hash;
+				reload();
+			}
+		}, 100);
+	} 
 	
 	this.load = reload;
 	this.route = addRoute;

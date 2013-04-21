@@ -6,8 +6,10 @@
 #sidebar ul {
 	list-style: none;
 	margin: 20px;
-	background: rgb(245,245,247);
-	border-bottom: 1px #C7C7C7 solid;
+	background: rgb(250,250,250);
+	border: 1px rgb(170,170,170) solid;
+	border-radius: 4px;
+	box-shadow: inset 0 0 0 1px #fff, 0 1px 3px rgba(0,0,0,0.06);
 }
 
 #sidebar ul a {
@@ -15,22 +17,29 @@
 }
 
 #sidebar ul li {
-	font-size: 16px;
+	font-size: 13px;
+	font-weight: normal;
+	font-family: Helvetica, sans-serif;
 	line-height: 32px;
 	padding: 0 10px 0 10px;
-	width: 100%;
 	box-sizing: border-box;
-	border-top: 1px #C7C7C7 solid;
-	border-right: 1px #C7C7C7 solid;
-	border-left: 1px #C7C7C7 solid;
-	color: rgb(93,93,95);
+	color: rgb(120,120,120);
+	text-shadow: 0 1px #fff;
+	border-top: 1px rgb(170,170,170) solid;
+	box-shadow: inset 0px 1px #fff, inset 0px -1px #fff;
+}
+
+#sidebar ul a:first-child li {
+	border-top: none;
+	box-shadow: inset 0 -1px #fff;
+}
+
+#sidebar ul a:last-child li {
+	box-shadow: inset 0 1px #fff;
 }
 
 #sidebar ul li:hover {
-	background: rgb(242,242,242);
 }
 
 #sidebar ul li:active {
-	color: rgb(73,73,75);
-	background: rgb(232,232,232);
 }

@@ -1,0 +1,24 @@
+button#create-post {
+	margin: 0 0 20px 0;
+}
+
+#posts ol {
+	list-style: none;
+	margin: 0 0 20px 0;
+}
+
+#posts ol li {
+	margin: 20px 0 0 0;
+}
+
+#posts button.page-nav {
+	margin: 20px 0 0 0;
+}
+
+button#next-page {
+
+}
+
+button#previous-page {
+
+}
