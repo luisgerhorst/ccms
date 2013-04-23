@@ -1,13 +1,23 @@
 function setRoutes(template, couchdb, meta) {
 	
-	template.route('/', ['header', 'index', 'footer'], null, function () {
+	var postsFunc = function () {
+		
+		$('#posts ol li time').each(function (index) {
+			var element = $(this);
+			var unix = parseInt(element.attr('datetime'));
+			var date = moment.unix(unix).format('MMM D, YYYY'); // .fromNow();
+			element.html(date);
+		});
+		
+	};
+	
+	template.route('/', ['header', 'index', 'footer'], postsFunc, function () {
 		document.title = meta.title;
 	});
 	
-	template.route(/^\/page\/\d+$/, ['header', 'index', 'footer'], function () {
-		document.title = meta.title;
-	}, function (path) {
+	template.route(/^\/page\/\d+$/, ['header', 'index', 'footer'], postsFunc, function (path) {
 		if (path === '/page/0') window.location = '#/';
+		document.title = meta.title;
 	});
 	
 	var metaEdit, postCreate, postEdit;
@@ -45,13 +55,6 @@ function setRoutes(template, couchdb, meta) {
 	
 				return false; // so the page doesn't reload
 	
-			});
-			
-			$('#meta-edit-cancel').click(function () {
-			
-				var remove = confirm('Do you really want to delete your changes?');
-				if (remove) window.location = '#/';
-			
 			});
 	
 		};
@@ -141,13 +144,6 @@ function setRoutes(template, couchdb, meta) {
 	
 				});
 	
-				$('#post-create-cancel').click(function () {
-	
-					var remove = confirm('Do you really want to delete this post?');
-					if (remove) window.location = '#/';
-	
-				});
-	
 			};
 	
 			postEdit = function (views) {
@@ -208,11 +204,6 @@ function setRoutes(template, couchdb, meta) {
 	
 					return false; // so the page doesn't reload
 	
-				});
-	
-				$('#post-edit-cancel').click(function () {
-					var remove = confirm('Do you really want to delete your changes?');
-					if (remove) window.location = '#/';
 				});
 	
 				$('#post-edit-delete').click(function () {

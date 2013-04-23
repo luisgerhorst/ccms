@@ -1,14 +1,41 @@
+#posts {
+	float: right;
+	width: 100%;
+}
+
 button#create-post {
 	margin: 0 0 20px 0;
 }
 
 #posts ol {
 	list-style: none;
-	margin: 0 0 20px 0;
+}
+
+#posts ol li a {
+	text-decoration: none;
 }
 
 #posts ol li {
-	margin: 20px 0 0 0;
+	padding: 20px 0 20px 0;
+	border-bottom: 1px rgb(230,230,230) solid;
+}
+
+#posts ol li:last-child {
+	border-bottom: none;
+}
+
+#posts ol li h2 {
+	font-size: 16px;
+	line-height: 32px;
+}
+
+#posts ol li {
+	font-size: 12px;
+	line-height: 24px;
+}
+
+#posts ol li span.postID {
+	float: right;
 }
 
 #posts button.page-nav {
@@ -16,9 +43,9 @@ button#create-post {
 }
 
 button#next-page {
-
+	float: right;
 }
 
 button#previous-page {
-
+	float: left;
 }

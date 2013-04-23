@@ -1,0 +1,32 @@
+#post-edit p {
+	margin: 0 0 20px 0;
+}
+
+#post-edit p.margin10px {
+	margin: 0 0 10px 0;
+}
+
+#post-edit p.margin10px span.light {
+	color: rgb(160,160,160);
+}
+
+#post-edit-title {
+	width: 220px;
+}
+
+#post-edit-content {
+	box-sizing: border-box;
+	width: 660px;
+	height: 220px;
+	max-width: 660px;
+}
+
+#post-edit-postID {
+	line-height: 16px;
+	padding: 2px;
+	width: 160px;
+}
+
+#post-edit-delete {
+	float: right;
+}

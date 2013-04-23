@@ -4,7 +4,7 @@ html {
 
 body {
 	font-family: "Lucida Grande", "Helvetica Neue", sans-serif;
-	color: rgb(120,120,122);
+	color: rgb(120,120,120);
 	font-size: 13px;
 	line-height: 16px;
 }
@@ -16,16 +16,16 @@ body {
 }
 
 a {
-	color: rgb(120,120,122);
+	color: rgb(120,120,120);
 	text-decoration: underline;
 }
 
 a:hover {
-	color: rgb(80,80,82);
+	color: rgb(80,80,80);
 }
 
 a:active {
-	color: rgb(40,40,42);
+	color: rgb(120,120,120);
 }
 
 button, input[type="submit"], input[type="button"] {
@@ -88,6 +88,63 @@ button.grey:active, input[type="button"]:active {
 	text-shadow: 0 1px 0 rgba(255,255,255,0.5);
 	background: rgb(242,242,242);
 	box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2), inset 0 0 0 2px rgba(255,255,255,0.1);
+}
+
+input[type="button"].red {
+	color: rgba(255,255,255,0.92);
+	text-shadow: 0 -1px rgba(0,0,0,0.14);
+	background: rgb(235,30,30);
+	background: linear-gradient(top, rgb(250,50,50) 0%, rgb(210,10,10) 100%);
+	background: -webkit-linear-gradient(top, rgb(255,50,50) 0%, rgb(210,10,10) 100%);
+	box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2), inset 0 1px 1px 1px rgba(255,255,255,0.1), inset 0 0 0 2px rgba(255,255,255,0.14);
+}
+
+input[type="button"].red:hover {
+	color: rgba(255,255,255,0.92);
+	text-shadow: 0 -1px rgba(0,0,0,0.14);
+	background: rgb(255,50,50);
+	background: linear-gradient(top, rgb(255,90,90) 0%, rgb(220,30,30) 100%);
+	background: -webkit-linear-gradient(top, rgb(255,90,90) 0%, rgb(220,30,30) 100%);
+	box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2), inset 0 1px 1px 1px rgba(255,255,255,0.08), inset 0 0 0 2px rgba(255,255,255,0.12);
+}
+
+input[type="button"].red:active {
+	color: rgba(255,255,255,0.90);
+	text-shadow: 0 1px rgba(0,0,0,0.16);
+	background: rgb(215,10,10);
+	background: linear-gradient(top, rgb(205,5,5) 0%, rgb(240,40,40) 100%);
+	background: -webkit-linear-gradient(top, rgb(205,5,5) 0%, rgb(240,40,40) 100%);
+	box-shadow: inset 0 0 0 1px rgba(0,0,0,0.22);
+}
+
+input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:focus, input[type="datetime"]:focus, textarea:focus {
+	background: none;
+	border: 1px solid transparent;
+	box-shadow: none;
+	outline: none;
+	color: rgb(120,120,120);
+}
+
+input[type="text"][readonly], input[type="number"][readonly], input[type="password"][readonly], input[type="datetime"][readonly], textarea[readonly], input[readonly]:focus {
+	padding: 4px;
+	font-size: 13px;
+	line-height: 16px;
+	border-radius: 4px;
+	color: rgb(110,110,110);
+	background: rgb(250,250,250);
+	border: 1px solid rgb(210,210,210);
+	box-shadow: inset 0 0 0 1px #fff, 0 0px 2px rgb(240,240,240);
+}
+
+input[type="text"], input[type="number"], input[type="password"], input[type="datetime"], textarea {
+	padding: 4px;
+	font-size: 13px;
+	line-height: 16px;
+	border-radius: 4px;
+	color: rgb(100,100,100);
+	background: rgb(242,242,242);
+	border: 1px solid rgb(200,200,200);
+	box-shadow: inset 0 0 0 1px rgb(250,250,250), 0 0px 2px rgb(240,240,240);
 }
 
 #center {
