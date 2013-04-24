@@ -7,7 +7,7 @@
 	list-style: none;
 	margin: 20px;
 	background: rgb(250,250,250);
-	border: 1px rgb(170,170,170) solid;
+	border: 1px rgb(192,192,192) solid;
 	border-radius: 4px;
 	box-shadow: inset 0 0 0 1px #fff, 0 1px 2px rgba(0,0,0,0.08);
 }
@@ -20,22 +20,22 @@
 	font-size: 13px;
 	font-weight: normal;
 	font-family: Helvetica, sans-serif;
-	line-height: 32px;
-	padding: 0 10px 0 10px;
+	line-height: 13px;
+	padding: 10px;
 	box-sizing: border-box;
-	color: rgb(120,120,120);
+	color: rgb(115,115,115);
 	text-shadow: 0 1px #fff;
-	border-top: 1px rgb(170,170,170) solid;
-	box-shadow: inset 0px 1px #fff, inset 0px -1px #fff;
+	/*border-top: 1px rgb(192,192,192) solid;
+	box-shadow: inset 0px 1px #fff, inset 0px -1px #fff;*/
 }
 
 #sidebar ul a:first-child li {
 	border-top: none;
-	box-shadow: inset 0 -1px #fff;
+	/*box-shadow: inset 0 -1px #fff;*/
 }
 
 #sidebar ul a:last-child li {
-	box-shadow: inset 0 1px #fff;
+	/*box-shadow: inset 0 1px #fff;*/
 }
 
 #sidebar ul li:hover {

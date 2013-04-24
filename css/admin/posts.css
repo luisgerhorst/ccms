@@ -11,16 +11,16 @@ button#create-post {
 	list-style: none;
 }
 
-#posts ol li a {
+#posts ol a {
 	text-decoration: none;
 }
 
-#posts ol li {
+#posts ol a li {
 	padding: 20px 0 20px 0;
-	border-bottom: 1px rgb(230,230,230) solid;
+	border-bottom: 1px rgb(240,240,240) solid;
 }
 
-#posts ol li:last-child {
+#posts ol a:last-child li {
 	border-bottom: none;
 }
 

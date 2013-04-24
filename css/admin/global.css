@@ -15,6 +15,10 @@ body {
 	text-decoration: none;
 }
 
+p {
+	margin: 0 0 20px 0;
+}
+
 a {
 	color: rgb(120,120,120);
 	text-decoration: underline;
@@ -26,6 +30,10 @@ a:hover {
 
 a:active {
 	color: rgb(120,120,120);
+}
+
+code {
+	font-family: Menlo, Consolas, Monaco, "Lucida Console", monospace;
 }
 
 button, input[type="submit"], input[type="button"] {
@@ -117,34 +125,34 @@ input[type="button"].red:active {
 	box-shadow: inset 0 0 0 1px rgba(0,0,0,0.22);
 }
 
-input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:focus, input[type="datetime"]:focus, textarea:focus {
-	background: none;
-	border: 1px solid transparent;
-	box-shadow: none;
+input:focus, textarea:focus {
 	outline: none;
-	color: rgb(120,120,120);
 }
 
 input[type="text"][readonly], input[type="number"][readonly], input[type="password"][readonly], input[type="datetime"][readonly], textarea[readonly], input[readonly]:focus {
-	padding: 4px;
-	font-size: 13px;
-	line-height: 16px;
-	border-radius: 4px;
-	color: rgb(110,110,110);
-	background: rgb(250,250,250);
-	border: 1px solid rgb(210,210,210);
-	box-shadow: inset 0 0 0 1px #fff, 0 0px 2px rgb(240,240,240);
+	color: rgb(120,120,120);
+	border: 1px solid rgb(212,212,212);
+	box-shadow: 0 0 0 1px #fff, inset 0 0 2px rgba(0,0,0,0.08);
 }
 
 input[type="text"], input[type="number"], input[type="password"], input[type="datetime"], textarea {
-	padding: 4px;
+	padding: 4px 6px;
 	font-size: 13px;
 	line-height: 16px;
 	border-radius: 4px;
-	color: rgb(100,100,100);
-	background: rgb(242,242,242);
-	border: 1px solid rgb(200,200,200);
-	box-shadow: inset 0 0 0 1px rgb(250,250,250), 0 0px 2px rgb(240,240,240);
+	color: rgb(120,120,120);
+	background: #fff;
+	border: 1px solid rgb(192,192,192);
+	box-shadow: inset 0 1px 2px rgba(0,0,0,0.08);
+	-webkit-appearance: none;
+}
+
+textarea {
+	padding: 6px;
+}
+
+input::input-placeholder, input::-webkit-input-placeholder, textarea::input-placeholder, textarea::-webkit-input-placeholder {
+	color: rgb(160,160,160);
 }
 
 #center {
@@ -162,4 +170,6 @@ input[type="text"], input[type="number"], input[type="password"], input[type="da
 	box-sizing: border-box;
 	margin: 20px;
 	float: right;
+	border-radius: 4px;
+	
 }

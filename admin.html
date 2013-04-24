@@ -20,7 +20,7 @@
 	<link rel="stylesheet" type="text/css" href="css/admin/sidebar.css" />
 	<link rel="stylesheet" type="text/css" href="css/admin/footer.css" />
 	<link rel="stylesheet" type="text/css" href="css/admin/posts.css" />
-	<link rel="stylesheet" type="text/css" href="css/admin/post.css" />
+	<link rel="stylesheet" type="text/css" href="css/admin/form.css" />
 
 	<script type="text/javascript" src="js/library/jquery-2.0.0.min.js"></script>
 	<script type="text/javascript" src="js/library/mustache.min.js"></script>
@@ -75,11 +75,10 @@
 			<ol>
 	
 				{{#posts}}
-				<li class="post">
-					<a class="title" href="#/post/{{postID}}"><h2>{{title}}</h2></a>
+				<a class="title" href="#/post/{{postID}}"><li class="post">
+					<h2>{{title}}</h2>
 					<time datetime="{{date}}"></time>
-					<span class="postID">#{{postID}}</span>
-				</li>
+				</li></a>
 				{{/posts}}
 	
 				{{^posts}}
@@ -102,15 +101,17 @@
 
 		<form id="post-edit" action="javascript:void(0);">
 			
-			<p><input type="text" id="post-edit-title" name="title" value="{{title}}" placeholder="Title"></p>
+			<p><input type="text" id="post-edit-title" class="post-title" name="title" value="{{title}}" placeholder="Title"></p>
 			
-			<p><textarea id="post-edit-content" name="content" placeholder="Content">{{content}}</textarea></p>
+			<p><textarea id="post-edit-content" class="post-content" name="content" placeholder="Content">{{content}}</textarea></p>
 			
-			<p><input type="datetime" id="post-edit-date" data-unix-timestamp="{{date}}" name="date" placeholder="YYYY-MM-DD HH:mm"></p>
+			<p class="margin10px"><input type="datetime" id="post-edit-date" class="post-date" data-unix-timestamp="{{date}}" name="date" placeholder="Date"></p>
 			
-			<p class="margin10px"><input type="checkbox" id="post-edit-auto-create-post-id" name="autoCreatePostID" checked><label for="autoCreatePostID"> Create URL automatically using title <span class="light">(uncheck to edit URL)</span></label></p>
+			<p><label for="date">Format "YYYY-MM-DD HH:mm"</label></p>
 			
-			<p>/post/<input type="text" id="post-edit-postID" data-old-post-id="{{postID}}" value="{{postID}}" placeholder="Post ID" readonly="readonly" ></p>
+			<p class="margin10px"><input type="checkbox" id="post-edit-auto-create-post-id" name="autoCreatePostID" checked> <label for="autoCreatePostID">Create URL automatically using title <span class="light">(uncheck to edit URL)</span></label></p>
+			
+			<p><code>/post/</code><input type="text" id="post-edit-postID" class="post-postID" data-old-post-id="{{postID}}" value="{{postID}}" placeholder="post-id" readonly="readonly" ></p>
 			
 			<input id="post-edit-submit" type="submit" value="Save">
 			<input id="post-edit-delete" type="button" value="Delete" class="red">
@@ -121,47 +122,48 @@
 	
 	<script type="text/ccms-template" data-template-id="post-create">
 	
-		<p><form id="post-create" action="javascript:void(0);">
+		<form id="post-create" action="javascript:void(0);">
 			
-			<label for="title">Title:</label>
-			<input type="text" id="post-create-title" name="title" placeholder="Title"><br />
+			<p><input type="text" id="post-create-title" class="post-title" name="title" value="{{title}}" placeholder="Title"></p>
 			
-			<label for="content">Content:</label>
-			<textarea id="post-create-content" name="content" placeholder="Content"></textarea><br />
+			<p><textarea id="post-create-content" class="post-content" name="content" placeholder="Content">{{content}}</textarea></p>
 			
-			<label for="date">Date:</label>
-			<input type="datetime" id="post-create-date" name="date" placeholder="YYYY-MM-DD HH:mm"><br />
+			<p class="margin10px"><input type="datetime" id="post-create-date" class="post-date" data-unix-timestamp="{{date}}" name="date" placeholder="Date"></p>
 			
-			<input type="checkbox" id="post-create-auto-create-post-id" name="autoCreatePostID" checked> <label for="autoCreatePostID">Create URL automatically using the title (uncheck to edit URL)</label>: <code>/post/</code> <input type="text" id="post-create-postID" readonly="readonly"><br />
+			<p><label for="date">Format "YYYY-MM-DD HH:mm"</label></p>
 			
-			<input id="post-create-submit" type="submit" value="Save"><br />
+			<p class="margin10px"><input type="checkbox" id="post-create-auto-create-post-id" name="autoCreatePostID" checked> <label for="autoCreatePostID">Create URL automatically using title <span class="light">(uncheck to edit URL)</span></label></p>
 			
-		</form></p>
+			<p><code>/post/</code><input type="text" id="post-create-postID" class="post-postID" data-old-post-id="{{postID}}" value="{{postID}}" placeholder="post-id" readonly="readonly" ></p>
+			
+			<input id="post-create-submit" type="submit" value="Save">
+			
+		</form>
 	
 	</script>
 	
 	<script type="text/ccms-template" data-template-id="meta">
 	
-		<p><form id="meta-edit" action="javascript:void(0);">
+		<form id="meta-edit" action="javascript:void(0);">
 			
-			<label for="title">Title:</label>
-			<input type="text" id="meta-edit-title" name="title" value="{{title}}" placeholder="Title"><br />
+			<p><label for="title">Title:</label>
+			<input type="text" id="meta-edit-title" name="title" value="{{title}}" placeholder="Title"></p>
 			
-			<label for="description">Description:</label>
-			<textarea id="meta-edit-description" name="description" placeholder="Description">{{description}}</textarea><br />
+			<p><label for="description">Description:</label>
+			<textarea id="meta-edit-description" name="description" placeholder="Description">{{description}}</textarea></p>
 			
-			<label for="postsPerPage">Posts Per Page:</label>
-			<input type="number" id="meta-edit-posts-per-page" name="postsPerPage" value="{{postsPerPage}}" placeholder="Posts Per Page"><br />
+			<p><label for="postsPerPage">Posts Per Page:</label>
+			<input type="number" id="meta-edit-posts-per-page" name="postsPerPage" value="{{postsPerPage}}" placeholder="Posts Per Page"></p>
 			
-			<label for="copyright">Copyright:</label>
-			<input type="text" id="meta-edit-copyright" name="copyright" value="{{copyright}}" placeholder="Copyright"><br />
+			<p><label for="copyright">Copyright:</label>
+			<input type="text" id="meta-edit-copyright" name="copyright" value="{{copyright}}" placeholder="Copyright"></p>
 			
-			<input id="meta-edit-submit" type="submit" value="Save"><br />
+			<p><input id="meta-edit-submit" type="submit" value="Save"></p>
 			
-		</form></p>
+		</form>
 		
 		<p>CCMS Version: <code>{{ccmsVersion}}</code></p>
-	
+		
 	</script>
 
 	<script type="text/ccms-template" data-template-id="footer">

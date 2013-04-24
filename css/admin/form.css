@@ -1,0 +1,39 @@
+form p {
+	margin: 0 0 20px 0;
+}
+
+form p.margin10px {
+	margin: 0 0 10px 0;
+}
+
+form p span.light {
+	color: rgb(160,160,160);
+}
+
+form input.post-title {
+	width: 100%;
+	box-sizing: border-box;
+}
+
+form textarea.post-content {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 100%;
+	height: 220px;
+}
+
+form input.post-postID {
+	line-height: 16px;
+	padding: 2px;
+	width: 160px;
+	font-family: Menlo, Consolas, Monaco, "Lucida Console", monospace;
+}
+
+#post-edit-delete {
+	float: right;
+}
+
+#meta-edit label {
+	display: block;
+	margin-bottom: 10px;
+}
