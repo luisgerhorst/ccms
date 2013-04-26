@@ -102,20 +102,20 @@ var Template = function () {
 			var type = typeof path;
 			if (path instanceof RegExp) type = 'regexp';
 			
-			var found = function () {
+			var match = function () {
 				render(route.templateIDs, route.done, route.before); // render the templates into the body
 				i = 0; // stop the loop
 			};
 			
 			switch (type) {
 				case 'string':
-					if (path == cPath) found();
+					if (path == cPath) match();
 					break;
 				case 'regexp':
-					if (path.test(cPath)) found();
+					if (path.test(cPath)) match();
 					break;
 				case 'function':
-					if (path(cPath)) found();
+					if (path(cPath)) match();
 					break;
 			}
 			

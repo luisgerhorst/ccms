@@ -132,7 +132,7 @@ input:focus, textarea:focus {
 input[type="text"][readonly], input[type="number"][readonly], input[type="password"][readonly], input[type="datetime"][readonly], textarea[readonly], input[readonly]:focus {
 	color: rgb(120,120,120);
 	border: 1px solid rgb(212,212,212);
-	box-shadow: 0 0 0 1px #fff, inset 0 0 2px rgba(0,0,0,0.08);
+	box-shadow: none;
 }
 
 input[type="text"], input[type="number"], input[type="password"], input[type="datetime"], textarea {

@@ -20,7 +20,7 @@ function render(template, couchdb, meta) {
 	
 	template.render('index', function (callback, path) {
 		
-		var postsPerPage = 10, page;
+		var postsPerPage = 5, page;
 		if (path === '/') page = 0;
 		else page = parseInt(path.replace(/^\/page\//, ''), 10);
 		var skip = postsPerPage * page;
