@@ -226,6 +226,6 @@ function setRoutes(template, couchdb, meta) {
 	
 	template.route('/meta', ['header', 'meta', 'footer'], metaEdit);
 	template.route(/^\/post\/.+$/, ['header', 'post', 'footer'], postEdit);
-	template.route('/create-post', ['header', 'post-create', 'footer'], postCreate);
+	template.route('/create/post', ['header', 'post-create', 'footer'], postCreate);
 	
 }
