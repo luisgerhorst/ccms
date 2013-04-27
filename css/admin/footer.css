@@ -13,6 +13,7 @@ footer p {
 
 footer p a {
 	color: rgb(160,160,160);
+	text-decoration: none;
 }
 
 footer p a:hover {

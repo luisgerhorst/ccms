@@ -101,6 +101,7 @@ var Template = function () {
 			
 			var type = typeof path;
 			if (path instanceof RegExp) type = 'regexp';
+			else if (path instanceof Array) type = 'array';
 			
 			var match = function () {
 				render(route.templateIDs, route.done, route.before); // render the templates into the body
@@ -113,6 +114,14 @@ var Template = function () {
 					break;
 				case 'regexp':
 					if (path.test(cPath)) match();
+					break;
+				case 'array':
+					var l = path.length; // length
+					for (var j = 0; j < l; j++) {
+						var p = path[j]; // path
+						if (typeof p === 'string' && p === cPath) match();
+						else if (p instanceof RegExp && p.test(cPath)) match();
+					}
 					break;
 				case 'function':
 					if (path(cPath)) match();

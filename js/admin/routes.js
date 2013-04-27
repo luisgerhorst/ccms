@@ -1,7 +1,7 @@
 function setRoutes(template, couchdb, meta) {
 	
-	var postsFunc = function () {
-		
+	template.route(['/', /^\/page\/\d+$/], ['header', 'index', 'footer'], function () {
+	
 		$('#posts ol li time').each(function (index) {
 			var element = $(this);
 			var unix = parseInt(element.attr('datetime'));
@@ -9,14 +9,8 @@ function setRoutes(template, couchdb, meta) {
 			element.html(date);
 		});
 		
-	};
-	
-	template.route('/', ['header', 'index', 'footer'], postsFunc, function () {
-		document.title = meta.title;
-	});
-	
-	template.route(/^\/page\/\d+$/, ['header', 'index', 'footer'], postsFunc, function (path) {
-		if (path === '/page/0') window.location = '#/';
+	}, function (cPath) {
+		if (cPath === '/page/0') window.location = '#/';
 		document.title = meta.title;
 	});
 	

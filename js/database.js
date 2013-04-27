@@ -24,10 +24,9 @@ var CouchDB = function (proxyPath, database, username, password, cookie) {
 	this.proxyPath = proxyPath;
 	this.database = database;
 	
-	var auth;
-	if (typeof cookie === 'string') auth = 'cookie';
+	var auth = false;
+	if (cookie) auth = 'cookie';
 	else if (typeof username === 'string' && typeof password === 'string') auth = 'usernamePassword';
-	else auth = false;
 
 	var request = function (options, done) {
 		
@@ -37,11 +36,7 @@ var CouchDB = function (proxyPath, database, username, password, cookie) {
 		
 		if (options.type !== 'GET' && options.type !== 'HEAD') { // if auth required
 			
-			if (auth === 'cookie') {
-				// ajax cookie auth here
-			}
-			
-			else if (auth === 'usernamePassword') {
+			if (auth === 'usernamePassword') {
 				options.beforeSend = function (xhr) {
 					xhr.setRequestHeader('Authorization', 'Basic ' + btoa(username + ':' + password));
 				}; // don't know why the jQuery ajax username and password properties don't work instead of this
