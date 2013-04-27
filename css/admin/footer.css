@@ -1,14 +1,23 @@
 footer {
 	float: left;
-	width: 860px;
-	margin-right: 40px;
-	padding: 0 0 40px 0;
+	width: 100%;
+	margin: 40px 0 0 0;
 }
 
 footer p {
 	color: rgb(160,160,160);
-	text-align: right;
+	text-align: left;
 	font-size: 12px;
+}
+
+footer p span.left {
+	text-align: left;
+	float: left;
+}
+
+footer p span.right {
+	text-align: right;
+	float: right;
 }
 
 footer p a {

@@ -30,6 +30,7 @@
 	<script type="text/javascript" src="js/database.js"></script>
 	<script type="text/javascript" src="js/template.js"></script>
 	
+	<script type="text/javascript" src="js/admin/vars.js"></script>
 	<script type="text/javascript" src="js/admin/render.js"></script>
 	<script type="text/javascript" src="js/admin/routes.js"></script>
 	<script type="text/javascript" src="js/admin/logout.js"></script>
@@ -123,13 +124,13 @@
 
 	</script>
 	
-	<script type="text/ccms-template" data-template-id="post-create">
+	<script type="text/ccms-template" data-template-id="postCreate">
 	
 		<form id="post-create" action="javascript:void(0);">
 			
-			<p><input type="text" id="post-create-title" class="post-title" name="title" value="{{title}}" placeholder="Title"></p>
+			<p><input type="text" id="post-create-title" class="post-title" name="title" placeholder="Title"></p>
 			
-			<p><textarea id="post-create-content" class="post-content" name="content" placeholder="Content">{{content}}</textarea></p>
+			<p><textarea id="post-create-content" class="post-content" name="content" placeholder="Content"></textarea></p>
 			
 			<p class="margin10px"><input type="datetime" id="post-create-date" class="post-date" data-unix-timestamp="{{date}}" name="date" placeholder="Date"></p>
 			
@@ -137,7 +138,7 @@
 			
 			<p class="margin10px"><input type="checkbox" id="post-create-auto-create-post-id" name="autoCreatePostID" checked> <label for="autoCreatePostID">Create URL automatically using title <span class="light">(uncheck to edit URL)</span></label></p>
 			
-			<p><code>/post/</code><input type="text" id="post-create-postID" class="post-postID" data-old-post-id="{{postID}}" value="{{postID}}" placeholder="post-id" readonly="readonly" ></p>
+			<p><code>/post/</code><input type="text" id="post-create-postID" class="post-postID" data-old-post-id="{{postID}}" placeholder="post-id" readonly="readonly" ></p>
 			
 			<input id="post-create-submit" type="submit" value="Save">
 			
@@ -171,11 +172,11 @@
 
 	<script type="text/ccms-template" data-template-id="footer">
 		
+		<footer><p><span class="left"><a href="#/logout">Logout</a></span><span class="right">Powered by <a href="https://github.com/luisgerhorst/ccms">CCMS</a></span></p></footer>
+		
 		</div> <!-- #content -->
 		
 		</div> <!-- #wrapper -->
-	
-		<footer><p>Powered by <a href="https://github.com/luisgerhorst/ccms">CCMS</a>. <a href="#/logout">Logout</a></p></footer>
 	
 		</div> <!-- #center -->
 

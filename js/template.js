@@ -39,7 +39,7 @@ var Template = function () {
 		
 		var views = {}; // contains the views of all loaded templates, using the templateID as key
 		
-		if (templateIDs.length > 0) { // if templateIDs isn't empty
+		if (templateIDs.length >= 1) { // if templateIDs isn't empty
 		
 			var html = [];
 			var jQueryBody = $('body');
@@ -102,6 +102,7 @@ var Template = function () {
 			var type = typeof path;
 			if (path instanceof RegExp) type = 'regexp';
 			else if (path instanceof Array) type = 'array';
+			else if (path === null) type = 'null';
 			
 			var match = function () {
 				render(route.templateIDs, route.done, route.before); // render the templates into the body
@@ -134,24 +135,74 @@ var Template = function () {
 	
 	var addRoute = function (path, templateIDs, done, before) {
 		
-		if (templateIDs == null) templateIDs = [];
-		if (typeof done === 'undefined' || done == null) done = function () {};
-		if (typeof before === 'undefined') before = function () {};
+		var addParams = function (path, templateIDs, done, before) {
+			
+			if (!(templateIDs instanceof Array)) templateIDs = [];
+			if (typeof done !== 'function') done = function () {};
+			if (typeof before !== 'function') before = function () {};
+			
+			routes.push({
+				path: path,
+				templateIDs: templateIDs,
+				done: done,
+				before: before
+			});
+			
+		};
 		
-		routes.push({ path: path, templateIDs: templateIDs, done: done, before: before });
+		var addObj = function (obj) {
+			
+			var route = {
+				path: false,
+				templates: [],
+				done: function () {},
+				before: function () {}
+			};
+			
+			for (var i in obj) route[i] = obj[i];
+			
+			routes.push({
+				path: route.path,
+				templateIDs: route.templates,
+				done: route.done,
+				before: route.before
+			});
+			
+		};
+		
+		if (path instanceof Array && typeof path[0] !== 'string' && !(path[0] instanceof RegExp)) { // array, contains no string/regexp
+			
+			console.log('array', path);
+			
+			var array = path;
+			var l = array.length;
+			for (var i = 0; i < l; i++) addObj(array[i]);
+			
+		}
+		
+		else if (typeof path === 'object' && !(path instanceof RegExp) && !(path instanceof Array)) addObj(path); // object, no array/regexp
+		
+		else addParams(path, templateIDs, done, before);
+		
+		reload();
 		
 	};
 	
 	var addTemplateView = function (id, view) {
 		
-		templates[id] = view;
+		if (typeof id === 'object' && typeof view === 'undefined') {
+			var views = id;
+			for (var i in views) templates[i] = views[i];
+		}
+		
+		else templates[id] = view;
 		
 	}
 	
 	// Actions
 	
 	/* url change detection via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js */
-	if ("onhashchange" in window) { // event supported?
+	if ('onhashchange' in window) { // event supported?
 		window.onhashchange = function () {
 			reload();
 		}

@@ -1,0 +1,2 @@
+- add CouchDB/Apache setup instructions to install.html
+- style install.html

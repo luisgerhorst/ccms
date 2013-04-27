@@ -1,18 +1,4 @@
-function setRoutes(template, couchdb, meta) {
-	
-	template.route(['/', /^\/page\/\d+$/], ['header', 'index', 'footer'], function () {
-	
-		$('#posts ol li time').each(function (index) {
-			var element = $(this);
-			var unix = parseInt(element.attr('datetime'));
-			var date = moment.unix(unix).format('MMM D, YYYY'); // .fromNow();
-			element.html(date);
-		});
-		
-	}, function (cPath) {
-		if (cPath === '/page/0') window.location = '#/';
-		document.title = meta.title;
-	});
+function setRoutes() {
 	
 	var metaEdit, postCreate, postEdit;
 	
@@ -24,7 +10,7 @@ function setRoutes(template, couchdb, meta) {
 	
 			$('#meta-edit').submit(function () { // on save
 	
-				couchdb.read('meta', function (meta, error) {
+				database.read('meta', function (meta, error) {
 	
 					if (error) console.log('Error.', error);
 	
@@ -35,7 +21,7 @@ function setRoutes(template, couchdb, meta) {
 						meta.postsPerPage = parseInt($('#meta-edit-posts-per-page').val());
 						meta.copyright = $('#meta-edit-copyright').val();
 	
-						couchdb.save('meta', meta, function (response, error) {
+						database.save('meta', meta, function (response, error) {
 	
 							if (error) console.log('Error.', error);
 	
@@ -108,15 +94,15 @@ function setRoutes(template, couchdb, meta) {
 	
 					var post = new Post(content, date, postID, title);
 					
-					updateCopyrightYears(couchdb);
+					updateCopyrightYears(database);
 	
 					if (post.postID && post.title) {
 	
-						couchdb.exists('post-' + post.postID, function (exists) {
+						database.exists('post-' + post.postID, function (exists) {
 	
 							if (exists === false) {
 	
-								couchdb.save('post-' + post.postID, post, function (response, error) {
+								database.save('post-' + post.postID, post, function (response, error) {
 	
 									if (error) console.log('Error.', error);
 	
@@ -174,16 +160,16 @@ function setRoutes(template, couchdb, meta) {
 	
 					var post = new Post(content, date, postID, title);
 					
-					updateCopyrightYears(couchdb);
+					updateCopyrightYears(database);
 	
 					if (post.postID && post.title) {
 	
-						couchdb.save('post-' + post.postID, post, function (response, error) {
+						database.save('post-' + post.postID, post, function (response, error) {
 							if (error) console.log('Error.', error);
 							else {
 								var oldPostID = postID.data('old-post-id');
 								if (post.postID != oldPostID) { // if postID has changed
-									couchdb.remove('post-' + oldPostID, function (response, error) {
+									database.remove('post-' + oldPostID, function (response, error) {
 										if (error) console.log('Error.', error);
 										else window.location = '#/';
 									});
@@ -204,7 +190,7 @@ function setRoutes(template, couchdb, meta) {
 					var remove = confirm('Do you really want to delete this post?');
 					if (remove) {
 						
-						couchdb.remove('post-' + postID.data('old-post-id'), function (response, error) {
+						database.remove('post-' + postID.data('old-post-id'), function (response, error) {
 							if (error) console.log('Error.', error);
 							else window.location = '#/';
 						});
@@ -218,8 +204,37 @@ function setRoutes(template, couchdb, meta) {
 	
 	})();
 	
-	template.route('/meta', ['header', 'meta', 'footer'], metaEdit);
-	template.route(/^\/post\/.+$/, ['header', 'post', 'footer'], postEdit);
-	template.route('/create/post', ['header', 'post-create', 'footer'], postCreate);
+	template.route([
+		{
+			path: ['/', /^\/page\/\d+$/],
+			templates: ['header', 'index', 'footer'],
+			done: function () {
+			
+				$('#posts ol li time').each(function (index) {
+					var element = $(this);
+					var unix = parseInt(element.attr('datetime'));
+					var date = moment.unix(unix).format('MMM D, YYYY'); // .fromNow();
+					element.html(date);
+				});
+				
+			},
+			before: function (cPath) {
+				if (cPath === '/page/0') window.location = '#/';
+				document.title = meta.title;
+			}
+		},{
+			path: '/meta',
+			templates: ['header', 'meta', 'footer'],
+			done: metaEdit
+		},{
+			path: /^\/post\/.+$/,
+			templates: ['header', 'post', 'footer'],
+			done: postEdit
+		},{
+			path: '/create/post',
+			templates: ['header', 'postCreate', 'footer'],
+			done: postCreate
+		}
+	]);
 	
 }

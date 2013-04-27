@@ -1,4 +1,20 @@
-var login = function (template, config, renderAdminTemplate) {
+var login = function () {
+	
+	var adminTheme = function () {
+		
+		database.read('meta', function (response, error) {
+		
+			if (error) console.log('Error while loading document "meta".', error);
+		
+			else {
+				meta = response;
+				render();
+				setRoutes();
+			}
+		
+		});
+		
+	};
 	
 	var cookie = new (function () {
 	
@@ -20,24 +36,20 @@ var login = function (template, config, renderAdminTemplate) {
 	
 	})();
 	
-	var tryCookie = function () {
+	var loggedin = function (couchdbTest, databaseTest) {
 		
-		var couchdb = new CouchDB(config.couchdbProxy, config.database, null, null, true);
+		couchdb = couchdbTest;
+		database = databaseTest;
 		
-		couchdb.save('test', { time: new Date().getTime() }, function (response, error) {
-			if (error) {
-				console.log('Error ' + error.code + ' ' + error.message + ' occured while testing credentials.');
-				askUsernamePassword();
-			}
-			else renderAdminTemplate(couchdb);
-		});
+		logout();
+		adminTheme();
 		
 	};
 	
 	var askUsernamePassword = function () {
 		
 		var redirectPath = template.currentPath();
-		if (redirectPath === '/login') redirectPath = '/';
+		if (redirectPath === '/login' || redirectPath === '/logout') redirectPath = '/';
 		
 		window.location = '#/login';
 		
@@ -45,31 +57,26 @@ var login = function (template, config, renderAdminTemplate) {
 			
 			$('#login').submit(function () { // case: username and password auth
 			
-				var username = $('#login-username').val();
-				var password = $('#login-password').val();
+				var auth = {
+					username: $('#login-username').val(),
+					password: $('#login-password').val()
+				};
+			
+				var couchdbTest = new CouchDB(config.couchdbProxy, auth);
+				var databaseTest = couchdbTest.database(config.database);
 				
-				var couchdb = new CouchDB(config.couchdbProxy, config.database, username, password);
-				
-				couchdb.save('test', { time: new Date().getTime() }, function (response, error) {
+				databaseTest.save('test', { time: new Date().getTime() }, function (response, error) {
 					
 					if (error && error.code == 401) alert('Your username/password seems to be incorrect.');
 					else if (error && error.code == 403) alert('Please enter username and password.');
 					else if (error) alert('Error ' + error.code + ' ' + error.message + ' occured while testing credentials.');
 					else {
 						
-						$.ajax({
-							url: config.couchdbProxy + '/_session',
-							type: 'POST',
-							data: 'name=' + username + '&password=' + password,
-							contentType: 'application/x-www-form-urlencoded'
-						}).done(function (data, textStatus, jqXHR) {
-							cookie.save('AuthSessionStart', new Date().getTime());
-						}).fail(function (jqXHR, textStatus) {
-							console.log(textStatus, jqXHR);
-						}); // make CouchDB set a cookie
+						couchdbTest.createSession();
 						
 						window.location = '#' + redirectPath;
-						renderAdminTemplate(couchdb);
+						
+						loggedin(couchdbTest, databaseTest);
 						
 					}
 					
@@ -81,13 +88,26 @@ var login = function (template, config, renderAdminTemplate) {
 			
 		});
 		
-		template.load();
+	};
+	
+	var tryCookie = function () {
+		
+		var couchdbTest = new CouchDB(config.couchdbProxy, { cookie: true });
+		var databaseTest = couchdbTest.database(config.database);
+		
+		databaseTest.save('test', { time: new Date().getTime() }, function (response, error) {
+			
+			if (error) {
+				console.log('Error ' + error.code + ' ' + error.message + ' occured while trying cookie auth.');
+				askUsernamePassword();
+			}
+			
+			else loggedin(couchdbTest, databaseTest);
+			
+		});
 		
 	};
 	
-	if (new Date().getTime() - parseInt(cookie.read('AuthSessionStart')) < 1000*60*9) tryCookie();
-	else askUsernamePassword();
-	
-	logout(template, config);
+	tryCookie();
 	
 };

@@ -10,11 +10,11 @@ function copyrightYearsString(start, end) {
 	else console.log('Copyright years are invalid.', start, end);
 }
 
-function updateCopyrightYears(couchdb) {
+function updateCopyrightYears(database) {
 	
 	var year = parseInt(moment().format('YYYY'));
 	
-	couchdb.read('meta', function (meta, error) {
+	database.read('meta', function (meta, error) {
 		
 		if (error) console.log('Error while reading document "meta".', error);
 		else {
@@ -27,7 +27,7 @@ function updateCopyrightYears(couchdb) {
 				else meta.copyrightYearsEnd = year;
 				meta.copyrightYears = copyrightYearsString(meta.copyrightYearsStart, meta.copyrightYearsEnd);
 				
-				couchdb.save('meta', meta, function (response, error) {
+				database.save('meta', meta, function (response, error) {
 					if (error) console.log('Error.', error);
 				});
 				

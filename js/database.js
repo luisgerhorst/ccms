@@ -19,143 +19,226 @@ var couchdbAdminWithHTTPAuthPopup = new CouchDB('/ccms-couchdb-proxy', 'ccms', t
 
 */
 
-var CouchDB = function (proxyPath, database, username, password, cookie) {
-	
-	this.proxyPath = proxyPath;
-	this.database = database;
-	
-	var auth = false;
-	if (cookie) auth = 'cookie';
-	else if (typeof username === 'string' && typeof password === 'string') auth = 'usernamePassword';
+/*
 
-	var request = function (options, done) {
+Parameter auth:
+
+null
+
+or:
+
+{
+	username: String, no
+	password: String, no
+	cookie: Boolean, no
+}
+
+Modified auth:
+
+{
+	admin: Boolean
+	method: String 'cookie' 'usernamepassword', null
+	username: String, null
+	password: String, null
+	cookie: Boolean, null
+}
+
+*/
+
+var CouchDB = function (proxy, credentials) {
+	
+	var auth = (function (credentials) { // don't log this var
 		
-		options.url = proxyPath + '/' + database + '/' + options.document;
-		options.document = null;
-		options.data = JSON.stringify(options.data);
+		var none = {
+			admin: false,
+			method: null,
+			username: null,
+			password: null,
+			cookie: null
+		};
 		
-		if (options.type !== 'GET' && options.type !== 'HEAD') { // if auth required
+		if (!credentials || credentials === null || typeof credentials === 'undefined' || typeof credentials !== 'object') return none; // no auth
+		
+		else if (typeof credentials.username === 'string' && typeof credentials.password === 'string') { // username + password auth
+			var authentication = credentials;
+			authentication.admin = true;
+			authentication.method = 'usernamepassword';
+			return credentials;
+		}
+		
+		else if (credentials.cookie) { // cookie auth
+			var authentication = credentials;
+			authentication.admin = true;
+			authentication.method = 'cookie';
+			return authentication;
+		}
+		
+		else return none; // no auth
+		
+	})(credentials);
+	
+	var Database = function (db) {
+		
+		var parseError = function (jqXHR) {
 			
-			if (auth === 'usernamePassword') {
+			var status = jqXHR.status;
+			if (status !== 200 && status !== 201) return {
+				code: status,
+				message: jqXHR.statusText
+			};
+			else return false;
+			
+		};
+		
+		var request = function (options, done) {
+			
+			options.url = proxy + '/' + db + '/' + options.document;
+			options.document = null;
+			options.data = JSON.stringify(options.data);
+			
+			if (options.type !== 'GET' && options.type !== 'HEAD' && auth.method === 'usernamepassword') {
 				options.beforeSend = function (xhr) {
-					xhr.setRequestHeader('Authorization', 'Basic ' + btoa(username + ':' + password));
+					xhr.setRequestHeader('Authorization', 'Basic ' + btoa(auth.username + ':' + auth.password));
 				}; // don't know why the jQuery ajax username and password properties don't work instead of this
 			}
 			
-			else console.log("You're not allowed to do this action.");
+			var ajax = $.ajax(options);
 			
-		}
-		
-		var ajax = $.ajax(options);
-		
-		ajax.done(done);
-		ajax.fail(function (jqXHR, textStatus, errorThrown) {
-			done(null, textStatus, jqXHR);
-		});
-		
-	};
-	
-	this.read = function (document, callback) {
-		
-		request({
-			document: document,
-			type: 'GET'
-		}, function (data, textStatus, jqXHR) {
-			callback(JSON.parse(data), parseError(jqXHR));
-		});
-		
-	};
-	
-	this.exists = function (document, callback) {
-		
-		request({
-			document: document,
-			type: 'HEAD'
-		}, function (oldData, textStatus, jqXHR) {
+			ajax.done(done);
+			ajax.fail(function (jqXHR, textStatus, errorThrown) {
+				done(null, textStatus, jqXHR);
+			});
 			
-			if (jqXHR.status === 200) callback(jqXHR.getResponseHeader('Etag').replace(/"/g, ''), parseError(jqXHR)); // if file exists
+		};
+		
+		this.read = function (document, callback) {
 			
-			else callback(false, parseError(jqXHR)); // if file doesn't exist
+			request({
+				document: document,
+				type: 'GET'
+			}, function (data, textStatus, jqXHR) {
+				callback(JSON.parse(data), parseError(jqXHR));
+			});
 			
-		});
+		};
 		
-	};
-	
-	this.view = function (doc, func, callback) {
-		
-		request({
-			document: '_design/' + doc + '/_view/' + func,
-			type: 'GET'
-		}, function (data, textStatus, jqXHR) {
-			callback(JSON.parse(data), parseError(jqXHR));
-		});
-		
-	};
-	
-	if (auth) {
-		
-		this.save = function (document, data, callback) {
+		this.exists = function (document, callback) {
 			
 			request({
 				document: document,
 				type: 'HEAD'
 			}, function (oldData, textStatus, jqXHR) {
 				
-				var status = jqXHR.status;
+				if (jqXHR.status === 200) callback(jqXHR.getResponseHeader('Etag').replace(/"/g, ''), parseError(jqXHR)); // if file exists
 				
-				if (status === 200) data._rev = jqXHR.getResponseHeader('Etag').replace(/"/g, '');
-				
-				if (status === 404 || status === 200) {
-					
-					request({
-						document: document,
-						type: 'PUT',
-						data: data
-					}, function (data, textStatus, jqXHR) {
-						callback(JSON.parse(data), parseError(jqXHR));
-					});
-					
-				}
-				
-				else callback(JSON.parse(data), parseError(jqXHR));
+				else callback(false, parseError(jqXHR)); // if file doesn't exist
 				
 			});
 			
 		};
 		
-		this.remove = function (document, callback) {
+		this.view = function (doc, func, callback) {
 			
 			request({
-				document: document,
-				type: 'HEAD',
+				document: '_design/' + doc + '/_view/' + func,
+				type: 'GET'
 			}, function (data, textStatus, jqXHR) {
-				
-				if (jqXHR.status === 200) {
-					request({
-						document: document + '?rev=' + jqXHR.getResponseHeader('Etag').replace(/"/g, ''),
-						type: 'DELETE'
-					}, function (data, textStatus, jqXHR) {
-						callback(JSON.parse(data), parseError(jqXHR));
-					});
-				}
-				
-				else {
-					callback(null, parseError(jqXHR));
-				}
-				
+				callback(JSON.parse(data), parseError(jqXHR));
 			});
+			
+		};
 		
+		if (auth.admin) {
+			
+			this.save = function (document, data, callback) {
+				
+				request({
+					document: document,
+					type: 'HEAD'
+				}, function (oldData, textStatus, jqXHR) {
+					
+					var status = jqXHR.status;
+					
+					if (status === 200) data._rev = jqXHR.getResponseHeader('Etag').replace(/"/g, '');
+					
+					if (status === 404 || status === 200) {
+						
+						request({
+							document: document,
+							type: 'PUT',
+							data: data
+						}, function (data, textStatus, jqXHR) {
+							callback(JSON.parse(data), parseError(jqXHR));
+						});
+						
+					}
+					
+					else callback(JSON.parse(data), parseError(jqXHR));
+					
+				});
+				
+			};
+			
+			this.remove = function (document, callback) {
+				
+				request({
+					document: document,
+					type: 'HEAD',
+				}, function (data, textStatus, jqXHR) {
+					
+					if (jqXHR.status === 200) {
+						request({
+							document: document + '?rev=' + jqXHR.getResponseHeader('Etag').replace(/"/g, ''),
+							type: 'DELETE'
+						}, function (data, textStatus, jqXHR) {
+							callback(JSON.parse(data), parseError(jqXHR));
+						});
+					}
+					
+					else {
+						callback(null, parseError(jqXHR));
+					}
+					
+				});
+			
+			};
+			
+		}
+		
+	}
+	
+	this.database = function (db) {
+		return new Database(db);
+	};
+	
+	if (auth.admin && auth.method === 'usernamepassword') {
+		
+		this.createSession = function () {
+			
+			$.ajax({
+				url: proxy + '/_session',
+				type: 'POST',
+				data: 'name=' + auth.username + '&password=' + auth.password,
+				contentType: 'application/x-www-form-urlencoded'
+			}).fail(function (jqXHR, textStatus) {
+				console.log(textStatus, jqXHR);
+			}); // make CouchDB set a cookie
+			
 		};
 		
 	}
 	
-	function parseError(jqXHR) {
-		var status = jqXHR.status;
-		if (status !== 200 && status !== 201) return {
-			code: status,
-			message: jqXHR.statusText
-		};
-		else return false;
-	}
+	this.deleteSession = function () {
+		
+		$.ajax({
+			url: proxy + '/_session',
+			type: 'DELETE'
+		}).done(function (data, textStatus, jqXHR) {
+			console.log('Logged out.');
+		}).fail(function (jqXHR, textStatus) {
+			console.log(textStatus, jqXHR);
+		}); // make CouchDB set a cookie
+		
+	};
 	
 }

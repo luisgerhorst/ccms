@@ -1,21 +1,11 @@
-var logout = function (template, config) {
+var logout = function () {
 	
-	var deleteSession = function () {
+	template.route('/logout', null, null, function () {
 		
-		$.ajax({
-			url: config.couchdbProxy + '/_session',
-			type: 'DELETE'
-		}).done(function (data, textStatus, jqXHR) {
-			console.log('Logged out.');
-		}).fail(function (jqXHR, textStatus) {
-			console.log(textStatus, jqXHR);
-		}); // make CouchDB set a cookie
+		couchdb.deleteSession();
 		
-	};
-	
-	template.route('/logout', [], null, function () {
-		deleteSession();
-		window.location = '#/login';
+		login(template);
+		
 	});
 	
 };
