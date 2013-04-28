@@ -6,7 +6,7 @@ CCMS is in **very very early ALPHA**. If you anyway want to try it just [send me
 
 # Configuration
 
-### CouchDB
+## CouchDB
 
 1. Install CouchDB on [Mac, Windows, download the Source](http://couchdb.apache.org/#download) or on [Ubuntu, FreeBSD, etc.](http://wiki.apache.org/couchdb/Installation)
 
@@ -26,7 +26,7 @@ Open `http://youdomain.com:5984/ccms`. You should see some basic info about the 
 
 Open `http://youdomain.com:5984/_utils/config.html`. The browser should ask you for username and password.
 
-### Apache
+## Apache
 
 Because of the browser's [Same-Origin-Policy](http://de.wikipedia.org/wiki/Same-Origin-Policy), the JavaScript running at the client can't diretly access the [CouchDB HTTP API](http://wiki.apache.org/couchdb/HTTP_Document_API). This is a tutorial how to set up a proxy to redirect the requests to a specified path of domain you're running CCMS on to your CouchDB using Apache.
 
@@ -58,7 +58,7 @@ If you're using another web server check it's documentation for "proxy".
 
 Open `http://yourdomain.com/ccms-couchdb-proxy`. You should see something such as `{"couchdb":"Welcome","version":"1.2.2"}`.
 
-### config.json
+## config.json
 
 So the clients know where the database is. Edit this file and enter your information.
 
@@ -66,7 +66,7 @@ So the clients know where the database is. Edit this file and enter your informa
 
 `database`: Name of the database you created for CCMS.
 
-### Done?
+## Done?
 
 Open `/install.html` and set up you database! You have to enter your CouchDB's account's username and password.
 
