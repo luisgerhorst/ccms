@@ -247,7 +247,7 @@ function routes() {
 		{
 			path: '/logout',
 			before: function () {
-				couchdb.deleteSession();
+				couchdb.session.delete();
 				login();
 			}
 		},

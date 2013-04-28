@@ -17,14 +17,13 @@ var Template = function () {
 		
 		var cPath = currentPath();
 		
-		before(cPath);
+		if (before) before(cPath);
 		
-		if (templateIDs.length >= 1) {
+		if (templateIDs) {
 		
 			var html = [];
 			var loadedViews = {};
 			
-			var body = $('body');
 			var stringifyArray = function (array) {
 				var string = '';
 				var l = array.length;
@@ -32,9 +31,9 @@ var Template = function () {
 				return string;
 			};
 			
-			var ready = function () {
+			var print = function () {
 				
-				body.html(stringifyArray(html));
+				$('body').html(stringifyArray(html));
 				
 				var isDone = true;
 				if (html.length !== templateIDs.length) isDone = false;
@@ -46,36 +45,33 @@ var Template = function () {
 			
 			$.each(templateIDs, function(i, templateID) {
 				
-				var view = views[templateID],
-					template = $('script[type="text/ccms-template"][data-template-id="' + templateID + '"]').html();
-				
-				var type = typeof view;
-				if (view === null) type = 'null';
+				var view = views[templateID];
+				var	template = $('script[type="text/ccms-template"][data-template-id="' + templateID + '"]').html();
+				var type = view === null ? type = 'null' : typeof view;
 				
 				switch (type) {
 					case 'function':
 						view(function (response) {
 							html[i] = Mustache.render(template, response);
 							loadedViews[templateID] = response;
-							ready();
+							print();
 						}, cPath);
 						break;
 					case 'object':
 						html[i] = Mustache.render(template, view);
 						loadedViews[templateID] = view;
-						ready();
+						print();
 						break;
 					default:
 						html[i] = template;
-						ready();
-						break;
+						print();
 				}
 				
 			});
 			
 		}
 		
-		else done(null, cPath);
+		else if (done) done(null, cPath);
 	
 	};
 	
@@ -83,38 +79,38 @@ var Template = function () {
 		
 		var cPath = currentPath();
 		
-		for (var i = routes.length; i--;) { // counts down from array.length-1 to 0, this is IMPORTANT to make shure new routes overwrite old routes
+		var i = routes.length
+		
+		var match = function (route) {
+			render(route.templateIDs, route.done, route.before); // render the templates into the body
+			i = 0; // stop the loop
+		};
+		
+		for (i; i--;) { // counts down from array.length-1 to 0, this is IMPORTANT to make shure new routes overwrite old routes
 			
 			var route = routes[i];
 			var path = route.path;
-			
-			var match = function () {
-				render(route.templateIDs, route.done, route.before); // render the templates into the body
-				i = 0; // stop the loop
-			};
-			
-			var type = typeof path;
-			if (path instanceof RegExp) type = 'regexp';
-			else if (path instanceof Array) type = 'array';
-			else if (path === null) type = 'null';
+			var type = path instanceof RegExp ? 'regexp' : path instanceof Array ? 'array' : typeof path;
 			
 			switch (type) {
 				case 'string':
-					if (path == cPath) match();
+					if (path == cPath) match(route);
 					break;
 				case 'regexp':
-					if (path.test(cPath)) match();
+					var regexp = path;
+					if (regexp.test(cPath)) match(route);
 					break;
 				case 'array':
-					var l = path.length; // length
-					for (var j = 0; j < l; j++) {
-						var p = path[j]; // path
-						if (typeof p === 'string' && p === cPath) match();
-						else if (p instanceof RegExp && p.test(cPath)) match();
+					var array = path;
+					for (var j = array.length; j--;) {
+						var p = array[j];
+						if (typeof p === 'string' && p === cPath) match(route);
+						else if (p instanceof RegExp && p.test(cPath)) match(route);
 					}
 					break;
 				case 'function':
-					if (path(cPath)) match();
+					var func = path;
+					if (func(cPath)) match(route);
 					break;
 			}
 			
@@ -128,10 +124,10 @@ var Template = function () {
 			
 			var Route = function (obj) {
 				
-				this.path = obj.path || false;
-				this.templateIDs = obj.templates || [];
-				this.done = obj.done || function () {};
-				this.before = obj.before || function () {};
+				this.path = obj.path;
+				this.templateIDs = obj.templates;
+				this.done = obj.done;
+				this.before = obj.before;
 				
 			};
 			
@@ -159,14 +155,12 @@ var Template = function () {
 	
 	// Actions
 	
-	/* url change detection via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js */
-	if ('onhashchange' in window) { // event supported?
-		window.onhashchange = load;
-	}
-	else { // event not supported:
+	/** url change detection via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js */
+	if ('onhashchange' in window) window.onhashchange = load;
+	else {
 		var hash = window.location.hash;
 		window.setInterval(function () {
-			if (window.location.hash != hash) {
+			if (window.location.hash !== hash) {
 				hash = window.location.hash;
 				load();
 			}
