@@ -47,39 +47,30 @@ Modified auth:
 
 var CouchDB = function (proxy, credentials) {
 	
-	var isNull = function (variable) {
-		return !credentials || credentials === null || typeof credentials === 'undefined';
-	}
+	var Auth = function (credentials) { // don't log this var
+		
+		var method;
+		if (credentials.cookie) method = 'cookie';
+		else if (typeof credentials.username === 'string' && typeof credentials.password === 'string') method = 'usernamepassword';
+		
+		switch (method) {
+			case 'cookie':
+				this.admin = true;
+				this.method = 'cookie';
+				break;
+			case 'usernamepassword':
+				this.admin = true;
+				this.method = 'usernamepassword';
+				this.username = credentials.username;
+				this.password = credentials.password;
+				break;
+			default:
+				this.admin = false;
+		}
+		
+	};
 	
-	var auth = (function (credentials) { // don't log this var
-		
-		var none = {
-			admin: false,
-			method: null,
-			username: null,
-			password: null,
-			cookie: null
-		};
-		
-		if (isNull(credentials)) return none; // no auth
-		
-		else if (typeof credentials.username === 'string' && typeof credentials.password === 'string') { // username + password auth
-			var authentication = credentials;
-			authentication.admin = true;
-			authentication.method = 'usernamepassword';
-			return authentication;
-		}
-		
-		else if (credentials.cookie) { // cookie auth
-			var authentication = credentials;
-			authentication.admin = true;
-			authentication.method = 'cookie';
-			return authentication;
-		}
-		
-		else return none; // no auth
-		
-	})(credentials);
+	var auth = new Auth(credentials);
 	
 	var Database = function (db) {
 		
@@ -207,7 +198,7 @@ var CouchDB = function (proxy, credentials) {
 			
 		}
 		
-	}
+	};
 	
 	this.database = function (db) {
 		return new Database(db);
@@ -219,7 +210,7 @@ var CouchDB = function (proxy, credentials) {
 			url: proxy + '/_session',
 			type: 'DELETE'
 		}).done(function (data, textStatus, jqXHR) {
-			console.log('Logged out.');
+			console.log('Deleted session.');
 		}).fail(function (jqXHR, textStatus) {
 			console.log(textStatus, jqXHR);
 		}); // make CouchDB set a cookie
