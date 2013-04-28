@@ -22,9 +22,9 @@ CCMS is in **very very early ALPHA**. If you anyway want to try it just [send me
 
 *Important:* Make shure you use a different browser where you never logged in to CouchDB before while performing these tests, otherwise there could be some cookie-hassle.
 
-Open ´http://youdomain.com:5984/ccms´. You should see some basic info about the database (if the browser asks you for username and password read step 4 again).
+Open `http://youdomain.com:5984/ccms`. You should see some basic info about the database (if the browser asks you for username and password read step 4 again).
 
-Open ´http://youdomain.com:5984/_utils/config.html´. The browser should ask you for username and password.
+Open `http://youdomain.com:5984/_utils/config.html`. The browser should ask you for username and password.
 
 ### Apache
 
@@ -32,15 +32,17 @@ Because of the browser's [Same-Origin-Policy](http://de.wikipedia.org/wiki/Same-
 
 If you're using another web server check it's documentation for "proxy".
 
-1. Open your Apache's ´httpd.conf´ file with a text editor. If you're for example using LAMPP, it's located at ´/opt/lampp/etc/httpd.conf´.
+1. Open your Apache's `httpd.conf` file with a text editor. If you're for example using LAMPP, it's located at `/opt/lampp/etc/httpd.conf`.
 
-2. Make shure the line ´LoadModule proxy_module modules/mod_proxy.so´ isn't commented out with a ´	#´. If so, remove the ´# ´.
+2. Make shure the line `LoadModule proxy_module modules/mod_proxy.so` isn't commented out with a `	#`. If so, remove the `# `.
 
-3. Turn on the proxy module by adding ´ProxyRequests On´ to the end of the file.
+3. Turn on the proxy module by adding `ProxyRequests On` to the end of the file.
 
 4. Specify the proxy's path and the CouchDB requests should be redirected to. Add this to the end of the file.
 
+	```
 	ProxyPass /ccms-couchdb-proxy http://server:5984
+	```
 
 	Replace `server` with the IP address/Domain of the machine your CouchDB is running on.
 
