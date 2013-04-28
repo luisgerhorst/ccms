@@ -1,4 +1,4 @@
-function setRoutes() {
+function routes() {
 	
 	var metaEdit, postCreate, postEdit;
 	
@@ -40,6 +40,45 @@ function setRoutes() {
 		};
 	
 		(function () {
+			
+			function copyrightYearsString(start, end) {
+				if (start === end) return start + '';
+				else if (start < end) return start + ' - ' + end;
+				else if (start > end) {
+					console.log('Copyright years start > end, I\'ll fix that.', start, end);
+					return end + ' - ' + start;
+				}
+				else console.log('Copyright years are invalid.', start, end);
+			}
+			
+			function updateCopyrightYears(database) {
+			
+				var year = parseInt(moment().format('YYYY'));
+			
+				database.read('meta', function (meta, error) {
+			
+					if (error) console.log('Error while reading document "meta".', error);
+					else {
+			
+						var older = year < meta.copyrightYearsStart, newer = year > meta.copyrightYearsEnd;
+			
+						if (older || newer) {
+			
+							if (older) meta.copyrightYearsStart = year;
+							else meta.copyrightYearsEnd = year;
+							meta.copyrightYears = copyrightYearsString(meta.copyrightYearsStart, meta.copyrightYearsEnd);
+			
+							database.save('meta', meta, function (response, error) {
+								if (error) console.log('Error.', error);
+							});
+			
+						}
+			
+					}
+			
+				});
+			
+			}
 	
 			function Post(content, date, postID, title) {
 				this.content = content.val();
@@ -206,31 +245,39 @@ function setRoutes() {
 	
 	template.route([
 		{
+			path: '/logout',
+			before: function () {
+				couchdb.deleteSession();
+				login();
+			}
+		},
+		{
 			path: ['/', /^\/page\/\d+$/],
 			templates: ['header', 'index', 'footer'],
+			before: function (cPath) {
+				if (cPath === '/page/0') window.location = '#/';
+				else document.title = meta.title;
+			},
 			done: function () {
-			
 				$('#posts ol li time').each(function (index) {
 					var element = $(this);
 					var unix = parseInt(element.attr('datetime'));
 					var date = moment.unix(unix).format('MMM D, YYYY'); // .fromNow();
 					element.html(date);
 				});
-				
-			},
-			before: function (cPath) {
-				if (cPath === '/page/0') window.location = '#/';
-				document.title = meta.title;
 			}
-		},{
+		},
+		{
 			path: '/meta',
 			templates: ['header', 'meta', 'footer'],
 			done: metaEdit
-		},{
+		},
+		{
 			path: /^\/post\/.+$/,
 			templates: ['header', 'post', 'footer'],
 			done: postEdit
-		},{
+		},
+		{
 			path: '/create/post',
 			templates: ['header', 'postCreate', 'footer'],
 			done: postCreate

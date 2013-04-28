@@ -1,0 +1,1 @@
+var config, template = new Template(), couchdb, database, meta;

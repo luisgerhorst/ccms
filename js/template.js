@@ -14,7 +14,7 @@ var Template = function () {
 	/*
 		{
 			path, // String, Function or RegExp
-			[templateIDs], // array of template IDs that should be rendered when the RegExp matches the current URL
+			[templates], // array of template IDs that should be rendered when the RegExp matches the current URL
 			done(views), // executed when everything is loaded
 			before()
 		}
@@ -86,7 +86,9 @@ var Template = function () {
 				
 			});
 			
-		} else doneFunc(views, currentPath()) // if no template should be rendered -> execute done function
+		}
+		
+		else doneFunc(views, currentPath()) // if no template should be rendered -> execute done function
 	
 	};
 	
@@ -94,20 +96,20 @@ var Template = function () {
 		
 		var cPath = currentPath();
 		
-		for (var i = routes.length; i--;) { // counts down from array.length-1 to 0, this is IMPORTANT to make shure new routes overwrite older routes
+		for (var i = routes.length; i--;) { // counts down from array.length-1 to 0, this is IMPORTANT to make shure new routes overwrite old routes
 			
 			var route = routes[i];
 			var path = route.path;
+			
+			var match = function () {
+				render(route.templates, route.done, route.before); // render the templates into the body
+				i = 0; // stop the loop
+			};
 			
 			var type = typeof path;
 			if (path instanceof RegExp) type = 'regexp';
 			else if (path instanceof Array) type = 'array';
 			else if (path === null) type = 'null';
-			
-			var match = function () {
-				render(route.templateIDs, route.done, route.before); // render the templates into the body
-				i = 0; // stop the loop
-			};
 			
 			switch (type) {
 				case 'string':
@@ -133,24 +135,9 @@ var Template = function () {
 		
 	}
 	
-	var addRoute = function (path, templateIDs, done, before) {
+	var addRoute = function (parameter) {
 		
-		var addParams = function (path, templateIDs, done, before) {
-			
-			if (!(templateIDs instanceof Array)) templateIDs = [];
-			if (typeof done !== 'function') done = function () {};
-			if (typeof before !== 'function') before = function () {};
-			
-			routes.push({
-				path: path,
-				templateIDs: templateIDs,
-				done: done,
-				before: before
-			});
-			
-		};
-		
-		var addObj = function (obj) {
+		var add = function (obj) {
 			
 			var route = {
 				path: false,
@@ -161,42 +148,29 @@ var Template = function () {
 			
 			for (var i in obj) route[i] = obj[i];
 			
-			routes.push({
-				path: route.path,
-				templateIDs: route.templates,
-				done: route.done,
-				before: route.before
-			});
+			routes.push(route);
 			
 		};
 		
-		if (path instanceof Array && typeof path[0] !== 'string' && !(path[0] instanceof RegExp)) { // array, contains no string/regexp
+		// Actions
+		
+		if (parameter instanceof Array) {
 			
-			console.log('array', path);
-			
-			var array = path;
+			var array = parameter;
 			var l = array.length;
-			for (var i = 0; i < l; i++) addObj(array[i]);
+			for (var i = 0; i < l; i++) add(array[i]);
 			
 		}
 		
-		else if (typeof path === 'object' && !(path instanceof RegExp) && !(path instanceof Array)) addObj(path); // object, no array/regexp
-		
-		else addParams(path, templateIDs, done, before);
+		else add(parameter);
 		
 		reload();
 		
 	};
 	
-	var addTemplateView = function (id, view) {
-		
-		if (typeof id === 'object' && typeof view === 'undefined') {
-			var views = id;
-			for (var i in views) templates[i] = views[i];
-		}
-		
-		else templates[id] = view;
-		
+	var addView = function (parameter, view) {
+		if (typeof parameter === 'object' && typeof view === 'undefined') for (var i in parameter) templates[i] = parameter[i];
+		else templates[parameter] = view;
 	}
 	
 	// Actions
@@ -218,7 +192,7 @@ var Template = function () {
 	
 	this.load = reload;
 	this.route = addRoute;
-	this.render = addTemplateView;
+	this.render = addView;
 	this.currentPath = currentPath;
 	
 };

@@ -1,1 +1,0 @@
-function render(template, couchdb) {}
