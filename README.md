@@ -44,7 +44,7 @@ If you're using another web server check it's documentation for "proxy".
 
 	Replace `server` with the IP address/Domain of the machine your CouchDB is running on.
 
-				**Optional:**
+	*Optional:*
 
 	`/ccms-couchdb-proxy`: The proxy's path. If you've already used this path for another thing, change it.
 
