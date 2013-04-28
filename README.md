@@ -2,9 +2,11 @@
 
 CCMS is a Content-Management-System for blogs that doesn't require any custom backend (such as PHP, Ruby on Rails or node.js). This is possible by using [CouchDB](http://couchdb.apache.org)'s HTTP API. Another important feature is that the site dynamically loads required contents from the database using JavaScript. This means there's no reload while navigating on the blog.
 	
-CCMS is in **very very early ALPHA**. If you anyway want to try it just [send me a mail](mailto:luis@luisgerhorst.de) and I'll help you. Thanks!
+CCMS is in very very early **ALPHA**. If you anyway want to try it just [send me a mail](mailto:luis@luisgerhorst.de) and I'll help you. Thanks!
 
-# Configuration
+# Installation
+
+You first have to add some special configurations to your server. Maybe I'll add a shell script that does all that for you, someday.
 
 ## CouchDB
 
