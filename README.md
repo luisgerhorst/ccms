@@ -40,11 +40,11 @@ If you're using another web server check it's documentation for "proxy".
 
 4. Specify the proxy's path and the CouchDB requests should be redirected to. Add this to the end of the file.
 
-	```ProxyPass /ccms-couchdb-proxy http://server:5984```
+	ProxyPass /ccms-couchdb-proxy http://server:5984
 
 	Replace `server` with the IP address/Domain of the machine your CouchDB is running on.
 
-	*Optional:*
+	**Optional:**
 
 	`/ccms-couchdb-proxy`: The proxy's path. If you've already used this path for another thing, change it.
 
