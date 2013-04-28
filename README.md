@@ -63,6 +63,7 @@ Open `http://yourdomain.com/ccms-couchdb-proxy`. You should see something such a
 So the clients know where the database is. Edit this file and enter your information.
 
 `couchdbProxy`: Path to the (Apache) proxy for your CouchDB.
+
 `database`: Name of the database you created for CCMS.
 
 ### Done?
