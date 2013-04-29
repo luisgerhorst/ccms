@@ -16,7 +16,7 @@ var Template = function () {
 	
 	var render = function (templateIDs, done, before, currentPath) {
 		
-		// Utils
+		// Utilities
 		
 		var stringifyArray = function (array) {
 			var string = '';
@@ -29,11 +29,9 @@ var Template = function () {
 		
 		before(currentPath);
 		
-		var html = {
-			order: templateIDs,
-			chunks: {}
-		};
-		var loadedViews = {};
+		// Vars
+		
+		var html = [], loadedViews = {};
 		
 		var print = function () {
 			
@@ -43,16 +41,26 @@ var Template = function () {
 			for (var j = templateIDs.length; j--;) if (!html[j]) isDone = false;
 			if (isDone) done(loadedViews, currentPath);
 			
-			console.log(html, isDone);
+		};
+		
+		/**
+		 * You have to use an extra function for this.
+		 * Otherwise all vars (i, ...) that are used in the callback and are changed by the loop, would already have changed until the callback is called.
+		 */
+		
+		var viewCallbackNamespace = function (i, templateID, view, template) {
+			
+			view(function (response) {
+				html[i] = Mustache.render(template, response);
+				loadedViews[templateID] = response;
+				print();
+			}, currentPath);
 			
 		};
 		
 		for (var i = templateIDs.length; i--;) {
 			
 			var templateID = templateIDs[i];
-			
-			console.log(i, templateID);
-			
 			var view = views[templateID];
 			var	template = $('script[type="text/ccms-template"][data-template-id="' + templateID + '"]').html();
 			
@@ -60,11 +68,7 @@ var Template = function () {
 			
 			switch (type) {
 				case 'function':
-					view(function (response) {
-						html[i] = Mustache.render(template, response);
-						loadedViews[templateID] = response;
-						print();
-					}, currentPath);
+					viewCallbackNamespace(i, templateID, view, template);
 					break;
 				case 'object':
 					html[i] = Mustache.render(template, view);
@@ -78,7 +82,7 @@ var Template = function () {
 			
 		}
 		
-		if (i === 0) done(null, currentPath);
+		if (!templateIDs.length) done({}, currentPath);
 	
 	};
 	
