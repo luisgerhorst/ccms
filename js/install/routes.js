@@ -71,12 +71,11 @@ function routes() {
 				
 				$('#setup-db-docs').submit(function () { // on save
 					
-					var auth = {
-						username: $('#setup-db-docs-username').val(),
-						password: $('#setup-db-docs-password').val()
-					};
-					
-					var couchdb = new CouchDB(config.couchdbProxy, auth);
+					var couchdb = new CouchDB(config.couchdbProxy);
+						couchdb.authorization.add({
+							username: $('#setup-db-docs-username').val(),
+							password: $('#setup-db-docs-password').val()
+						});
 					var database = couchdb.database(config.database);
 					
 					saveDocs(database);

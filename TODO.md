@@ -1,2 +1,5 @@
-- add CouchDB/Apache setup instructions to install.html
+- add default theme
 - style install.html
+- clear CouchDB Ajax request code
+- clear admin theme form js
+- html notifications for admin theme

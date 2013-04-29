@@ -31,11 +31,11 @@ var login = function () {
 				var tryUsernamePassword = function () { // case: username and password auth
 				
 					var c = couchdb;
-						c.authorization.add({
-							username: $('#login-username').val(),
-							password: $('#login-password').val()
-						});
-					var d = c.database(config.database);
+					c.authorize({
+						username: $('#login-username').val(),
+						password: $('#login-password').val()
+					});
+					var d = new c.Database(config.database);
 					
 					d.save('test', { time: new Date().getTime() }, function (response, error) {
 						
@@ -44,7 +44,7 @@ var login = function () {
 						else if (error) alert('Error ' + error.code + ' ' + error.message + ' occured while testing credentials.');
 						else {
 							window.location = '#' + redirectPath;
-							c.session.start();
+							c.remember();
 							foundValid(c, d);
 						}
 						
@@ -67,8 +67,8 @@ var login = function () {
 		if (cPath === '/login' || cPath === '/logout') window.location = '#/';
 		
 		var c = couchdb;
-			c.authorization.add({ cookie: true });
-		var d = c.database(config.database);
+		c.authorize({ cookie: true });
+		var d = new c.Database(config.database);
 		
 		d.save('test', { time: new Date().getTime() }, function (response, error) {
 			if (error) askUsernamePassword();

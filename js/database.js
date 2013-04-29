@@ -5,14 +5,14 @@ var CouchDB = function (proxyURL) {
 	
 	// Data Constructors
 	
-	var Credentials = function (credentials) { // don't log this var
+	var Credentials = function (credentials) {
 	
 		/** @type {!Object} */
-		credentials = typeof credentials === 'object' ? credentials !== null ? credentials : {} : {};
+		credentials = credentials ? credentials : {};
 		
 		this.cookie = credentials.cookie ? true : false;
-		this.username = credentials.username || false;
-		this.password = credentials.password || false;
+		this.username = typeof credentials.username === 'string' ? credentials.username : false;
+		this.password = typeof credentials.password === 'string' ? credentials.password : false;
 		
 	};
 	
@@ -31,9 +31,69 @@ var CouchDB = function (proxyURL) {
 		else return false;
 	};
 	
-	// Constructors
+	// Methods
 	
-	var Database = function (databaseName) {
+	this.authorize = function (object) {
+		
+		credentials = new Credentials(object);
+		
+		return this;
+		
+	};
+	
+	this.deauthorize = function () {
+		
+		credentials = new Credentials(null);
+		
+		return this;
+		
+	};
+	
+	this.remember = function () {
+			
+		if (credentials.username && credentials.password) {
+			
+			var options = {
+				url: proxyURL + '/_session',
+				type: 'POST',
+				data: 'name=' + credentials.username + '&password=' + credentials.password,
+				contentType: 'application/x-www-form-urlencoded'
+			};
+			
+			var ajax = $.ajax(options);
+			
+			ajax.fail(function (jqXHR, textStatus) {
+				console.log('Fail while ' + options.type + ' request to ' + options.url, textStatus, jqXHR);
+			});
+			
+			ajax.done(function () {
+				credentials.cookie = true;
+			});
+	
+		}
+		
+		return this;
+			
+	};
+	
+	this.forget = function () {
+		
+		var options = {
+			url: proxyURL + '/_session',
+			type: 'DELETE'
+		};
+		
+		$.ajax(options).fail(function (jqXHR, textStatus) {
+			console.log('Fail while ' + options.type + ' request to ' + options.url, textStatus, jqXHR);
+		}).done(function () {
+			credentials.cookie = false;
+		});
+		
+		return this;
+		
+	};
+	
+	this.Database = function (databaseName) {
 		
 		var request = function (options, done) {
 			
@@ -65,6 +125,8 @@ var CouchDB = function (proxyURL) {
 				callback(JSON.parse(data), parseError(jqXHR));
 			});
 			
+			return this;
+			
 		};
 		
 		this.exists = function (document, callback) {
@@ -80,6 +142,8 @@ var CouchDB = function (proxyURL) {
 				
 			});
 			
+			return this;
+			
 		};
 		
 		this.view = function (doc, func, callback) {
@@ -90,6 +154,8 @@ var CouchDB = function (proxyURL) {
 			}, function (data, textStatus, jqXHR) {
 				callback(JSON.parse(data), parseError(jqXHR));
 			});
+			
+			return this;
 			
 		};
 			
@@ -118,6 +184,8 @@ var CouchDB = function (proxyURL) {
 				else callback(null, parseError(jqXHR));
 				
 			});
+			
+			return this;
 				
 		};
 			
@@ -140,84 +208,10 @@ var CouchDB = function (proxyURL) {
 				else callback(null, parseError(jqXHR));
 				
 			});
+			
+			return this;
 		
 		};
-		
-	};
-	
-	var Session = function () {
-		
-		this.start = function () {
-				
-			if (credentials.username && credentials.password) {
-				
-				var options = {
-					url: proxyURL + '/_session',
-					type: 'POST',
-					data: 'name=' + credentials.username + '&password=' + credentials.password,
-					contentType: 'application/x-www-form-urlencoded'
-				};
-				
-				var ajax = $.ajax(options);
-				
-				ajax.fail(function (jqXHR, textStatus) {
-					console.log('Fail while ' + options.type + ' request to ' + options.url, textStatus, jqXHR);
-				});
-				
-				ajax.done(function () {
-					credentials.cookie = true;
-				});
-				
-			}
-				
-		};
-		
-		this.end = function () {
-			
-			var options = {
-				url: proxyURL + '/_session',
-				type: 'DELETE'
-			};
-			
-			var ajax = $.ajax(options);
-			
-			ajax.fail(function (jqXHR, textStatus) {
-				console.log('Fail while ' + options.type + ' request to ' + options.url, textStatus, jqXHR);
-			});
-			
-			ajax.done(function () {
-				credentials.cookie = false;
-			});
-			
-		};
-		
-	};
-	
-	var Authorization = function () {
-		
-		this.add = function (object) {
-			
-			credentials = new Credentials(object);
-			
-		};
-		
-		this.remove = function () {
-			
-			credentials = new Credentials(null);
-			
-		};
-		
-	};
-	
-	// Methods
-	
-	this.session = new Session();
-	
-	this.authorization = new Authorization();
-	
-	this.database = function (databaseName) {
-		
-		return new Database(databaseName);
 		
 	};
 	

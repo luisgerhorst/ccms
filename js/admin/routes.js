@@ -247,8 +247,7 @@ function routes() {
 		{
 			path: '/logout',
 			before: function () {
-				couchdb.session.end();
-				couchdb.authorization.remove();
+				couchdb.forget().deauthorize();
 				login();
 			}
 		},
