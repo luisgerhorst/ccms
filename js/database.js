@@ -1,49 +1,39 @@
 
-/**
- *
- * @constructor
- * @param {string} proxyURL Path to the CouchDB proxy.
- * @param {{username: ?string, password: ?string, cookie: ?boolean}} credentials
- *
- */
+/** @param {string} proxyURL Path to the CouchDB proxy. */
 
-var CouchDB = function (proxyURL, credentials) {
+var CouchDB = function (proxyURL) {
 	
-	// Constructors
+	// Data Constructors
 	
-	var Authentication = function (credentials) { // don't log this var
+	var Credentials = function (credentials) { // don't log this var
+	
+		/** @type {!Object} */
+		credentials = typeof credentials === 'object' ? credentials !== null ? credentials : {} : {};
 		
-		var method;
-		if (credentials.cookie) method = 'cookie';
-		else if (typeof credentials.username === 'string' && typeof credentials.password === 'string') method = 'usernamepassword';
-		
-		switch (method) {
-			case 'cookie':
-				this.admin = true;
-				this.method = 'cookie';
-				break;
-			case 'usernamepassword':
-				this.admin = true;
-				this.method = 'usernamepassword';
-				this.username = credentials.username;
-				this.password = credentials.password;
-				break;
-			default:
-				this.admin = false;
-		}
+		this.cookie = credentials.cookie ? true : false;
+		this.username = credentials.username || false;
+		this.password = credentials.password || false;
 		
 	};
 	
-	var Database = function (databaseName) {
-		
-		var parseError = function (jqXHR) {
-			var status = jqXHR.status;
-			if (status !== 200 && status !== 201) return {
-				code: status,
-				message: jqXHR.statusText
-			};
-			else return false;
+	// Vars
+	
+	var credentials = new Credentials(null);
+	
+	// Utilities
+	
+	var parseError = function (jqXHR) {
+		var status = jqXHR.status;
+		if (status !== 200 && status !== 201) return {
+			code: status,
+			message: jqXHR.statusText
 		};
+		else return false;
+	};
+	
+	// Constructors
+	
+	var Database = function (databaseName) {
 		
 		var request = function (options, done) {
 			
@@ -51,10 +41,10 @@ var CouchDB = function (proxyURL, credentials) {
 			options.document = null;
 			options.data = JSON.stringify(options.data);
 			
-			if (options.type !== 'GET' && options.type !== 'HEAD' && authentication.method === 'usernamepassword') {
+			if (options.type !== 'GET' && options.type !== 'HEAD' && !credentials.cookie && credentials.username && credentials.password) {
 				options.beforeSend = function (xhr) {
-					xhr.setRequestHeader('Authorization', 'Basic ' + btoa(authentication.username + ':' + authentication.password));
-				}; // don't know why the jQuery ajax username and password properties don't work instead of this
+					xhr.setRequestHeader('Authorization', 'Basic ' + btoa(credentials.username + ':' + credentials.password));
+				};
 			}
 			
 			var ajax = $.ajax(options);
@@ -102,111 +92,133 @@ var CouchDB = function (proxyURL, credentials) {
 			});
 			
 		};
+			
+		this.save = function (document, data, callback) {
+			
+			request({
+				document: document,
+				type: 'HEAD'
+			}, function (headResponse, textStatus, jqXHR) {
+				
+				var status = jqXHR.status;
+				data._rev = status === 200 ? jqXHR.getResponseHeader('Etag').replace(/"/g, '') : undefined;
+				
+				if (status === 404 || status === 200) {
+					
+					request({
+						document: document,
+						type: 'PUT',
+						data: data
+					}, function (data, textStatus, jqXHR) {
+						callback(JSON.parse(data), parseError(jqXHR));
+					});
+					
+				}
+				
+				else callback(null, parseError(jqXHR));
+				
+			});
+				
+		};
+			
+		this.remove = function (document, callback) {
+			
+			request({
+				document: document,
+				type: 'HEAD',
+			}, function (data, textStatus, jqXHR) {
+				
+				if (jqXHR.status === 200) {
+					request({
+						document: document + '?rev=' + jqXHR.getResponseHeader('Etag').replace(/"/g, ''),
+						type: 'DELETE'
+					}, function (data, textStatus, jqXHR) {
+						callback(JSON.parse(data), parseError(jqXHR));
+					});
+				}
+				
+				else callback(null, parseError(jqXHR));
+				
+			});
 		
-		if (authentication.admin) {
-			
-			this.save = function (document, data, callback) {
-				
-				request({
-					document: document,
-					type: 'HEAD'
-				}, function (oldData, textStatus, jqXHR) {
-					
-					var status = jqXHR.status;
-					
-					if (status === 200) data._rev = jqXHR.getResponseHeader('Etag').replace(/"/g, '');
-					
-					if (status === 404 || status === 200) {
-						
-						request({
-							document: document,
-							type: 'PUT',
-							data: data
-						}, function (data, textStatus, jqXHR) {
-							callback(JSON.parse(data), parseError(jqXHR));
-						});
-						
-					}
-					
-					else callback(JSON.parse(data), parseError(jqXHR));
-					
-				});
-				
-			};
-			
-			this.remove = function (document, callback) {
-				
-				request({
-					document: document,
-					type: 'HEAD',
-				}, function (data, textStatus, jqXHR) {
-					
-					if (jqXHR.status === 200) {
-						request({
-							document: document + '?rev=' + jqXHR.getResponseHeader('Etag').replace(/"/g, ''),
-							type: 'DELETE'
-						}, function (data, textStatus, jqXHR) {
-							callback(JSON.parse(data), parseError(jqXHR));
-						});
-					}
-					
-					else {
-						callback(null, parseError(jqXHR));
-					}
-					
-				});
-			
-			};
-			
-		}
+		};
 		
 	};
 	
 	var Session = function () {
 		
-		this.delete = function () {
+		this.start = function () {
+				
+			if (credentials.username && credentials.password) {
+				
+				var options = {
+					url: proxyURL + '/_session',
+					type: 'POST',
+					data: 'name=' + credentials.username + '&password=' + credentials.password,
+					contentType: 'application/x-www-form-urlencoded'
+				};
+				
+				var ajax = $.ajax(options);
+				
+				ajax.fail(function (jqXHR, textStatus) {
+					console.log('Fail while ' + options.type + ' request to ' + options.url, textStatus, jqXHR);
+				});
+				
+				ajax.done(function () {
+					credentials.cookie = true;
+				});
+				
+			}
+				
+		};
+		
+		this.end = function () {
 			
 			var options = {
 				url: proxyURL + '/_session',
 				type: 'DELETE'
 			};
 			
-			$.ajax(options).fail(function (jqXHR, textStatus) {
+			var ajax = $.ajax(options);
+			
+			ajax.fail(function (jqXHR, textStatus) {
 				console.log('Fail while ' + options.type + ' request to ' + options.url, textStatus, jqXHR);
+			});
+			
+			ajax.done(function () {
+				credentials.cookie = false;
 			});
 			
 		};
 		
-		if (authentication.admin && authentication.method === 'usernamepassword') {
+	};
+	
+	var Authorization = function () {
+		
+		this.add = function (object) {
 			
-			this.create = function () {
-				
-				var options = {
-					url: proxyURL + '/_session',
-					type: 'POST',
-					data: 'name=' + authentication.username + '&password=' + authentication.password,
-					contentType: 'application/x-www-form-urlencoded'
-				};
-				
-				$.ajax(options).fail(function (jqXHR, textStatus) {
-					console.log('Fail while ' + options.type + ' request to ' + options.url, textStatus, jqXHR);
-				});
-				
-			};
+			credentials = new Credentials(object);
 			
-		}
+		};
+		
+		this.remove = function () {
+			
+			credentials = new Credentials(null);
+			
+		};
 		
 	};
 	
 	// Methods
 	
-	/** @type {{ admin: boolean, method: ?string, username: ?string, password: ?string, cookie: ?boolean }} */
-	var authentication = new Authentication(credentials);
+	this.session = new Session();
+	
+	this.authorization = new Authorization();
 	
 	this.database = function (databaseName) {
+		
 		return new Database(databaseName);
+		
 	};
-	
-	this.session = new Session();
 	
 }

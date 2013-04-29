@@ -204,12 +204,12 @@ function routes() {
 					if (post.postID && post.title) {
 	
 						database.save('post-' + post.postID, post, function (response, error) {
-							if (error) console.log('Error.', error);
+							if (error) console.log('Error while save.', error);
 							else {
 								var oldPostID = postID.data('old-post-id');
 								if (post.postID != oldPostID) { // if postID has changed
 									database.remove('post-' + oldPostID, function (response, error) {
-										if (error) console.log('Error.', error);
+										if (error) console.log('Error while remove.', error);
 										else window.location = '#/';
 									});
 								}
@@ -247,7 +247,8 @@ function routes() {
 		{
 			path: '/logout',
 			before: function () {
-				couchdb.session.delete();
+				couchdb.session.end();
+				couchdb.authorization.remove();
 				login();
 			}
 		},

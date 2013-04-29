@@ -30,21 +30,22 @@ var login = function () {
 				
 				var tryUsernamePassword = function () { // case: username and password auth
 				
-					var newCouchDB = new CouchDB(config.couchdbProxy, {
-						username: $('#login-username').val(),
-						password: $('#login-password').val()
-					});
-					var newDatabase = newCouchDB.database(config.database);
+					var c = couchdb;
+						c.authorization.add({
+							username: $('#login-username').val(),
+							password: $('#login-password').val()
+						});
+					var d = c.database(config.database);
 					
-					newDatabase.save('test', { time: new Date().getTime() }, function (response, error) {
+					d.save('test', { time: new Date().getTime() }, function (response, error) {
 						
 						if (error && error.code == 401) alert('Your username/password seems to be incorrect.');
 						else if (error && error.code == 403) alert('Please enter username and password.');
 						else if (error) alert('Error ' + error.code + ' ' + error.message + ' occured while testing credentials.');
 						else {
-							newCouchDB.session.create();
 							window.location = '#' + redirectPath;
-							foundValid(newCouchDB, newDatabase);
+							c.session.start();
+							foundValid(c, d);
 						}
 						
 					});
@@ -65,12 +66,13 @@ var login = function () {
 		var cPath = template.currentPath();
 		if (cPath === '/login' || cPath === '/logout') window.location = '#/';
 		
-		var newCouchDB = new CouchDB(config.couchdbProxy, { cookie: true });
-		var newDatabase = newCouchDB.database(config.database);
+		var c = couchdb;
+			c.authorization.add({ cookie: true });
+		var d = c.database(config.database);
 		
-		newDatabase.save('test', { time: new Date().getTime() }, function (response, error) {
+		d.save('test', { time: new Date().getTime() }, function (response, error) {
 			if (error) askUsernamePassword();
-			else foundValid(newCouchDB, newDatabase);
+			else foundValid(c, d);
 		});
 		
 	};
