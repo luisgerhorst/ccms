@@ -1,246 +1,283 @@
 function routes() {
 	
-	var metaEdit, postCreate, postEdit;
-	
-	(function () {
-	
-		metaEdit = function () {
-	
-			document.title = meta.title + ' - Meta';
-	
-			$('#meta-edit').submit(function () { // on save
-	
-				database.read('meta', function (meta, error) {
-	
-					if (error) console.log('Error.', error);
-	
-					else {
-	
-						meta.title = $('#meta-edit-title').val();
-						meta.description = $('#meta-edit-description').val();
-						meta.postsPerPage = parseInt($('#meta-edit-posts-per-page').val());
-						meta.copyright = $('#meta-edit-copyright').val();
-	
-						database.save('meta', meta, function (response, error) {
-	
-							if (error) console.log('Error.', error);
-	
-							else window.location = '#/';
-	
-						});
-	
-					}
-	
-				});
-	
-				return false; // so the page doesn't reload
-	
+	var metaEdit = function () {
+		
+		var updateMeta = function () { // on save
+		
+			database.read('meta', function (meta, error) {
+		
+				if (error) console.log('Error.', error);
+		
+				else {
+		
+					meta.title = $('#meta-edit-title').val();
+					meta.description = $('#meta-edit-description').val();
+					meta.postsPerPage = parseInt($('#meta-edit-posts-per-page').val());
+					meta.copyright = $('#meta-edit-copyright').val();
+		
+					database.save('meta', meta, function (response, error) {
+		
+						if (error) console.log('Error.', error);
+		
+						else window.location = '#/';
+		
+					});
+		
+				}
+		
 			});
-	
+		
+			return false; // so the page doesn't reload
+		
 		};
 	
-		(function () {
-			
-			function copyrightYearsString(start, end) {
-				if (start === end) return start + '';
-				else if (start < end) return start + ' - ' + end;
-				else if (start > end) {
-					console.log('Copyright years start > end, I\'ll fix that.', start, end);
-					return end + ' - ' + start;
-				}
-				else console.log('Copyright years are invalid.', start, end);
+		$('#meta-edit').submit(updateMeta);
+	
+	};
+	
+	var postCreate, postEdit;
+	
+	(function () {
+		
+		var copyrightYearsString = function (start, end) {
+			if (start === end) return start + '';
+			else if (start < end) return start + ' - ' + end;
+			else if (start > end) {
+				console.log('Copyright years start > end, I\'ll fix that.', start, end);
+				return end + ' - ' + start;
 			}
-			
-			function updateCopyrightYears(database) {
-			
-				var year = parseInt(moment().format('YYYY'));
-			
-				database.read('meta', function (meta, error) {
-			
-					if (error) console.log('Error while reading document "meta".', error);
-					else {
-			
-						var older = year < meta.copyrightYearsStart, newer = year > meta.copyrightYearsEnd;
-			
-						if (older || newer) {
-			
-							if (older) meta.copyrightYearsStart = year;
-							else meta.copyrightYearsEnd = year;
-							meta.copyrightYears = copyrightYearsString(meta.copyrightYearsStart, meta.copyrightYearsEnd);
-			
-							database.save('meta', meta, function (response, error) {
-								if (error) console.log('Error.', error);
-							});
-			
-						}
-			
-					}
-			
-				});
-			
-			}
-	
-			function Post(content, date, postID, title) {
-				this.content = content.val();
-				this.date = moment(date.val(), "YYYY-MM-DD HH:mm").unix();
-				this.postID = postID.val().replace(/\s/g,'');
-				this.title = title.val().replace(/(^\s*)|(\s*$)/gi,"").replace(/[ ]{2,}/gi," ").replace(/\n /,"\n").replace(/^\s$/,'');
-				this.type = 'post';
-			}
-	
-			var createPostID = function (title) {
-				return title.val().replace(/[^\w\s]/gi, '').replace(/(^\s*)|(\s*$)/gi,"").replace(/[ ]{2,}/gi," ").replace(/\n /,"\n").replace(/[ ]+/g, '-').toLowerCase(); // remove special characters, trim spaces, replace spaces by "-", transform to lowercase
-			};
-	
-			var autoCreatedPostIDCheck = function (title, postID, autoCreatePostID) {
-				if (createPostID(title) != postID.val()) { // if postID wasn't created using the title
-					autoCreatePostID.attr('checked', false); // uncheck autoCreatePostID
-					postID.removeAttr('readonly'); // remove postID readonly
-				}
-			};
-	
-			postCreate = function () {
-	
-				// Vars
-	
-				var content = $('#post-create-content'),
-					date = $('#post-create-date'),
-					postID = $('#post-create-postID'),
-					title = $('#post-create-title'),
-					autoCreatePostID = $('#post-create-auto-create-post-id');
-	
-				// Actions
-	
-				document.title = meta.title + ' - Create Post';
-				autoCreatedPostIDCheck(title, postID, autoCreatePostID);
-				date.val(moment().format("YYYY-MM-DD HH:mm")); // fill date with the current time
-	
-				// Events
-	
-				autoCreatePostID.mousedown(function() {
-					if (!autoCreatePostID.is(':checked')) { // on check
-						postID.attr('readonly', 'true'); // add readonly
-						postID.val(createPostID(title)); // create postID
-					}
-					else postID.removeAttr('readonly'); // on uncheck remove readonly
-				});
-	
-				title.keyup(function () { // on keyup
-					if (autoCreatePostID.is(':checked')) postID.val(createPostID(title)); // if autoCreatePostID is checked create postID
-				});
-	
-				$('#post-create').submit(function () { // on save
-	
-					var post = new Post(content, date, postID, title);
-					
-					updateCopyrightYears(database);
-	
-					if (post.postID && post.title) {
-	
-						database.exists('post-' + post.postID, function (exists) {
-	
-							if (exists === false) {
-	
-								database.save('post-' + post.postID, post, function (response, error) {
-	
-									if (error) console.log('Error.', error);
-	
-									else window.location = '#/';
-	
-								});
-	
-							}
-	
-							else alert('Post with URL /posts/' + post.postID + ' does already exist.');
-	
-						});
-	
-					}
-	
-					else alert('Please enter title and URL.');
-	
-					return false; // so the page doesn't reload
-	
-				});
-	
-			};
-	
-			postEdit = function (views) {
-	
-				// Vars
-	
-				var content = $('#post-edit-content'),
-					date = $('#post-edit-date'),
-					postID = $('#post-edit-postID'),
-					title = $('#post-edit-title'),
-					autoCreatePostID = $('#post-edit-auto-create-post-id');
-	
-				// Actions
-	
-				document.title = meta.title + ' - ' + views.post.title;
-				autoCreatedPostIDCheck(title, postID, autoCreatePostID);
-				date.val(moment.unix(views.post.date).format("YYYY-MM-DD HH:mm")); // fill date with post's date using unix timestamp
-	
-				// Events
-	
-				autoCreatePostID.mousedown(function() {
-					if (!autoCreatePostID.is(':checked')) { // on check
-						postID.attr('readonly', 'true'); // add readonly
-						postID.val(createPostID(title));
-					}
-					else postID.removeAttr('readonly'); // on uncheck remove readonly
-				});
-	
-				title.blur(function () {
-					autoCreatedPostIDCheck(title, postID, autoCreatePostID);
-				});
-	
-				$('#post-edit').submit(function () { // on save
-	
-					var post = new Post(content, date, postID, title);
-					
-					updateCopyrightYears(database);
-	
-					if (post.postID && post.title) {
-	
-						database.save('post-' + post.postID, post, function (response, error) {
-							if (error) console.log('Error while save.', error);
-							else {
-								var oldPostID = postID.data('old-post-id');
-								if (post.postID != oldPostID) { // if postID has changed
-									database.remove('post-' + oldPostID, function (response, error) {
-										if (error) console.log('Error while remove.', error);
-										else window.location = '#/';
-									});
-								}
-								else window.location = '#/';
-							}
-						});
-	
-					}
-					
-					else alert('Please enter title and URL.');
-	
-					return false; // so the page doesn't reload
-	
-				});
-	
-				$('#post-edit-delete').click(function () {
-					var remove = confirm('Do you really want to delete this post?');
-					if (remove) {
-						
-						database.remove('post-' + postID.data('old-post-id'), function (response, error) {
+			else console.log('Copyright years are invalid.', start, end);
+		};
+		
+		var updateCopyrightYears = function () {
+		
+			var year = parseInt(moment().format('YYYY'));
+		
+			database.read('meta', function (meta, error) {
+		
+				if (error) console.log('Error while reading document "meta".', error);
+				else {
+		
+					if (year > meta.copyrightYearsEnd) {
+		
+						meta.copyrightYearsEnd = year;
+						meta.copyrightYears = copyrightYearsString(meta.copyrightYearsStart, meta.copyrightYearsEnd);
+		
+						database.save('meta', meta, function (response, error) {
 							if (error) console.log('Error.', error);
-							else window.location = '#/';
 						});
-						
+		
 					}
-				});
-	
+		
+				}
+		
+			});
+		
+		};
+
+		var Post = function (content, date, postID, title) {
+			this.content = content.val();
+			this.date = moment(date.val(), "YYYY-MM-DD HH:mm").unix();
+			this.postID = encodeURI(postID.val());
+			this.title = title.val();
+			this.type = 'post';
+		}
+
+		var createPostID = function (string) {
+			return string.replace(/[\s\W]+/g, '-').replace(/^-|-$/g, '').toLowerCase();
+		};
+
+		var autoCreatedPostID = function (title, postID, autoCreatePostID) {
+			if (createPostID(title.val()) != postID.val()) {
+				autoCreatePostID.attr('checked', false);
+				postID.removeAttr('readonly');
 			}
-	
-		})();
-	
+		};
+
+		postCreate = function () {
+
+			// Vars
+
+			var content = $('#post-create-content'),
+				date = $('#post-create-date'),
+				postID = $('#post-create-postID'),
+				title = $('#post-create-title'),
+				autoCreatePostID = $('#post-create-auto-create-post-id');
+
+			// Actions
+
+			document.title = meta.title + ' - Create Post';
+			autoCreatedPostID(title, postID, autoCreatePostID);
+			date.val(moment().format("YYYY-MM-DD HH:mm")); // fill date with the current time
+
+			// Events
+
+			autoCreatePostID.mousedown(function() {
+				if (!autoCreatePostID.is(':checked')) {
+					postID.attr('readonly', 'true');
+					postID.val(createPostID(title.val()));
+				}
+				else postID.removeAttr('readonly');
+			});
+
+			title.keyup(function () {
+				if (autoCreatePostID.is(':checked')) postID.val(createPostID(title.val()));
+			});
+
+			$('#post-create').submit(function () {
+
+				var post = new Post(content, date, postID, title);
+				
+				updateCopyrightYears(database);
+
+				if (post.postID && post.title) {
+					
+					database.read('posts', function (posts, error) { // read posts
+					
+						if (!posts.ids[post.postID]) { // check if postID exists
+							
+							database.save(post, function (postResponse, error) { // save post
+					
+								if (error) console.log('Error.', error);
+					
+								else {
+									
+									posts.ids[post.postID] = postResponse.id; // save doc id with post id as key
+									
+									database.save(posts, function (response, error) { // save post
+									
+										if (error) console.log('Error.', error);
+									
+										else window.location = '#/';
+									
+									});
+									
+								}
+					
+							});
+					
+						}
+					
+						else alert('Post with URL /post/' + post.postID + ' does already exist.');
+					
+					});
+
+				}
+
+				else alert('Please enter title and URL.');
+
+				return false; // so the page doesn't reload
+
+			});
+
+		};
+
+		postEdit = function (views) {
+
+			// Vars
+
+			var content = $('#post-edit-content'),
+				date = $('#post-edit-date'),
+				postID = $('#post-edit-postID'),
+				title = $('#post-edit-title'),
+				autoCreatePostID = $('#post-edit-auto-create-post-id');
+
+			// Actions
+
+			document.title = meta.title + ' - ' + views.post.title;
+			autoCreatedPostID(title, postID, autoCreatePostID);
+			date.val(moment.unix(views.post.date).format("YYYY-MM-DD HH:mm")); // fill date with post's date using unix timestamp
+
+			// Events
+
+			autoCreatePostID.mousedown(function() {
+				if (!autoCreatePostID.is(':checked')) { // on check
+					postID.attr('readonly', 'true'); // add readonly
+					postID.val(createPostID(title.val()));
+				}
+				else postID.removeAttr('readonly'); // on uncheck remove readonly
+			});
+
+			title.blur(function () {
+				autoCreatedPostID(title, postID, autoCreatePostID);
+			});
+			
+			var documentID = views.post._id, oldPostID = postID.data('old-post-id');
+
+			$('#post-edit').submit(function () { // on save
+
+				var post = new Post(content, date, postID, title);
+				
+				updateCopyrightYears(database);
+
+				if (post.postID && post.title) {
+					
+					database.read('posts', function (posts, error) { if (!error) {
+							
+						if (!posts.ids[post.postID]) {
+							
+							database.save(documentID, post, function (response, error) { if (!error) {
+									
+								var oldPostID = postID.data('old-post-id');
+								
+								if (post.postID !== oldPostID) { // postID has changed
+									
+									posts.ids[oldPostID] = undefined;
+									posts.ids[post.postID] = documentID;
+									
+									database.save('posts', posts, function (response, error) { if (!error) 
+										
+										window.location = '#/';
+									
+									});
+									
+								}
+								
+								else window.location = '#/';
+									
+							}});
+							
+						}
+						
+						else alert('Post with URL /post/' + post.postID + ' does already exist.');
+							
+					}});
+
+				}
+				
+				else alert('Please enter title and URL.');
+
+				return false; // so the page doesn't reload
+
+			});
+
+			$('#post-edit-delete').click(function () {
+				var remove = confirm('Do you really want to delete this post?');
+				if (remove) {
+					
+					var docError = true, postsError = true;
+					
+					database.remove(documentID, function (response, error) {
+						if (!error) docError = false;
+						if (!docError && !postsError) window.location = '#/';
+					});
+					
+					database.read('posts', function (posts, error) { if (!error) {
+						
+						posts.ids[oldPostID] = undefined;
+							
+						database.save('posts', posts, function (response, error) {
+							if (!error) postsError = false;
+							if (!docError && !postsError) window.location = '#/';
+						});
+							
+					}});
+					
+				}
+			});
+
+		}
+
 	})();
 	
 	template.route([
@@ -270,6 +307,9 @@ function routes() {
 		{
 			path: '/meta',
 			templates: ['header', 'meta', 'footer'],
+			before: function () {
+				document.title = meta.title + ' - Meta';
+			},
 			done: metaEdit
 		},
 		{

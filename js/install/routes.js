@@ -2,18 +2,20 @@ function routes() {
 	
 	var saveDocs = function (database) {
 		
-		database.save('_design/auth', { // auth
-			language: "javascript",
-			validate_doc_update: "function(newDoc, oldDoc, userCtx) { if (userCtx.roles.indexOf('_admin') !== -1) { return; } else { throw({forbidden: 'Only admins may edit the database'}); } }"
-		}, function (response, error) {
-			if (error) {
-				
-				if (error.code == 401) alert('Your username/password seems to be incorrect.');
-				else alert('Error ' + error.code + ' ' + error.message + ' occured while saving the document "_design/auth" to the database "ccms".');
-				
-			} else {
-				
-				database.save('_design/posts', { // post views
+		var title = $('#setup-db-title').val();
+		var year = parseInt(moment().format('YYYY'));
+		
+		var docs = {
+			designAuth: {
+				id: '_design/auth',
+				content: {
+					language: "javascript",
+					validate_doc_update: "function(newDoc, oldDoc, userCtx) { if (userCtx.roles.indexOf('_admin') !== -1) { return; } else { throw({forbidden: 'Only admins may edit the database'}); } }"
+				}
+			},
+			designPosts: { // post views
+				id: '_design/posts',
+				content: {
 					language: "javascript",
 					views: {
 						all: {
@@ -23,36 +25,62 @@ function routes() {
 							map: "function (doc) { if (doc.type === 'post') emit(doc.date, doc.postID); }"
 						}
 					}
-				}, function (response, error) {
-					if (error) alert('Error ' + error.code + ' ' + error.message + ' occured while saving the document "_design/auth" to the database "ccms".');
+				}
+			},
+			meta: { // meta
+				id: 'meta',
+				content: {
+					ccmsVersion: ccmsVersion,
+					copyright: title,
+					copyrightYears: year + '',
+					copyrightYearsEnd: year,
+					copyrightYearsStart: year,
+					description: '',
+					postsPerPage: 10,
+					title: title
+				}
+			}
+		};
+		
+		for (var i in docs) {
+			
+			(function (i) {
+				
+				var doc = docs[i];
+				
+				database.save(doc.id, doc.content, function (response, error) {
+					
+					if (error) console.log('Error while saving document.', doc.id, error);
 					else {
-						
-						var title = $('#setup-db-docs-title').val();
-						var year = parseInt(moment().format('YYYY'));
-						
-						var meta = { // meta
-							ccmsVersion: ccmsVersion,
-							copyright: title,
-							copyrightYears: year + '',
-							copyrightYearsEnd: year,
-							copyrightYearsStart: year,
-							description: '',
-							postsPerPage: 10,
-							title: title
-						}
-						
-						database.save('meta', meta, function (response, error) {
-							if (error) alert('Error ' + error.code + ' ' + error.message + ' occured while saving the document "_design/auth" to the database "ccms".');
-							else window.location = 'admin.html#/';
-						});
-						
+						console.log('Successfully saved document.', doc.id);
+						docs[i].created = true;
 					}
+					
+					var allCreated = true;
+					for (var j in docs) if (!docs[j].created) allCreated = false;
+					if (allCreated) window.location = 'admin.html#/';
+					
 				});
 				
-			}
-		});
+			})(i);
+			
+		}
 		
-	}
+	};
+	
+	var setupDB = function () { // on save
+		
+		var couchdb = new CouchDB(config.couchdbProxy).forget().authorize({
+			username: $('#setup-db-username').val(),
+			password: $('#setup-db-password').val()
+		});
+		var database = new couchdb.Database(config.database);
+		
+		saveDocs(database);
+	
+		return false; // no reload
+	
+	};
 	
 	template.route([
 		{
@@ -65,24 +93,12 @@ function routes() {
 		{
 			path: '/setup-db',
 			templates: ['header', 'setupDB', 'footer'],
+			before: function () {
+				document.title = 'CCMS';
+			},
 			done: function () {
 				
-				document.title = 'CCMS';
-				
-				$('#setup-db-docs').submit(function () { // on save
-					
-					var couchdb = new CouchDB(config.couchdbProxy);
-						couchdb.authorization.add({
-							username: $('#setup-db-docs-username').val(),
-							password: $('#setup-db-docs-password').val()
-						});
-					var database = couchdb.database(config.database);
-					
-					saveDocs(database);
-				
-					return false; // so the page doesn't reload
-				
-				});
+				$('#setup-db').submit(setupDB);
 				
 			} // done()
 		}

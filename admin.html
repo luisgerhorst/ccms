@@ -114,7 +114,9 @@
 			
 			<p class="margin10px"><input type="checkbox" id="post-edit-auto-create-post-id" name="autoCreatePostID" checked> <label for="autoCreatePostID">Create URL automatically using title <span class="light">(uncheck to edit URL)</span></label></p>
 			
-			<p><code>/post/</code><input type="text" id="post-edit-postID" class="post-postID" data-old-post-id="{{postID}}" value="{{postID}}" placeholder="post-id" readonly="readonly" ></p>
+			<p class="margin10px"><code>/post/</code><input type="text" id="post-edit-postID" class="post-postID" data-old-post-id="{{postID}}" value="{{postID}}" placeholder="post-id" readonly="readonly" ></p>
+			
+			<p><a href="index.html#/post/{{postID}}" target="_blank">Visit</a> this post on your site.</a></p>
 			
 			<input id="post-edit-submit" type="submit" value="Save">
 			<input id="post-edit-delete" type="button" value="Delete" class="red">

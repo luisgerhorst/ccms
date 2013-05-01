@@ -23,11 +23,14 @@ var CouchDB = function (proxyURL) {
 	// Utilities
 	
 	var parseError = function (jqXHR) {
-		var status = jqXHR.status;
-		if (status !== 200 && status !== 201) return {
-			code: status,
+		
+		var code = jqXHR.status;
+		
+		if (code !== 200 && code !== 201) return {
+			code: code,
 			message: jqXHR.statusText
 		};
+		
 		else return false;
 	};
 	
@@ -95,13 +98,22 @@ var CouchDB = function (proxyURL) {
 	
 	this.Database = function (databaseName) {
 		
+		var AjaxOptions = function (options) {
+			
+			var documentPath = options.document ? '/' + options.document : '';
+			
+			this.type = options.type || 'GET';
+			this.url = proxyURL + '/' + databaseName + documentPath;
+			this.data = JSON.stringify(options.data);
+			this.contentType = 'application/json';
+			
+		};
+		
 		var request = function (options, done) {
 			
-			options.url = proxyURL + '/' + databaseName + '/' + options.document;
-			options.document = null;
-			options.data = JSON.stringify(options.data);
+			options = new AjaxOptions(options);
 			
-			if (options.type !== 'GET' && options.type !== 'HEAD' && !credentials.cookie && credentials.username && credentials.password) {
+			if (!credentials.cookie && credentials.username && credentials.password) {
 				options.beforeSend = function (xhr) {
 					xhr.setRequestHeader('Authorization', 'Basic ' + btoa(credentials.username + ':' + credentials.password));
 				};
@@ -119,8 +131,7 @@ var CouchDB = function (proxyURL) {
 		this.read = function (document, callback) {
 			
 			request({
-				document: document,
-				type: 'GET'
+				document: document
 			}, function (data, textStatus, jqXHR) {
 				callback(JSON.parse(data), parseError(jqXHR));
 			});
@@ -149,8 +160,7 @@ var CouchDB = function (proxyURL) {
 		this.view = function (doc, func, callback) {
 			
 			request({
-				document: '_design/' + doc + '/_view/' + func,
-				type: 'GET'
+				document: '_design/' + doc + '/_view/' + func
 			}, function (data, textStatus, jqXHR) {
 				callback(JSON.parse(data), parseError(jqXHR));
 			});
@@ -159,31 +169,54 @@ var CouchDB = function (proxyURL) {
 			
 		};
 			
-		this.save = function (document, data, callback) {
+		this.save = function (parameterOne, parameterTwo, parameterThree) {
 			
-			request({
-				document: document,
-				type: 'HEAD'
-			}, function (headResponse, textStatus, jqXHR) {
+			var put = function () {
 				
-				var status = jqXHR.status;
-				data._rev = status === 200 ? jqXHR.getResponseHeader('Etag').replace(/"/g, '') : undefined;
+				var document = parameterOne, data = parameterTwo, callback = parameterThree;
 				
-				if (status === 404 || status === 200) {
+				request({
+					document: document,
+					type: 'HEAD'
+				}, function (headResponse, textStatus, jqXHR) {
 					
-					request({
-						document: document,
-						type: 'PUT',
-						data: data
-					}, function (data, textStatus, jqXHR) {
-						callback(JSON.parse(data), parseError(jqXHR));
-					});
+					var status = jqXHR.status;
 					
-				}
+					data._rev = status === 200 ? jqXHR.getResponseHeader('Etag').replace(/"/g, '') : undefined;
+					
+					if (status === 404 || status === 200) {
+						
+						request({
+							document: document,
+							type: 'PUT',
+							data: data
+						}, function (data, textStatus, jqXHR) {
+							callback(JSON.parse(data), parseError(jqXHR));
+						});
+						
+					}
+					
+					else callback(null, parseError(jqXHR));
+					
+				});
 				
-				else callback(null, parseError(jqXHR));
+			};
+			
+			var post = function () {
 				
-			});
+				var data = parameterOne, callback = parameterTwo;
+				
+				request({
+					type: 'POST',
+					data: data
+				}, function (data, textStatus, jqXHR) {
+					callback(JSON.parse(data), parseError(jqXHR));
+				});
+				
+			};
+			
+			if (typeof parameterOne === 'string') put();
+			else post();
 			
 			return this;
 				

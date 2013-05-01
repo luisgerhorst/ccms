@@ -7,14 +7,16 @@ var Template = function () {
 	
 	var getCurrentPath = function () {
 		var url = document.URL;
-		if (/#.+$/.test(url)) {
-			url = url.replace(/^.*#/, '').replace(/\/$/, '');
-			if (url === '') url = '/';
-		} else url = '/';
+		url = /#.+$/.test(url) ? url.replace(/^.*#/, '') : '/';
+		url = url === '/' ? url : url.replace(/\/$/, '');
 		return url;
 	};
 	
-	var render = function (templateIDs, done, before, currentPath) {
+	/**
+	 * Receives a route and render's the templates specified in the route.
+	 */
+	
+	var render = function (route, currentPath) {
 		
 		// Utilities
 		
@@ -27,11 +29,11 @@ var Template = function () {
 		
 		// Actions
 		
-		before(currentPath);
+		route.before(currentPath);
 		
 		// Vars
 		
-		var html = [], loadedViews = {};
+		var html = [], loadedViews = {}, templateIDs = route.templateIDs, done = route.done;
 		
 		var print = function () {
 			
@@ -40,21 +42,6 @@ var Template = function () {
 			var isDone = true;
 			for (var j = templateIDs.length; j--;) if (!html[j]) isDone = false;
 			if (isDone) done(loadedViews, currentPath);
-			
-		};
-		
-		/**
-		 * You have to use an extra function for this.
-		 * Otherwise all vars (i, ...) that are used in the callback and are changed by the loop, would already have changed until the callback is called.
-		 */
-		
-		var viewCallbackNamespace = function (i, templateID, view, template) {
-			
-			view(function (response) {
-				html[i] = Mustache.render(template, response);
-				loadedViews[templateID] = response;
-				print();
-			}, currentPath);
 			
 		};
 		
@@ -68,7 +55,19 @@ var Template = function () {
 			
 			switch (type) {
 				case 'function':
-					viewCallbackNamespace(i, templateID, view, template);
+					/**
+					 * You have to use an extra function for this.
+					 * Otherwise all vars that are used in the callback will already have changed when it's executed.
+					 */
+					(function (i, templateID, view, template) {
+						
+						view(function (response) {
+							html[i] = Mustache.render(template, response);
+							loadedViews[templateID] = response;
+							print();
+						}, currentPath);
+						
+					})(i, templateID, view, template);
 					break;
 				case 'object':
 					html[i] = Mustache.render(template, view);
@@ -82,22 +81,26 @@ var Template = function () {
 			
 		}
 		
-		if (!templateIDs.length) done({}, currentPath);
+		if (!templateIDs.length) done(loadedViews, currentPath);
 	
 	};
 	
-	var load = function () { // called when the path changes
+	/**
+	 * Search a route that matches the current path.
+	 */
+	
+	var load = function () {
 		
 		var currentPath = getCurrentPath();
 		
 		var i = routes.length;
 		
 		var match = function (route) {
-			render(route.templateIDs, route.done, route.before, currentPath); // render the templates into the body
-			i = 0; // stop the loop
+			render(route, currentPath);
+			i = 0;
 		};
 		
-		for (i; i--;) { // counts down from array.length-1 to 0, this is IMPORTANT to make shure new routes overwrite old routes
+		for (i; i--;) { // new routes overwrite old routes
 			
 			var route = routes[i];
 			var path = route.path;
@@ -131,7 +134,10 @@ var Template = function () {
 	
 	// Actions
 	
-	/** url change detection via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js */
+	/**
+	 * URL-change detection via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js
+	 */
+	 
 	if ('onhashchange' in window) window.onhashchange = load;
 	else {
 		var hash = window.location.hash;
@@ -144,6 +150,10 @@ var Template = function () {
 	}
 	
 	// Methods
+	
+	/**
+	 * Formats and adds routes.
+	 */
 	
 	this.route = function (parameter) {
 		
@@ -173,6 +183,10 @@ var Template = function () {
 		
 	};
 	
+	/**
+	 * Used to specify a view for a template.
+	 */
+	
 	this.render = function (parameter, view) {
 		
 		if (typeof parameter === 'object' && typeof view === 'undefined') for (var i in parameter) views[i] = parameter[i];
@@ -180,7 +194,7 @@ var Template = function () {
 		
 	};
 	
-	this.load = load;
+	this.load = load();
 	
 	this.currentPath = getCurrentPath;
 	

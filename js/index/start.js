@@ -6,7 +6,7 @@ $(document).ready(function () {
 
 		config = response;
 		couchdb = new CouchDB(config.couchdbProxy);
-		database = couchdb.database(config.database);
+		database = new couchdb.Database(config.database);
 
 		database.read('meta', function (response, error) {
 
