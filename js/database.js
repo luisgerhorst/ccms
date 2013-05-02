@@ -28,7 +28,8 @@ var CouchDB = function (proxyURL) {
 		
 		if (code !== 200 && code !== 201) return {
 			code: code,
-			message: jqXHR.statusText
+			message: jqXHR.statusText,
+			jqXHR: jqXHR
 		};
 		
 		else return false;
@@ -104,8 +105,8 @@ var CouchDB = function (proxyURL) {
 			
 			this.type = options.type || 'GET';
 			this.url = proxyURL + '/' + databaseName + documentPath;
-			this.data = JSON.stringify(options.data);
-			this.contentType = 'application/json';
+			this.data = JSON.stringify(options.data) || undefined;
+			this.contentType = this.data ? 'application/json' : undefined;
 			
 		};
 		

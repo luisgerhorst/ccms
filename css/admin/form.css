@@ -1,9 +1,5 @@
 form p {
-	margin: 0 0 20px 0;
-}
-
-form p.margin10px {
-	margin: 0 0 10px 0;
+	display: block;
 }
 
 form p span.light {

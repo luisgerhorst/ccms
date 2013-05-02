@@ -129,42 +129,28 @@ function routes() {
 				var post = new Post(content, date, postID, title);
 				
 				updateCopyrightYears(database);
+				
+				if (!post.postID || !post.title) alert('Please enter title and URL.');
 
-				if (post.postID && post.title) {
+				else {
 					
-					database.read('posts', function (posts, error) { // read posts
-					
-						if (!posts.ids[post.postID]) { // check if postID exists
+					database.view('posts', 'postID?key="' + post.postID + '"', function (response, error) { if (!error) {
+						
+						if (response.rows.length) alert('Post with URL /post/' + post.postID + ' does already exist.');
+						
+						else {
 							
-							database.save(post, function (postResponse, error) { // save post
-					
-								if (error) console.log('Error.', error);
-					
-								else {
-									
-									posts.ids[post.postID] = postResponse.id; // save doc id with post id as key
-									
-									database.save(posts, function (response, error) { // save post
-									
-										if (error) console.log('Error.', error);
-									
-										else window.location = '#/';
-									
-									});
-									
-								}
-					
+							database.save(post, function (response, error) { if (!error)
+						
+								window.location = '#/';
+						
 							});
-					
+						
 						}
-					
-						else alert('Post with URL /post/' + post.postID + ' does already exist.');
-					
-					});
+							
+					}});
 
 				}
-
-				else alert('Please enter title and URL.');
 
 				return false; // so the page doesn't reload
 
@@ -212,34 +198,21 @@ function routes() {
 
 				if (post.postID && post.title) {
 					
-					database.read('posts', function (posts, error) { if (!error) {
-							
-						if (!posts.ids[post.postID]) {
+					database.view('posts', 'postID?key="' + post.postID + '"', function (response, error) { if (!error) {
+						
+						console.log(response);
+						
+						if (response.rows.length && response.rows[0].value._id !== documentID) alert('Post with URL /post/' + post.postID + ' does already exist.');
+						
+						else {
 							
 							database.save(documentID, post, function (response, error) { if (!error) {
-									
-								var oldPostID = postID.data('old-post-id');
-								
-								if (post.postID !== oldPostID) { // postID has changed
-									
-									posts.ids[oldPostID] = undefined;
-									posts.ids[post.postID] = documentID;
-									
-									database.save('posts', posts, function (response, error) { if (!error) 
-										
-										window.location = '#/';
-									
-									});
-									
-								}
-								
-								else window.location = '#/';
-									
-							}});
-							
-						}
 						
-						else alert('Post with URL /post/' + post.postID + ' does already exist.');
+								window.location = '#/';
+						
+							}});
+						
+						}
 							
 					}});
 
@@ -252,28 +225,15 @@ function routes() {
 			});
 
 			$('#post-edit-delete').click(function () {
-				var remove = confirm('Do you really want to delete this post?');
-				if (remove) {
-					
-					var docError = true, postsError = true;
+				
+				if (confirm('Do you really want to delete this post?')) {
 					
 					database.remove(documentID, function (response, error) {
-						if (!error) docError = false;
-						if (!docError && !postsError) window.location = '#/';
+						if (!error) window.location = '#/';
 					});
 					
-					database.read('posts', function (posts, error) { if (!error) {
-						
-						posts.ids[oldPostID] = undefined;
-							
-						database.save('posts', posts, function (response, error) {
-							if (!error) postsError = false;
-							if (!docError && !postsError) window.location = '#/';
-						});
-							
-					}});
-					
 				}
+				
 			});
 
 		}

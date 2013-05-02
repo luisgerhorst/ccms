@@ -43,7 +43,7 @@ function render() {
 				
 			}
 		
-			var func = 'all?descending=true&skip=' + skip + '&limit=' + postsPerPage;
+			var func = 'date?descending=true&skip=' + skip + '&limit=' + postsPerPage;
 			
 			database.view('posts', func, function (response, error) {
 				
@@ -63,23 +63,11 @@ function render() {
 			
 			var postID = path.replace(/^\/post\//, '');
 			
-			database.read('posts', function (response, error) {
+			database.view('posts', 'postID?key="' + postID + '"', function (response, error) {
 				
-				if (error) console.log('Error.', error, 'posts');
+				if (error) console.log('Error.', error);
 				
-				var documentID = response.ids[postID] || false;
-				
-				if (documentID !== false) {
-					
-					database.read(documentID, function (response, error) {
-						
-						if (error) console.log('Error.', error, 'posts');
-						
-						callback(response);
-						
-					});
-					
-				}
+				callback(response.rows[0].value);
 				
 			});
 			

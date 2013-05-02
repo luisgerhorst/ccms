@@ -83,15 +83,10 @@ function render() {
 			
 			var postID = path.replace(/^\/post\//, '');
 			
-			if (postCache[postID] != null) { // if 
+			if (postCache[postID] != null) callback(postCache[postID]); // post cache
+			else {
 				
-				// console.log('Post with ID ' + postID + ' already cached in postCache.');
-				callback(postCache[postID]);
-				return;
-				
-			} else {
-				
-				var postsCacheIndex = null;
+				var postsCacheIndex = false;
 				for (var i = postsCache.length; i--;) {
 					if (postsCache[i].postID == postID) {
 						postsCacheIndex = i;
@@ -99,22 +94,28 @@ function render() {
 					}
 				}
 				
-				if (postsCacheIndex !== null) { // if post is in posts cache
+				if (postsCacheIndex !== false) { // posts cache
 					
-					// console.log('Post with ID ' + postID + ' already loaded into indexCache at ' + indexCachePlace + '.');
 					var post = postsCache[postsCacheIndex];
 					postCache[postID] = post;
 					callback(post);
 					
-				} else {
+				} else database.read('posts', function (response, error) {
+						
+					if (error) console.log('Error.', error, 'posts');
 					
-					database.read('post-' + postID, function (response, error) {
-						if (error) console.log('Error while getting view "' + func + '" of design document "posts".', error);
+					var documentID = response.ids[postID] || false;
+					
+					if (documentID) database.read(documentID, function (response, error) {
+							
+						if (error) console.log('Error.', error, 'posts');
+						
 						postCache[postID] = response;
 						callback(response);
-					}); // loads the newest posts
-					
-				}
+						
+					});
+						
+				});
 				
 			}
 			

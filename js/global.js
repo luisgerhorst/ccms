@@ -1,1 +1,4 @@
-var ccmsDatabaseVersion = 2;
+var ccms = {
+	databaseFormatBuild: 3,
+	version: '0.1'
+}

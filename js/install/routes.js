@@ -13,7 +13,7 @@ function routes() {
 					validate_doc_update: "function(newDoc, oldDoc, userCtx) { if (userCtx.roles.indexOf('_admin') !== -1) { return; } else { throw({forbidden: 'Only admins may edit the database'}); } }"
 				}
 			},
-			designPosts: { // post views
+			designPosts: {
 				id: '_design/posts',
 				content: {
 					language: "javascript",
@@ -27,10 +27,10 @@ function routes() {
 					}
 				}
 			},
-			meta: { // meta
+			meta: {
 				id: 'meta',
 				content: {
-					ccmsVersion: ccmsVersion,
+					ccms: ccms,
 					copyright: title,
 					copyrightYears: year + '',
 					copyrightYearsEnd: year,
@@ -39,32 +39,34 @@ function routes() {
 					postsPerPage: 10,
 					title: title
 				}
+			},
+			posts: {
+				id: 'posts',
+				content: {
+					ids: []
+				}
 			}
 		};
 		
-		for (var i in docs) {
+		for (var i in docs) (function (i) {
+				
+			var doc = docs[i];
 			
-			(function (i) {
+			database.save(doc.id, doc.content, function (response, error) {
 				
-				var doc = docs[i];
+				if (error) console.log('Error while saving document.', doc.id, error);
+				else {
+					console.log('Successfully saved document.', doc.id);
+					docs[i].created = true;
+				}
 				
-				database.save(doc.id, doc.content, function (response, error) {
-					
-					if (error) console.log('Error while saving document.', doc.id, error);
-					else {
-						console.log('Successfully saved document.', doc.id);
-						docs[i].created = true;
-					}
-					
-					var allCreated = true;
-					for (var j in docs) if (!docs[j].created) allCreated = false;
-					if (allCreated) window.location = 'admin.html#/';
-					
-				});
+				var allCreated = true;
+				for (var j in docs) if (!docs[j].created) allCreated = false;
+				if (allCreated) window.location = 'admin.html#/';
 				
-			})(i);
+			});
 			
-		}
+		})(i);
 		
 	};
 	

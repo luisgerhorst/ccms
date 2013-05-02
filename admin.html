@@ -118,8 +118,8 @@
 			
 			<p><a href="index.html#/post/{{postID}}" target="_blank">Visit</a> this post on your site.</a></p>
 			
-			<input id="post-edit-submit" type="submit" value="Save">
 			<input id="post-edit-delete" type="button" value="Delete" class="red">
+			<input id="post-edit-submit" type="submit" value="Save">
 			
 		</form>
 
@@ -148,6 +148,8 @@
 	</script>
 	
 	<script type="text/ccms-template" data-template-id="meta">
+		
+		<div class="meta">
 	
 		<form id="meta-edit" action="javascript:void(0);">
 			
@@ -167,7 +169,13 @@
 			
 		</form>
 		
-		<p>CCMS Version: <code>{{ccmsVersion}}</code></p>
+		{{#ccms}}
+		<h3 class="margin10px">About:</h3>
+		<p class="margin10px">Version: <code>{{version}}</code></p>
+		<p>Database Format Build: <code>{{databaseFormatBuild}}</code></p>
+		{{/ccms}}
+		
+	</div> <!-- .meta -->
 		
 	</script>
 
