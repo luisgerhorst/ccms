@@ -1,25 +1,24 @@
 function render() {
 	
-	var postsCache = [], postCache = {};
+	var cache = {
+		index: [],
+		post: {}
+	};
 	
 	template.render({
 		header: meta,
 		footer: meta,
 		index: function (callback, path) {
-			
-			var postsPerPage = meta.postsPerPage,
-				page = path === '/' ? 0 : parseInt(path.replace(/^\/page\//, '')),
-				skip = postsPerPage * page;
 				
-			var View = function (posts) {
+			var View = function (posts, page) {
 				
 				this.previousPage = function () {
-					if (page === 0) return false;
+					if (page === 0) return false; // no previous page
 					else return { number: page - 1 };
 				};
 				
 				this.nextPage = function () {
-					if (posts.length !== postsPerPage) return false; // if there are less posts as possible
+					if (posts.length !== postsPerPage) return false; // if there are less posts than possible
 					else return { number: page + 1 };
 				};
 				
@@ -27,95 +26,115 @@ function render() {
 				
 			};
 			
-			var fromDatabase = function () {
+			var fromDatabase = function (skip, postsPerPage) {
 				
-				var func = 'all?descending=true&skip=' + skip + '&limit=' + postsPerPage;
+				var func = 'byDate?descending=true&skip=' + skip + '&limit=' + postsPerPage;
 				
 				database.view('posts', func, function (response, error) {
 					
 					if (error) console.log('Error while getting view "' + func + '" of design document "posts".', error);
 					
-					var posts = [], rows = response.rows, l = rows.length;
+					var loaded = [], rows = response.rows;
 						
+					var l = rows.length;
 					for (var i = 0; i < l; i++) {
-						
 						var post = rows[i].value;
-						
-						posts.push(post);
-						postsCache[skip+i] = post;
-						
+						loaded.push(post);
+						cache.index[skip+i] = post;
 					}
 					
-					callback(new View(posts));
+					callback(new View(loaded, page));
 					
 				});
 				
 			};
 			
-			var fromCache = function () {
+			var fromCache = function (skip, postsPerPage) {
 				
-				var posts = [], inCache = true;
+				var posts = [], cached = true;
 				
 				for (var k = skip; k < skip + postsPerPage; k++) {
 					
-					var post = postsCache[k];
+					var post = cache.index[k];
 					
 					if (post) {
 						posts.push(post);
-					}
-					
-					else {
-						inCache = false;
+					} else {
+						cached = false;
 						k = skip + postsPerPage; // end loop
 					}
 					
 				}
 				
-				if (inCache) callback(new View(posts));
-				else fromDatabase();
+				return cached ? posts : false;
 				
 			};
 			
-			fromCache();
+			// Actions
+			
+			var postsPerPage = meta.postsPerPage,
+				page = path === '/' ? 0 : parseInt(path.replace(/^\/page\//, '')),
+				skip = postsPerPage * page;
+			
+			var cached = fromCache(skip, postsPerPage);
+			
+			if (cached) callback(new View(cached, page));
+			else fromDatabase(skip, postsPerPage, page);
 			
 		},
 		post: function (callback, path) {
 			
 			var postID = path.replace(/^\/post\//, '');
 			
-			if (postCache[postID] != null) callback(postCache[postID]); // post cache
-			else {
+			var parseIndexCache = function (postID) {
 				
-				var postsCacheIndex = false;
-				for (var i = postsCache.length; i--;) {
-					if (postsCache[i].postID == postID) {
-						postsCacheIndex = i;
-						i = 0; // stop loop
+				var index = false;
+				
+				for (var i = cache.index.length; i--;) {
+					if (cache.index[i].postID == postID) {
+						index = i;
+						i = 0;
 					}
 				}
 				
-				if (postsCacheIndex !== false) { // posts cache
+				return index;
+				
+			};
+			
+			var fromIndexCache = function (index, postID) {
+				
+				var post = cache.index[index];
+				cache.post[postID] = post;
+				callback(post);
+				
+			};
+			
+			var fromDatabase = function (postID) {
+				
+				database.view('posts', 'byPostID?key="' + postID + '"', function (response, error) {
 					
-					var post = postsCache[postsCacheIndex];
-					postCache[postID] = post;
+					if (error) console.log('Error.', error);
+					
+					var post = response.rows[0].value;
+					
+					cache.post[postID] = post;
 					callback(post);
 					
-				} else database.read('posts', function (response, error) {
-						
-					if (error) console.log('Error.', error, 'posts');
-					
-					var documentID = response.ids[postID] || false;
-					
-					if (documentID) database.read(documentID, function (response, error) {
-							
-						if (error) console.log('Error.', error, 'posts');
-						
-						postCache[postID] = response;
-						callback(response);
-						
-					});
-						
 				});
+				
+			};
+			
+			// Actions
+			
+			var cached = cache.post[postID];
+			
+			if (cached) callback(cached);
+			else {
+				
+				var index = parseIndexCache(postID);
+				
+				if (index !== false) fromIndexCache(index, postID);
+				else fromDatabase(postID);
 				
 			}
 			

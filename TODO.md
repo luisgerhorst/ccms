@@ -1,8 +1,6 @@
 - add default theme
 - style install.html
-- clear CouchDB Ajax request code
-- clear admin theme form js
 - html notifications for admin theme
 - change theme without having to replace index.html
-- use CouchDB's random ID ad doc id for posts -> doc id doesn't change when post id changes
 - prefix for CouchDB accounts used by CCMS
+- CouchDB views are named like "byPostID" or "publishedByDate"

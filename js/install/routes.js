@@ -18,11 +18,11 @@ function routes() {
 				content: {
 					language: "javascript",
 					views: {
-						all: {
+						byDate: {
 							map: "function (doc) { if (doc.type === 'post') emit([doc.date, doc.postID], doc); }"
 						},
-						date: {
-							map: "function (doc) { if (doc.type === 'post') emit(doc.date, doc.postID); }"
+						byPostID: {
+							map: "function (doc) { if (doc.type === 'post') emit(doc.postID, doc); }"
 						}
 					}
 				}
@@ -38,12 +38,6 @@ function routes() {
 					description: '',
 					postsPerPage: 10,
 					title: title
-				}
-			},
-			posts: {
-				id: 'posts',
-				content: {
-					ids: []
 				}
 			}
 		};

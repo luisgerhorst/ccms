@@ -43,7 +43,7 @@ function render() {
 				
 			}
 		
-			var func = 'date?descending=true&skip=' + skip + '&limit=' + postsPerPage;
+			var func = 'byDate?descending=true&skip=' + skip + '&limit=' + postsPerPage;
 			
 			database.view('posts', func, function (response, error) {
 				
@@ -63,7 +63,7 @@ function render() {
 			
 			var postID = path.replace(/^\/post\//, '');
 			
-			database.view('posts', 'postID?key="' + postID + '"', function (response, error) {
+			database.view('posts', 'byPostID?key="' + postID + '"', function (response, error) {
 				
 				if (error) console.log('Error.', error);
 				

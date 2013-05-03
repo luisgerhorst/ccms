@@ -134,7 +134,7 @@ function routes() {
 
 				else {
 					
-					database.view('posts', 'postID?key="' + post.postID + '"', function (response, error) { if (!error) {
+					database.view('posts', 'byPostID?key="' + post.postID + '"', function (response, error) { if (!error) {
 						
 						if (response.rows.length) alert('Post with URL /post/' + post.postID + ' does already exist.');
 						
@@ -198,7 +198,7 @@ function routes() {
 
 				if (post.postID && post.title) {
 					
-					database.view('posts', 'postID?key="' + post.postID + '"', function (response, error) { if (!error) {
+					database.view('posts', 'byPostID?key="' + post.postID + '"', function (response, error) { if (!error) {
 						
 						console.log(response);
 						
