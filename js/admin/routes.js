@@ -81,7 +81,7 @@ function routes() {
 			this.postID = encodeURI(postID.val());
 			this.title = title.val();
 			this.type = 'post';
-		}
+		};
 
 		var createPostID = function (string) {
 			return string.replace(/[\s\W]+/g, '-').replace(/^-|-$/g, '').toLowerCase();
