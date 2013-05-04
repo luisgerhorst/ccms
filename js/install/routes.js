@@ -67,7 +67,7 @@ function routes() {
 	var setupDB = function () { // on save
 		
 		var couchdb = new CouchDB(config.couchdbProxy).forget().authorize({
-			username: $('#setup-db-username').val(),
+			username: 'ccms/' + $('#setup-db-username').val(),
 			password: $('#setup-db-password').val()
 		});
 		var database = new couchdb.Database(config.database);

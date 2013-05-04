@@ -60,7 +60,7 @@ var CouchDB = function (proxyURL) {
 			var options = {
 				url: proxyURL + '/_session',
 				type: 'POST',
-				data: 'name=' + credentials.username + '&password=' + credentials.password,
+				data: 'name=' +  encodeURIComponent(credentials.username) + '&password=' +  encodeURIComponent(credentials.password),
 				contentType: 'application/x-www-form-urlencoded'
 			};
 			
