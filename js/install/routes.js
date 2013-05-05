@@ -21,6 +21,9 @@ function routes() {
 						byDate: {
 							map: "function (doc) { if (doc.type === 'post') emit([doc.date, doc.postID], doc); }"
 						},
+						compactByDate: {
+							map: "function (doc) { if (doc.type === 'post') emit([doc.date, doc.postID]); }"
+						},
 						byPostID: {
 							map: "function (doc) { if (doc.type === 'post') emit(doc.postID, doc); }"
 						}

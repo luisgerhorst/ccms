@@ -6,6 +6,7 @@ function render() {
 			
 			database.read('meta', function (response, error) {
 				if (error) console.log('Error while getting view "' + func + '" of design document "posts".', error);
+				else meta = response;
 				callback(response);
 			}); // loads the newest posts
 			
@@ -15,6 +16,7 @@ function render() {
 			
 			database.read('meta', function (response, error) {
 				if (error) console.log('Error while getting view "' + func + '" of design document "posts".', error);
+				else meta = response;
 				callback(response);
 			}); // loads the newest posts
 			
@@ -22,24 +24,23 @@ function render() {
 		
 		index: function (callback, path) {
 			
-			var postsPerPage = 10, page;
-			if (path === '/') page = 0;
-			else page = parseInt(path.replace(/^\/page\//, ''), 10);
-			var skip = postsPerPage * page;
+			var postsPerPage = 2,
+				pageIndex = path === '/' ? 0 : parseInt(path.replace(/^\/page\//, '')),
+				skip = postsPerPage * pageIndex;
 			
-			function View(posts) {
+			function View(page) {
 				
 				this.previousPage = function () {
-					if (page === 0) return false;
-					else return { number: page-1 };
+					if (pageIndex === 0) return false;
+					else return { number: pageIndex-1 };
 				};
 				
 				this.nextPage = function () {
-					if (posts.length !== postsPerPage) return false; // if there are less posts then possible
-					else return { number: page+1 };
+					if (page.hasNext) return { number: pageIndex+1 }; // if there are less posts then possible
+					else return false;
 				};
 				
-				this.posts = posts;
+				this.posts = page.posts;
 				
 			}
 		
@@ -53,7 +54,18 @@ function render() {
 				var rows = response.rows;
 				for (var i = rows.length; i--;) posts[i] = rows[i].value;
 				
-				callback(new View(posts));
+				func = 'compactByDate?descending=true&skip=' + ( skip + postsPerPage ) + '&limit=1';
+				
+				database.view('posts', func, function (response, error) {
+					
+					if (error) console.log('Error while getting view "' + func + '" of design document "posts".', error);
+					
+					callback(new View({
+						posts: posts,
+						hasNext: response.rows.length ? true : false
+					}));
+					
+				});
 				
 			});
 			

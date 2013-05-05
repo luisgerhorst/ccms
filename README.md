@@ -22,7 +22,7 @@ Because of the browser's [Same-Origin-Policy](http://de.wikipedia.org/wiki/Same-
 
 Open your Apache's `httpd.conf` file with a text editor. If you're for example using LAMPP, it's located at `/opt/lampp/etc/httpd.conf`.
 
-Make shure the line `LoadModule proxy_module modules/mod_proxy.so` isn't commented out with a `	#`. If so, remove the `# `.
+Make shure the line `LoadModule proxy_module modules/mod_proxy.so` isn't commented out with a `#` (if so, remove the `#`).
 
 Now, let's configure the proxy by adding this to the file.
 
