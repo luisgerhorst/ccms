@@ -1,8 +1,8 @@
 # CCMS
 
-CCMS is a Content-Management-System for blogs that doesn't require any custom backend (such as PHP, Ruby on Rails or node.js). This is possible by using [CouchDB](http://couchdb.apache.org)'s HTTP API. Another important feature is that the site dynamically loads required contents from the database using JavaScript. This means there's no reload while navigating on the blog.
+CCMS is a Content-Management-System for blogs, it doesn't require any custom backend (such as PHP, Ruby on Rails or node.js). This is possible by using [CouchDB](http://couchdb.apache.org)'s HTTP API. Another important feature is that the site dynamically loads required contents from the database using JavaScript. This means there's no reload while navigating on the blog.
 	
-CCMS is in very very early **ALPHA**. If you anyway want to try it just [send me a mail](mailto:luis@luisgerhorst.de) and I'll help you. Thanks!
+CCMS is currently in very very early **ALPHA**. If you anyway want to try it just [send me a mail](mailto:luis@luisgerhorst.de) and I'll help you with the installation. Thanks!
 
 # Installation
 
@@ -12,9 +12,9 @@ You first have to add some special configurations to your server. Maybe I'll add
 
 Install CouchDB on [Mac, Windows, download the Source](http://couchdb.apache.org/#download) or on [Ubuntu, FreeBSD, etc.](http://wiki.apache.org/couchdb/Installation)
 
-First you have to create a admin for CCMS. Because of security reasons, all CouchDB accounts used by CCMS *must* begin with `ccms/`, after the `/`, the actual username you'll have to use to log in to the CCMS admin panel begins. For the beginning, now create an account named `ccms/admin`.
+First you have to create a admin for CCMS. Because of security reasons, all CouchDB accounts used by CCMS *must* begin with `ccms/`, after the `/`, the actual username you'll have to use to log in to the CCMS admin panel begins. For the beginning, create an account named `ccms/admin`.
 
-Create a database named `ccms`. Add the user `ccms/admin` to the  database's Admins (very important, otherwiese everyone can edit the database).
+Create a database named `ccms`. Add the user `ccms/admin` to the  database's Admins (very important, otherwise everyone can edit the database).
 
 ## Apache
 
@@ -43,14 +43,16 @@ Open `http://yourdomain.com/couchdb/ccms`. You should see some basic info about 
 
 ## config.json
 
-So the clients know where the database is. Edit this file and enter your information.
+This file contains some basic information about the configuration of your backend.
 
-`couchdbProxy`: The first part of the path you used for Apache's proxy for CouchDB, default is `/couchdb`.
+`proxy`: The first part of the path you used for Apache's CouchDB proxy, default is `/couchdb`.
 
-`database`: Name of the database you created for CCMS, default is `ccms`.
+`accountPrefix`: The prefix you want to use for CouchDB accounts used by CCMS, when you log in to CCMS you only have to enter everything after this prefix. Means, when you create an CouchDB account named `ccms/admin`, you can login to it using CCMS by entering the username `admin`. Default is `ccms/`.
+
+`database`: Name of the CouchDB database you created for CCMS, default is `ccms`.
 
 ## Database
 
-Open `/install.html` and set up you database! You have to enter the credentials of the CouchDB account for CCMS (if the user is named `ccms/admin`, enter `admin` as username).
+Open `/install.html` and set up CCMS! You have to enter the credentials of the CouchDB account for CCMS (if the user is named `ccms/admin`, enter `admin` as username).
 
 After being redirected to `/admin.html` you can start blogging.

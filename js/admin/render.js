@@ -24,19 +24,19 @@ function render() {
 		
 		index: function (callback, path) {
 			
-			var postsPerPage = 2,
+			var postsPerPage = 10,
 				pageIndex = path === '/' ? 0 : parseInt(path.replace(/^\/page\//, '')),
 				skip = postsPerPage * pageIndex;
 			
-			function View(page) {
+			function View(pageIndex, page) {
 				
 				this.previousPage = function () {
 					if (pageIndex === 0) return false;
-					else return { number: pageIndex-1 };
+					else return { number: pageIndex - 1 };
 				};
 				
 				this.nextPage = function () {
-					if (page.hasNext) return { number: pageIndex+1 }; // if there are less posts then possible
+					if (page.hasNext) return { number: pageIndex + 1 }; // if there are less posts then possible
 					else return false;
 				};
 				
@@ -60,7 +60,7 @@ function render() {
 					
 					if (error) console.log('Error while getting view "' + func + '" of design document "posts".', error);
 					
-					callback(new View({
+					callback(new View(pageIndex, {
 						posts: posts,
 						hasNext: response.rows.length ? true : false
 					}));

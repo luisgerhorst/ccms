@@ -32,7 +32,7 @@ var login = function () {
 				
 					var c = couchdb;
 					c.authorize({
-						username: 'ccms/' + $('#login-username').val(),
+						username: config.accountPrefix + $('#login-username').val(),
 						password: $('#login-password').val()
 					});
 					var d = new c.Database(config.database);

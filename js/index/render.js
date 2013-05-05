@@ -10,9 +10,7 @@ function render() {
 		footer: meta,
 		index: function (callback, path) {
 				
-			var View = function (pageIndex) {
-				
-				var page = cache.index[pageIndex];
+			var View = function (pageIndex, page) {
 				
 				this.previousPage = function () {
 					if (pageIndex === 0) return false;
@@ -47,12 +45,14 @@ function render() {
 						
 						if (error) console.log('Error while getting view "' + func + '" of design document "posts".', error);
 						
-						cache.index[pageIndex] = {
+						var page = {
 							posts: loaded,
 							hasNext: response.rows.length ? true : false
 						};
 						
-						callback(new View(pageIndex));
+						cache.index[pageIndex] = page;
+						
+						callback(new View(pageIndex, page));
 						
 					});
 					
@@ -66,9 +66,9 @@ function render() {
 				pageIndex = path === '/' ? 0 : parseInt(path.replace(/^\/page\//, '')),
 				skip = postsPerPage * pageIndex;
 			
-			var cached = cache.index[pageIndex];
+			var page = cache.index[pageIndex];
 			
-			if (cached) callback(new View(pageIndex));
+			if (page) callback(new View(pageIndex, page));
 			else fromDatabase(skip, postsPerPage, pageIndex);
 			
 		},

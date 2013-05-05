@@ -4,7 +4,7 @@ $(document).ready(function () {
 		url: 'config.json'
 	}).done(function (response) {
 		config = response;
-		couchdb = new CouchDB(config.couchdbProxy);
+		couchdb = new CouchDB(config.proxy);
 		login();
 	});
 
