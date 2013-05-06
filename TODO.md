@@ -5,3 +5,4 @@
 - html notifications for admin theme
 - change theme without having to replace index.html
 - shell script that configures CouchDB and Apache
+- caching (in `Template`)

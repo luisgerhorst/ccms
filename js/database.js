@@ -64,13 +64,9 @@ var CouchDB = function (proxyURL) {
 				contentType: 'application/x-www-form-urlencoded'
 			};
 			
-			var ajax = $.ajax(options);
-			
-			ajax.fail(function (jqXHR, textStatus) {
-				console.log('Fail while ' + options.type + ' request to ' + options.url, textStatus, jqXHR);
-			});
-			
-			ajax.done(function () {
+			$.ajax(options).fail(function (jqXHR, textStatus) {
+				console.log('Error "' + textStatus + '" occured while ' + options.type + ' request to ' + options.url, jqXHR);
+			}).done(function () {
 				credentials.cookie = true;
 			});
 	
@@ -88,7 +84,7 @@ var CouchDB = function (proxyURL) {
 		};
 		
 		$.ajax(options).fail(function (jqXHR, textStatus) {
-			console.log('Fail while ' + options.type + ' request to ' + options.url, textStatus, jqXHR);
+			console.log('Error "' + textStatus + '" occured while ' + options.type + ' request to ' + options.url, jqXHR);
 		}).done(function () {
 			credentials.cookie = false;
 		});
@@ -96,6 +92,23 @@ var CouchDB = function (proxyURL) {
 		return this;
 		
 	};
+	
+	/*this.createUser = function (username, password) {
+		
+		var options = {
+			url: proxyURL + '/_config/admins/' + username,
+			type: 'PUT',
+			data: '"' + password + '"'
+		};
+		
+		$.ajax(options).fail(function (jqXHR, textStatus) {
+			console.log('Error "' + textStatus + '" occured while ' + options.type + ' request to ' + options.url, jqXHR);		}).done(function (data, textStatus, jqXHR) {
+			console.log(data, textStatus, jqXHR);
+		});
+		
+		return this;
+		
+	};*/
 	
 	this.Database = function (databaseName) {
 		
