@@ -3,7 +3,7 @@ function routes() {
 	template.route([
 		{
 			path: ['/', /^\/page\/\d+$/],
-			templates: ['header', 'index', 'footer'],
+			templates: ['header', 'posts', 'footer'],
 			before: function (path) {
 				if (path === '/page/0') window.location = '#/';
 				else document.title = meta.title;

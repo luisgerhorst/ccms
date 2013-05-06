@@ -8,7 +8,7 @@ function render() {
 	template.render({
 		header: meta,
 		footer: meta,
-		index: function (callback, path) {
+		posts: function (callback, path) {
 				
 			var View = function (pageIndex, page) {
 				

@@ -250,7 +250,7 @@ function routes() {
 		},
 		{
 			path: ['/', /^\/page\/\d+$/],
-			templates: ['header', 'index', 'footer'],
+			templates: ['header', 'posts', 'footer'],
 			before: function (cPath) {
 				if (cPath === '/page/0') window.location = '#/';
 				else document.title = meta.title;
@@ -279,7 +279,7 @@ function routes() {
 		},
 		{
 			path: '/create/post',
-			templates: ['header', 'postCreate', 'footer'],
+			templates: ['header', 'createPost', 'footer'],
 			done: postCreate
 		}
 	]);

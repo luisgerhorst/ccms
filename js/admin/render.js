@@ -22,7 +22,7 @@ function render() {
 			
 		},
 		
-		index: function (callback, path) {
+		posts: function (callback, path) {
 			
 			var postsPerPage = 10,
 				pageIndex = path === '/' ? 0 : parseInt(path.replace(/^\/page\//, '')),
