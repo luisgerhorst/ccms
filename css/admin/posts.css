@@ -1,45 +1,36 @@
-#posts, #content .template {
-	float: right;
-	width: 100%;
-	margin: 0 0 40px 0;
-}
-
 a.create-post button {
 	margin: 0 0 20px 0;
 }
 
-#posts ol {
+.posts ol {
 	list-style: none;
 }
 
-#posts ol a {
+.posts ol a {
 	text-decoration: none;
 }
 
-#posts ol a li {
+.posts ol a li {
 	padding: 20px 0 20px 0;
 	border-bottom: 1px rgb(240,240,240) solid;
 }
 
-#posts ol a:last-child li {
+.posts ol a:last-child li {
 	border-bottom: none;
+	padding: 20px 0 0 0;
 }
 
-#posts ol li h2 {
+.posts ol li h2 {
 	font-size: 16px;
 	line-height: 32px;
 }
 
-#posts ol li {
+.posts ol li {
 	font-size: 12px;
 	line-height: 24px;
 }
 
-#posts ol li span.postID {
-	float: right;
-}
-
-#posts button.page-nav {
+.posts button.page-nav {
 	margin: 20px 0 0 0;
 }
 

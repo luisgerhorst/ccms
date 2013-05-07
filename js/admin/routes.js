@@ -161,13 +161,13 @@ function routes() {
 		
 		this.meta = function (views) {
 			
-			$('#meta-edit').submit(function () { // on save
+			$('.meta form').submit(function () { // on save
 				
 				database.sc.updateMeta({
-					title: $('#meta-edit-title').val(),
-					description: $('#meta-edit-description').val(),
-					postsPerPage: parseInt($('#meta-edit-posts-per-page').val()),
-					copyright: $('#meta-edit-copyright').val()
+					title: $('.meta form .title').val(),
+					description: $('.meta form .description').val(),
+					postsPerPage: parseInt($('.meta form .postsPerPage').val()),
+					copyright: $('.meta form .copyright').val()
 				});
 				
 				return false; // no reload
@@ -176,12 +176,12 @@ function routes() {
 		
 		};
 		
-		var autoCreatedPostID = function (title, postIDInput, autoCreatePostIDCheckbox) {
+		var autoCreatedPostID = function (title, postIDElement, autoCreatePostIDElement) {
 			
-			if (createPostID(title) != postIDInput.val()) {
+			if (createPostID(title) != postIDElement.val()) {
 				
-				autoCreatePostIDCheckbox.attr('checked', false);
-				postIDInput.removeAttr('readonly');
+				autoCreatePostIDElement.attr('checked', false);
+				postIDElement.removeAttr('readonly');
 				
 			}
 			
@@ -189,12 +189,12 @@ function routes() {
 	
 		this.createPost = function (views) {
 			
-			var form = $('#post-create'),
-				contentTextarea = $('#post-create-content'),
-				dateInput = $('#post-create-date'),
-				postIDInput = $('#post-create-postID'),
-				titleInput = $('#post-create-title'),
-				autoCreatePostIDCheckbox = $('#post-create-auto-create-post-id');
+			var form = $('form.post.create'),
+				contentTextarea = $('form.post.create textarea.content'),
+				dateInput = $('form.post.create input.date'),
+				postIDInput = $('form.post.create input.postID'),
+				titleInput = $('form.post.create input.title'),
+				autoCreatePostIDCheckbox = $('form.post.create input.autoCreatePostID');
 			
 			// Actions
 			
@@ -236,13 +236,13 @@ function routes() {
 			
 			// Elements
 		
-			var contentTextarea = $('#post-edit-content'),
-				dateInput = $('#post-edit-date'),
-				postIDInput = $('#post-edit-postID'),
-				titleInput = $('#post-edit-title'),
-				autoCreatePostIDCheckbox = $('#post-edit-auto-create-post-id'),
-				form = $('#post-edit'),
-				deleteButton = $('#post-edit-delete');
+			var contentTextarea = $('form.post.edit .content'),
+				dateInput = $('form.post.edit .date'),
+				postIDInput = $('form.post.edit .postID'),
+				titleInput = $('form.post.edit .title'),
+				autoCreatePostIDCheckbox = $('form.post.edit .autoCreatePostID'),
+				form = $('form.post.edit'),
+				deleteButton = $('form.post.edit input.delete');
 				
 			
 			// Actions
@@ -303,7 +303,7 @@ function routes() {
 			},
 			done: function () {
 				
-				$('#posts ol li time').each(function (index) {
+				$('.posts ol li time').each(function (index) {
 					var timeElement = $(this);
 					var unix = parseInt(timeElement.attr('datetime'));
 					var date = moment.unix(unix).format('MMM D, YYYY'); // .fromNow();

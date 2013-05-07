@@ -2,42 +2,46 @@ form p {
 	display: block;
 }
 
-form p span.light {
+form span.light {
 	color: rgb(160,160,160);
 }
 
-form input.post-title {
+form.post .title {
 	width: 100%;
 	box-sizing: border-box;
 }
 
-form textarea.post-content {
+form.post .content {
 	box-sizing: border-box;
 	width: 100%;
 	max-width: 100%;
 	height: 220px;
 }
 
-form input.post-postID {
+form.post .postID {
 	line-height: 16px;
 	padding: 2px;
 	width: 160px;
 	font-family: Menlo, Consolas, Monaco, "Lucida Console", monospace;
 }
 
-#post-edit-delete {
+form.post .delete {
 	float: right;
 }
 
-#meta-edit label {
+.meta label {
 	display: block;
 	margin-bottom: 10px;
 }
 
-#meta-edit-description {
+.meta .description {
     min-width: 100%;
     width: 100%;
 	height: 80px;
+}
+
+#content footer {
+	margin: 40px 0 0 0;
 }
 
 #content p.margin10px, #content h3.margin10px {
