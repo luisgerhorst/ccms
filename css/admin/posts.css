@@ -1,9 +1,10 @@
-#posts {
+#posts, #content .template {
 	float: right;
 	width: 100%;
+	margin: 0 0 40px 0;
 }
 
-button#create-post {
+a.create-post button {
 	margin: 0 0 20px 0;
 }
 

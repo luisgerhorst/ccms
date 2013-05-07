@@ -93,23 +93,6 @@ var CouchDB = function (proxyURL) {
 		
 	};
 	
-	/*this.createUser = function (username, password) {
-		
-		var options = {
-			url: proxyURL + '/_config/admins/' + username,
-			type: 'PUT',
-			data: '"' + password + '"'
-		};
-		
-		$.ajax(options).fail(function (jqXHR, textStatus) {
-			console.log('Error "' + textStatus + '" occured while ' + options.type + ' request to ' + options.url, jqXHR);		}).done(function (data, textStatus, jqXHR) {
-			console.log(data, textStatus, jqXHR);
-		});
-		
-		return this;
-		
-	};*/
-	
 	this.Database = function (databaseName) {
 		
 		var AjaxOptions = function (options) {
@@ -259,6 +242,12 @@ var CouchDB = function (proxyURL) {
 			return this;
 		
 		};
+		
+		/**
+		 * Contains functions that are related to this database. For example you could save a function to quickly create a post.
+		 */
+		
+		this.sc = {};
 		
 	};
 	
