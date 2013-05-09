@@ -43,7 +43,7 @@ Open `http://yourdomain.com/couchdb/ccms`. You should see some basic info about 
 
 ## config.json
 
-This file contains some basic information about the configuration of your backend.
+This file contains some basic information about the configuration of your backend. If you haven't change the values used in this tutorial you can skip this chapter.
 
 `proxy`: The first part of the path you used for Apache's CouchDB proxy, default is `/couchdb`.
 

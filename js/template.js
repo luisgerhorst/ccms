@@ -31,16 +31,16 @@ var Template = function () {
 		
 		route.before(currentPath);
 		
-		// Vars
+		// Body
 		
-		var html = [], loadedViews = {}, templateIDs = route.templateIDs, done = route.done;
+		var bodyArray = [], loadedViews = {}, templateIDs = route.templateIDs, done = route.done;
 		
 		var print = function () {
 			
-			$('body').html(stringifyArray(html));
+			$('body').html(stringifyArray(bodyArray));
 			
 			var isDone = true;
-			for (var j = templateIDs.length; j--;) if (!html[j]) isDone = false;
+			for (var j = templateIDs.length; j--;) if (!bodyArray[j]) isDone = false;
 			if (isDone) done(loadedViews, currentPath);
 			
 		};
@@ -62,7 +62,7 @@ var Template = function () {
 					(function (i, templateID, view, template) {
 						
 						view(function (response) {
-							html[i] = Mustache.render(template, response);
+							bodyArray[i] = Mustache.render(template, response);
 							loadedViews[templateID] = response;
 							print();
 						}, currentPath);
@@ -70,18 +70,46 @@ var Template = function () {
 					})(i, templateID, view, template);
 					break;
 				case 'object':
-					html[i] = Mustache.render(template, view);
+					bodyArray[i] = Mustache.render(template, view);
 					loadedViews[templateID] = view;
 					print();
 					break;
 				default:
-					html[i] = template;
+					bodyArray[i] = template;
 					print();
 			}
 			
 		}
 		
 		if (!templateIDs.length) done(loadedViews, currentPath);
+		
+		// Head
+		
+		var head = route.head,
+			headString = '';
+		
+		for (i = route.head.length; i--;) {
+			
+			var tagObject = route.head[i],
+				name = tagObject.tag,
+				attributes = tagObject.attributes,
+				value = tagObject.value;
+			
+			var tag = '<' + name;
+			
+			for (var attributeName in attributes) {
+				var attributeValue = attributes[attributeName];
+				tag += ' ' + attributeName + '="' + attributeValue + '"';
+			}
+			
+			if (value) tag += '>' + value + '</' + name + '>';
+			else tag += ' />';
+			
+			headString += tag;
+			
+		}
+		
+		$('head').html(headString);
 	
 	};
 	
@@ -152,7 +180,7 @@ var Template = function () {
 	// Methods
 	
 	/**
-	 * Formats and adds routes.
+	 * Add routes.
 	 */
 	
 	this.route = function (parameter) {
@@ -165,6 +193,8 @@ var Template = function () {
 				this.templateIDs = obj.templates || [];
 				this.done = obj.done || function () {};
 				this.before = obj.before || function () {};
+				
+				this.head = obj.head || [];
 				
 			};
 			
