@@ -31,7 +31,14 @@ var Template = function () {
 		
 		route.before(currentPath);
 		
-		// Body
+		var head = function (views) {
+			
+			var head = route.head,
+				render = Mustache.render;
+				
+			for (var k in head) document[k] = render(head[k], views);
+			
+		};
 		
 		var bodyArray = [], loadedViews = {}, templateIDs = route.templateIDs, done = route.done;
 		
@@ -41,7 +48,10 @@ var Template = function () {
 			
 			var isDone = true;
 			for (var j = templateIDs.length; j--;) if (!bodyArray[j]) isDone = false;
-			if (isDone) done(loadedViews, currentPath);
+			if (isDone) {
+				head(loadedViews);
+				done(loadedViews, currentPath);
+			}
 			
 		};
 		
@@ -82,34 +92,6 @@ var Template = function () {
 		}
 		
 		if (!templateIDs.length) done(loadedViews, currentPath);
-		
-		// Head
-		
-		var head = route.head,
-			headString = '';
-		
-		for (i = route.head.length; i--;) {
-			
-			var tagObject = route.head[i],
-				name = tagObject.tag,
-				attributes = tagObject.attributes,
-				value = tagObject.value;
-			
-			var tag = '<' + name;
-			
-			for (var attributeName in attributes) {
-				var attributeValue = attributes[attributeName];
-				tag += ' ' + attributeName + '="' + attributeValue + '"';
-			}
-			
-			if (value) tag += '>' + value + '</' + name + '>';
-			else tag += ' />';
-			
-			headString += tag;
-			
-		}
-		
-		$('head').html(headString);
 	
 	};
 	

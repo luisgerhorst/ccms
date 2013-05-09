@@ -6,14 +6,16 @@ function routes() {
 			templates: ['header', 'posts', 'footer'],
 			before: function (path) {
 				if (path === '/page/0') window.location = '#/';
-				else document.title = meta.title;
+			},
+			head: {
+				title: '{{#header}}{{title}}{{/header}}'
 			}
 		},
 		{
 			path: /^\/post\/.+$/,
 			templates: ['header', 'post', 'footer'],
-			done: function (views) {
-				document.title = meta.title + ' - ' + views.post.title;
+			head: {
+				title: '{{#header}}{{title}} - {{/header}}{{#post}}{{title}}{{/post}}'
 			}
 		}
 	]);

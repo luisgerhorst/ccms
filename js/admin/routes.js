@@ -220,10 +220,6 @@ function routes() {
 		
 		this.post = function (views) {
 			
-			// Title
-			
-			document.title = meta.title + ' - ' + views.post.title;
-			
 			// Elements
 		
 			var contentTextarea = $('form.post.edit textarea.content'),
@@ -287,9 +283,8 @@ function routes() {
 		{
 			path: ['/', /^\/page\/\d+$/],
 			templates: ['header', 'posts', 'footer'],
-			before: function (cPath) {
-				if (cPath === '/page/0') window.location = '#/';
-				else document.title = meta.title;
+			before: function (path) {
+				if (path === '/page/0') window.location = '#/';
 			},
 			done: function () {
 				
@@ -300,31 +295,34 @@ function routes() {
 					timeElement.html(date);
 				});
 				
+			},
+			head: {
+				title: '{{#header}}{{title}}{{/header}}'
 			}
 		},
 		{
 			path: '/meta',
 			templates: ['header', 'meta', 'footer'],
-			before: function () {
-				document.title = meta.title + ' - Meta';
-			},
 			done: routeDone.meta,
 			head: {
-				title: "Luis Gerhorst"
+				title: '{{#header}}{{title}} - {{/header}}Meta'
 			}
 		},
 		{
 			path: /^\/post\/.+$/,
 			templates: ['header', 'post', 'footer'],
-			done: routeDone.post
+			done: routeDone.post,
+			head: {
+				title: '{{#header}}{{title}} - {{/header}}{{#post}}{{title}}{{/post}}'
+			}
 		},
 		{
 			path: '/create/post',
 			templates: ['header', 'createPost', 'footer'],
-			before: function () {
-				document.title = meta.title + ' - Create Post';
-			},
-			done: routeDone.createPost
+			done: routeDone.createPost,
+			head: {
+				title: '{{#header}}{{title}} - {{/header}}Create Post'
+			}
 		}
 	]);
 	

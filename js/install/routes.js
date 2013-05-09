@@ -85,21 +85,18 @@ function routes() {
 		{
 			path: '/',
 			before: function () {
-				document.title = 'CCMS';
 				window.location = '#/setup-db'
 			}
 		},
 		{
 			path: '/setup-db',
 			templates: ['header', 'setupDB', 'footer'],
-			before: function () {
-				document.title = 'CCMS';
-			},
 			done: function () {
-				
 				$('#setup-db').submit(setupDB);
-				
-			} // done()
+			},
+			head: {
+				title: 'Install'
+			}
 		}
 	]);
 		
