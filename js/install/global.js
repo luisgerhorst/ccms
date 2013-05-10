@@ -1,1 +1,0 @@
-var template = new Template(), config;

@@ -1,5 +1,4 @@
-
-var Template = function () {
+var Template = function (themePath) {
 	
 	var routes = [], views = {};
 	
@@ -31,16 +30,11 @@ var Template = function () {
 		
 		route.before(currentPath);
 		
-		var head = function (views) {
-			
-			var head = route.head,
-				render = Mustache.render;
-				
-			for (var k in head) document[k] = render(head[k], views);
-			
-		};
-		
-		var bodyArray = [], loadedViews = {}, templateIDs = route.templateIDs, done = route.done;
+		var bodyArray = [],
+			loadedViews = {},
+			templateIDs = route.templateIDs,
+			done = route.done,
+			title = route.title;
 		
 		var print = function () {
 			
@@ -48,8 +42,9 @@ var Template = function () {
 			
 			var isDone = true;
 			for (var j = templateIDs.length; j--;) if (!bodyArray[j]) isDone = false;
+			
 			if (isDone) {
-				head(loadedViews);
+				document.title = Mustache.render(title, loadedViews);
 				done(loadedViews, currentPath);
 			}
 			
@@ -175,8 +170,7 @@ var Template = function () {
 				this.templateIDs = obj.templates || [];
 				this.done = obj.done || function () {};
 				this.before = obj.before || function () {};
-				
-				this.head = obj.head || [];
+				this.title = obj.title || '';
 				
 			};
 			

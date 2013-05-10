@@ -8,4 +8,3 @@
 
 `Template`:
 - optional caching of view function response
-- include site metadata in routes (title, description, viewport, etc.)

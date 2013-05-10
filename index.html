@@ -2,17 +2,7 @@
 <html>
 <head>
 
-	<title></title>
-	
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<meta http-equiv="content-language" content="de-de" />
-	<meta name="keywords" content="" />
-	
-	<meta name="viewport" content="initial-scale=1.0; maximum-scale=1.0;"/>
-	
-	<link rel="alternate" type="application/rss+xml" title="" href="" />
-	<link rel="shortcut icon" type="image/png" href="" />
-	<link rel="apple-touch-icon" href="" />
 	
 	<link rel="stylesheet" type="text/css" href="templates/light/style.css" />
 	
@@ -24,60 +14,11 @@
 	<script type="text/javascript" src="js/database.js"></script>
 	<script type="text/javascript" src="js/template.js"></script>
 	
-	<script type="text/javascript" src="js/index/global.js"></script>
+	<script type="text/javascript" src="js/index/vars.js"></script>
 	<script type="text/javascript" src="js/index/render.js"></script>
 	<script type="text/javascript" src="js/index/routes.js"></script>
 	<script type="text/javascript" src="js/index/start.js"></script>
 	<script type="text/javascript" src="js/index/tests.js"></script>
-	
-	<!--<script type="text/javascript" src="js/combined.min.js"></script>
-	<script type="text/javascript" src="js/index/combined.min.js"></script>-->
-	
-	<script type="text/ccms-template" data-template-id="header">
-	
-		<a href="#/"><h1>{{title}}</h1></a>
-	
-	</script>
-	
-	<script type="text/ccms-template" data-template-id="posts">
-	
-		<ol id="posts">
-	
-			{{#posts}}
-			<li class="post">
-				<a class="title" href="#/post/{{postID}}"><h2>{{title}}</h2></a>
-				<span class="content">{{content}}</span>
-			</li>
-			{{/posts}}
-	
-			{{^posts}}
-			<li class="error">
-				<h2 class="title">Not Found</h2>
-				<span class="content">No posts were found.</span>
-			</li>
-			{{/posts}}
-	
-		</ol>
-		
-		{{#previousPage}}<a href="#/page/{{number}}"><button>← Previous</button></a>{{/previousPage}}
-		{{#nextPage}}<a href="#/page/{{number}}"><button>Next →</button></a>{{/nextPage}}
-	
-	</script>
-	
-	<script type="text/ccms-template" data-template-id="post">
-	
-		<article class="post">
-			<h2 class="title">{{title}}</h2>
-			<span class="content">{{content}}</span>
-		</article>
-	
-	</script>
-	
-	<script type="text/ccms-template" data-template-id="footer">
-	
-		<p id="copyright">ⓒ {{copyrightYears}} {{copyright}}</p>
-	
-	</script>
 
 </head>
 <body></body>

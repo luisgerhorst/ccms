@@ -1,0 +1,1 @@
+var template, config, couchdb, database, meta;

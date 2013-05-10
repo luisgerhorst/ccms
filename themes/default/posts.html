@@ -1,0 +1,20 @@
+<ol id="posts">
+
+	{{#posts}}
+	<li class="post">
+		<a class="title" href="#/post/{{postID}}"><h2>{{title}}</h2></a>
+		<span class="content">{{content}}</span>
+	</li>
+	{{/posts}}
+
+	{{^posts}}
+	<li class="error">
+		<h2 class="title">Not Found</h2>
+		<span class="content">No posts were found.</span>
+	</li>
+	{{/posts}}
+
+</ol>
+
+{{#previousPage}}<a href="#/page/{{number}}"><button>← Previous</button></a>{{/previousPage}}
+{{#nextPage}}<a href="#/page/{{number}}"><button>Next →</button></a>{{/nextPage}}

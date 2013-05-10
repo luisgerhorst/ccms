@@ -94,9 +94,7 @@ function routes() {
 			done: function () {
 				$('#setup-db').submit(setupDB);
 			},
-			head: {
-				title: 'Install'
-			}
+			title: 'Install'
 		}
 	]);
 		

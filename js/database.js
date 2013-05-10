@@ -243,12 +243,6 @@ var CouchDB = function (proxyURL) {
 		
 		};
 		
-		/**
-		 * Contains functions that are related to this database. For example you could save a function to quickly create a post.
-		 */
-		
-		this.sc = {};
-		
 	};
 	
 }

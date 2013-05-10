@@ -3,7 +3,7 @@ function routes() {
 	var createPostID = function (string) {
 		return string.replace(/[\s\W]+/g, '-').replace(/^-|-$/g, '').toLowerCase();
 	};
-	
+
 	var meta = new (function () {
 		
 		this.update = function (options) {
@@ -296,33 +296,25 @@ function routes() {
 				});
 				
 			},
-			head: {
-				title: '{{#header}}{{title}}{{/header}}'
-			}
+			title: '{{#header}}{{title}}{{/header}}'
 		},
 		{
 			path: '/meta',
 			templates: ['header', 'meta', 'footer'],
 			done: routeDone.meta,
-			head: {
-				title: '{{#header}}{{title}} - {{/header}}Meta'
-			}
+			title: '{{#header}}{{title}} - {{/header}}Meta'
 		},
 		{
 			path: /^\/post\/.+$/,
 			templates: ['header', 'post', 'footer'],
 			done: routeDone.post,
-			head: {
-				title: '{{#header}}{{title}} - {{/header}}{{#post}}{{title}}{{/post}}'
-			}
+			title: '{{#header}}{{title}} - {{/header}}{{#post}}{{title}}{{/post}}'
 		},
 		{
 			path: '/create/post',
 			templates: ['header', 'createPost', 'footer'],
 			done: routeDone.createPost,
-			head: {
-				title: '{{#header}}{{title}} - {{/header}}Create Post'
-			}
+			title: '{{#header}}{{title}} - {{/header}}Create Post'
 		}
 	]);
 	
