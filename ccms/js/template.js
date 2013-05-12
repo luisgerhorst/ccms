@@ -1,6 +1,6 @@
 var Template = function (themePath) {
 	
-	var routes = [], views = {};
+	var routes = [], views = {}, onRender = {};
 	
 	// Functions
 	
@@ -50,41 +50,40 @@ var Template = function (themePath) {
 			
 		};
 		
-		for (var i = templateIDs.length; i--;) {
+		for (var i = templateIDs.length; i--;) (function (i) {
 			
 			var templateID = templateIDs[i];
 			var view = views[templateID];
-			var	template = $('script[type="text/ccms-template"][data-template-id="' + templateID + '"]').html();
 			
-			var type = view === null ? type = 'null' : typeof view;
-			
-			switch (type) {
-				case 'function':
-					/**
-					 * You have to use an extra function for this.
-					 * Otherwise all vars that are used in the callback will already have changed when it's executed.
-					 */
-					(function (i, templateID, view, template) {
-						
-						view(function (response) {
-							bodyArray[i] = Mustache.render(template, response);
-							loadedViews[templateID] = response;
+			$.ajax({
+				url: themePath + '/' + templateID + '.html'
+			}).done(function (template) {
+				
+				switch (view === null ? type = 'null' : typeof view) {
+					case 'function':
+						var loadView = view;
+						loadView(function (view) {
+							bodyArray[i] = Mustache.render(template, view);
+							loadedViews[templateID] = view;
 							print();
+							if (onRender[templateID]) onRender[templateID]();
 						}, currentPath);
-						
-					})(i, templateID, view, template);
-					break;
-				case 'object':
-					bodyArray[i] = Mustache.render(template, view);
-					loadedViews[templateID] = view;
-					print();
-					break;
-				default:
-					bodyArray[i] = template;
-					print();
-			}
+						break;
+					case 'object':
+						bodyArray[i] = Mustache.render(template, view);
+						loadedViews[templateID] = view;
+						print();
+						if (onRender[templateID]) onRender[templateID]();
+						break;
+					default:
+						bodyArray[i] = template;
+						print();
+						if (onRender[templateID]) onRender[templateID]();
+				}
 			
-		}
+			});
+			
+		})(i);
 		
 		if (!templateIDs.length) done(loadedViews, currentPath);
 	
@@ -139,22 +138,7 @@ var Template = function (themePath) {
 	
 	// Actions
 	
-	/**
-	 * URL-change detection via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js
-	 */
-	 
-	if ('onhashchange' in window) window.onhashchange = load;
-	else {
-		var hash = window.location.hash;
-		window.setInterval(function () {
-			if (window.location.hash !== hash) {
-				hash = window.location.hash;
-				load();
-			}
-		}, 100);
-	}
-	
-	// Methods
+	this.currentPath = getCurrentPath;
 	
 	/**
 	 * Add routes.
@@ -199,9 +183,40 @@ var Template = function (themePath) {
 		else views[parameter] = view;
 		
 	};
+
+	this.ready = function (parameter, func) {
+		
+		if (typeof parameter === 'function' && !func) {
+			func = parameter;
+			func();
+		}
+		
+		else {
+			var templateID = parameter;
+			onRender[templateID] = func;
+			console.log(onRender);
+		}
+		
+	};
 	
-	this.load = load();
-	
-	this.currentPath = getCurrentPath;
+	/**
+	 * URL-change detection via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js
+	 */
+	 
+	if ('onhashchange' in window) window.onhashchange = load;
+	else {
+		var hash = window.location.hash;
+		window.setInterval(function () {
+			if (window.location.hash !== hash) {
+				hash = window.location.hash;
+				load();
+			}
+		}, 100);
+	}
 	
 };
+
+
+
+
+

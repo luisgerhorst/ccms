@@ -1,0 +1,8 @@
+{
+	"js": [
+		"setupdb.js"
+	],
+	"css": [
+		"style.css"
+	]
+}

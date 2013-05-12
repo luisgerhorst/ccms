@@ -1,0 +1,1 @@
+var template = new Template('ccms/install/theme'), config;
