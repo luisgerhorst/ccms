@@ -10,7 +10,7 @@ var Theme = function (themePath) {
 	 * @type {Object.<string, {({Object}|function(string, boolean))}>}
 	 */
 	
-	var templates = {};
+	var views = {};
 	
 	var getCurrentPath = function () {
 		var url = document.URL;
@@ -19,86 +19,75 @@ var Theme = function (themePath) {
 		return url;
 	};
 	
-	var getFile = function (filename, callback) {
+	var load = function (route, loaded) {
 		
-		$.ajax({
-			url: themePath + '/' + filename
-		}).done(callback);
+		var stringify = function (array) {
+			var string = '', length = array.length;
+			for (var i = 0; i < length; i++) string += array[i] || '';
+			return string;
+		};
 		
-	};
-	
-	var getView = function (view, currentPath, callback) {
-		
-		switch (view === null ? type = 'null' : typeof view) {
-			
-			case 'function':
-				view(callback, currentPath);
-				break;
-				
-			case 'object':
-				callback(view);
-				break;
-				
-			default:
-				callback({});
-				
-		}
-		
-	};
-	
-	var render = function (route, currentPath) {
-		
-		route.before(currentPath);
-		
-		var files = [],
+		var html = [],
 			loadedViews = {};
 		
-		var filenames = route.filenames,
-			body = $('body');
+		var filenames = route.filenames;
+		
+		var update = function () {
 			
-		var readyCheck = function () {
+			var isDone = true;
+			for (var j = filenames.length; j--;) if (!files[j]) isDone = false;
 			
-			var isReady = true;
-			for (var j = templateFiles.length; j--;) if (!renderedTemplates[j]) isReady = false;
+			if (isDone) loaded({
+				html: stringify(html),
+				views: loadedViews
+			});
 			
-			if (isReady) {
-				document.title = Mustache.render(route.title, loadedViews);
-				route.done(loadedViews, currentPath);
+		};
+		
+		var getView = function (filename, got) {
+			
+			var view = views[filename];
+			
+			switch (view === null ? type = 'null' : typeof view) {
+				case 'function':
+					view(got, currentPath);
+					break;
+				case 'object':
+					got(view);
+					break;
+				default:
+					got({});
 			}
 			
 		};
 		
-		var renderFile = function (i) {
+		var prozessFile = function (i) {
 			
 			var filename = filenames[i];
-			var view = templates[templateFile].view;
 			
-			getFile(filename, function (file) {
+			$.ajax({
+				url: themePath + '/' + filename
+			}).done(function (file) {
 				
-				getView(view, currentPath, function (view) {
+				if (/.html$/.test(filename)) {
 					
-					var stringify = function (array) {
-						var string = '';
-						var l = array.length;
-						for (var i = 0; i < l; i++) string += array[i] || '';
-						return string;
-					};
+					getView(filename, function (view) {
+						html[i] = Mustache.render(template, view);
+						update();
+					});
 					
-					renderedTemplates[i] = Mustache.render(template, view);
-					readyCheck();
-					body.html(stringify(renderedTemplates));
+				} else if (/.js$/.test(filename)) {
 					
-				});
+					html[i] = '<script type="text/javascript">' + file + '</script>';
+					update();
+					
+				}
 				
 			});
 			
 		};
 		
-		for (var i = templateFiles.length; i--;) {
-			
-			renderTemplate(i);
-			
-		}
+		for (var i = filenames.length; i--;) prozessFile(i);
 	
 	};
 	
@@ -106,45 +95,35 @@ var Theme = function (themePath) {
 	 * Search a route that matches the current path.
 	 */
 	
-	var searchRoute = function () {
-		
-		var currentPath = getCurrentPath();
-		
-		var match = function (route) {
-			render(route, currentPath);
-			i = 0;
-		};
+	var searchRoute = function (path) {
 		
 		var i = routes.length;
 		
 		for (i; i--;) { // new routes overwrite old routes
 			
 			var route = routes[i];
-			var path = route.path;
 			
-			switch (path instanceof RegExp ? 'regexp' : path instanceof Array ? 'array' : typeof path) {
+			switch (route.path instanceof RegExp ? 'regexp' : route.path instanceof Array ? 'array' : typeof route.path) {
 				
 				case 'string':
-					if (path === currentPath) match(route);
+					if (route.path === path) return route;
 					break;
 					
 				case 'regexp':
-					var regexp = path;
-					if (regexp.test(currentPath)) match(route);
+					if (route.path.test(path)) return route;
 					break;
 					
 				case 'array':
-					var array = path;
-					for (var j = array.length; j--;) {
-						var p = array[j];
-						if (typeof p === 'string' && p === currentPath) match(route);
-						else if (p instanceof RegExp && p.test(currentPath)) match(route);
+					var a = route.path;
+					for (var j = a.length; j--;) {
+						var p = a[j];
+						if (typeof p === 'string' && p === path) return route;
+						else if (p instanceof RegExp && p.test(path)) return route;
 					}
 					break;
 					
 				case 'function':
-					var func = path;
-					if (func(currentPath)) match(route);
+					if (route.path(path)) return route;
 					break;
 					
 			}
@@ -153,29 +132,41 @@ var Theme = function (themePath) {
 		
 	};
 	
-	
-	
 	this.currentPath = getCurrentPath;
+	
+	var pathChange = function () {
+		
+		var currentPath = getCurrentPath();
+		
+		var route = searchRoute(currentPath);
+		
+		route.before(currentPath);
+		
+		load(route, function (loaded) {
+			
+			document.title = Mustache.render(route.title, loaded.views);
+			$('body').html(loaded.html);
+			
+			route.done(loaded.views, currentPath);
+			
+		});
+		
+	};
 	
 	/**
 	 * URL-change detection
 	 * via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js
 	 */
 	 
-	if ('onhashchange' in window) window.onhashchange = searchRoute;
+	if ('onhashchange' in window) window.onhashchange = pathChange;
 	else {
 		var hash = window.location.hash;
 		window.setInterval(function () {
 			if (window.location.hash !== hash) {
 				hash = window.location.hash;
-				searchRoute();
+				pathChange();
 			}
 		}, 100);
 	}
 	
 };
-
-
-
-
-
