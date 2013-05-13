@@ -1,4 +1,4 @@
-template.ready('setupdb', function () {
+template.template('setupdb.html').ready(function () {
 	
 console.log('setupdb');
 
