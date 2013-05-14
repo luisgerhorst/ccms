@@ -1,6 +1,4 @@
-template.template('setupdb.html').ready(function () {
-	
-console.log('setupdb');
+console.log('setupdb.js executed!');
 
 var saveDocs = function (database) {
 	
@@ -84,5 +82,3 @@ var setupDB = function () { // on save
 };
 
 $('#setup-db').submit(setupDB);
-
-}); // ready

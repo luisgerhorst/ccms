@@ -35,7 +35,7 @@ var Theme = function (themePath) {
 		var update = function () {
 			
 			var isDone = true;
-			for (var j = filenames.length; j--;) if (!files[j]) isDone = false;
+			for (var j = filenames.length; j--;) if (!html[j]) isDone = false;
 			
 			if (isDone) loaded({
 				html: stringify(html),
@@ -66,13 +66,14 @@ var Theme = function (themePath) {
 			var filename = filenames[i];
 			
 			$.ajax({
-				url: themePath + '/' + filename
+				url: themePath + '/' + filename,
+				dataType: 'text'
 			}).done(function (file) {
 				
 				if (/.html$/.test(filename)) {
 					
 					getView(filename, function (view) {
-						html[i] = Mustache.render(template, view);
+						html[i] = Mustache.render(file, view);
 						update();
 					});
 					
@@ -132,39 +133,87 @@ var Theme = function (themePath) {
 		
 	};
 	
-	this.currentPath = getCurrentPath;
-	
-	var pathChange = function () {
+	var update = function () {
 		
 		var currentPath = getCurrentPath();
 		
 		var route = searchRoute(currentPath);
 		
-		route.before(currentPath);
+		if (route.before) route.before(currentPath);
 		
-		load(route, function (loaded) {
+		if (route.filenames) load(route, function (loaded) {
 			
-			document.title = Mustache.render(route.title, loaded.views);
 			$('body').html(loaded.html);
-			
-			route.done(loaded.views, currentPath);
+			if (route.title) document.title = Mustache.render(route.title, loaded.views);
+			if (route.done) route.done(loaded.views, currentPath);
 			
 		});
 		
+		else {
+			
+			if (route.title) document.title = route.title;
+			if (route.done) route.done(null, currentPath);
+			
+		}
+		
 	};
+	
+	this.route = function (param) {
+		
+		var Route = function (route) {
+		
+			this.path = route.path;
+			this.filenames = route.files;
+			this.done = route.done;
+			this.before = route.before;
+			this.title = route.title;
+		
+		};
+	
+		var addRoute = function (route) {
+			
+			routes.push(new Route(route));
+			
+		};
+		
+		var addArray = function (array) {
+			
+			var l = array.length;
+			for (var i = 0; i < l; i++) addRoute(array[i]);
+			
+		}
+		
+		// Actions
+	
+		if (param instanceof Array) addArray(param);
+		
+		else if (typeof param === 'object') addRoute(param);
+	
+		update();
+	
+	};
+	
+	this.render = function (object_filename, view) {
+	
+		if (typeof object_filename === 'object' && typeof view === 'undefined') for (var filename in object_filename) views[filename] = parameter[filename];
+		else views[object_filename] = view;
+	
+	};
+	
+	this.currentPath = getCurrentPath;
 	
 	/**
 	 * URL-change detection
 	 * via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js
 	 */
 	 
-	if ('onhashchange' in window) window.onhashchange = pathChange;
+	if ('onhashchange' in window) window.onhashchange = update;
 	else {
 		var hash = window.location.hash;
 		window.setInterval(function () {
 			if (window.location.hash !== hash) {
 				hash = window.location.hash;
-				pathChange();
+				update();
 			}
 		}, 100);
 	}

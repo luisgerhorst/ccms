@@ -1,1 +1,1 @@
-var template = new Template('ccms/install/theme'), config;
+var theme = new Theme('ccms/install/theme'), config;

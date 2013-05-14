@@ -1,6 +1,6 @@
 function routes() {
 	
-	template.route([
+	theme.route([
 		{
 			path: '/',
 			before: function () {
@@ -9,7 +9,7 @@ function routes() {
 		},
 		{
 			path: '/setup-db',
-			templates: ['header', 'setupdb', 'footer'],
+			files: ['header.html', 'setupdb.html', 'footer.html', 'setupdb.js'],
 			title: 'Install'
 		}
 	]);
