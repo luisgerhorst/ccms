@@ -19,7 +19,7 @@ var Theme = function (themePath) {
 		return url;
 	};
 	
-	var load = function (route, loaded) {
+	var load = function (route, currentPath, loaded) {
 		
 		var stringify = function (array) {
 			var string = '', length = array.length;
@@ -32,7 +32,7 @@ var Theme = function (themePath) {
 		
 		var filenames = route.filenames;
 		
-		var update = function () {
+		var onHTMLUpdate = function () {
 			
 			var isDone = true;
 			for (var j = filenames.length; j--;) if (!html[j]) isDone = false;
@@ -61,34 +61,40 @@ var Theme = function (themePath) {
 			
 		};
 		
-		var prozessFile = function (i) {
+		var renderFile = function (i) {
 			
 			var filename = filenames[i];
 			
-			$.ajax({
-				url: themePath + '/' + filename,
-				dataType: 'text'
-			}).done(function (file) {
+			var template, view;
+			
+			var onResponse = function () {
+
+				if (template && view) {
+					
+					if (!view.themePath) view.themePath = themePath;
+					
+					html[i] = Mustache.render(template, view);
+					onHTMLUpdate();
 				
-				if (/.html$/.test(filename)) {
-					
-					getView(filename, function (view) {
-						html[i] = Mustache.render(file, view);
-						update();
-					});
-					
-				} else if (/.js$/.test(filename)) {
-					
-					html[i] = '<script type="text/javascript">' + file + '</script>';
-					update();
-					
 				}
 				
+			};
+			
+			$.ajax({
+				url: themePath + '/' + filename,
+			}).done(function (res) {
+				template = res;
+				onResponse();
+			});
+			
+			getView(filename, function (res) {
+				view = res;
+				onResponse();
 			});
 			
 		};
 		
-		for (var i = filenames.length; i--;) prozessFile(i);
+		for (var i = filenames.length; i--;) renderFile(i);
 	
 	};
 	
@@ -141,7 +147,7 @@ var Theme = function (themePath) {
 		
 		if (route.before) route.before(currentPath);
 		
-		if (route.filenames) load(route, function (loaded) {
+		if (route.filenames) load(route, currentPath, function (loaded) {
 			
 			$('body').html(loaded.html);
 			if (route.title) document.title = Mustache.render(route.title, loaded.views);
@@ -163,7 +169,7 @@ var Theme = function (themePath) {
 		var Route = function (route) {
 		
 			this.path = route.path;
-			this.filenames = route.files;
+			this.filenames = route.templates;
 			this.done = route.done;
 			this.before = route.before;
 			this.title = route.title;
@@ -181,7 +187,7 @@ var Theme = function (themePath) {
 			var l = array.length;
 			for (var i = 0; i < l; i++) addRoute(array[i]);
 			
-		}
+		};
 		
 		// Actions
 	
@@ -195,7 +201,7 @@ var Theme = function (themePath) {
 	
 	this.render = function (object_filename, view) {
 	
-		if (typeof object_filename === 'object' && typeof view === 'undefined') for (var filename in object_filename) views[filename] = parameter[filename];
+		if (typeof object_filename === 'object' && !view) for (var filename in object_filename) views[filename] = object_filename[filename];
 		else views[object_filename] = view;
 	
 	};
@@ -217,5 +223,23 @@ var Theme = function (themePath) {
 			}
 		}, 100);
 	}
+	
+	/**
+	 * Get the head
+	 */
+	 
+	$.ajax({
+		url: themePath + '/head.html',
+	}).done(function (template) {
+		
+		var view = {
+			themePath: themePath
+		};
+		
+		var head = Mustache.render(template, view);
+		
+		$('head').append(head);
+		
+	});
 	
 };

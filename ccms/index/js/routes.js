@@ -1,9 +1,9 @@
 function routes() {
 	
-	template.route([
+	theme.route([
 		{
 			path: ['/', /^\/page\/\d+$/],
-			templates: ['header', 'posts', 'footer'],
+			templates: ['header.html', 'posts.html', 'footer.html'],
 			before: function (path) {
 				if (path === '/page/0') window.location = '#/';
 			},
@@ -11,7 +11,7 @@ function routes() {
 		},
 		{
 			path: /^\/post\/.+$/,
-			templates: ['header', 'post', 'footer'],
+			templates: ['header.html', 'post.html', 'footer.html'],
 			title: '{{#header}}{{title}} - {{/header}}{{#post}}{{title}}{{/post}}'
 		}
 	]);

@@ -9,7 +9,7 @@ function routes() {
 		},
 		{
 			path: '/setup-db',
-			files: ['header.html', 'setupdb.html', 'footer.html', 'setupdb.js'],
+			templates: ['header.html', 'setupdb.html', 'footer.html'],
 			title: 'Install'
 		}
 	]);

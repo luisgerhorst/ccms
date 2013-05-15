@@ -1,8 +1,0 @@
-{
-	"css": [
-		"style.css"
-	],
-	"js": {
-		"/setupdb": "setupdb.js"
-	}
-}

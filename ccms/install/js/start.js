@@ -2,8 +2,8 @@ $(document).ready(function () {
 
 	$.ajax({
 		url: 'config.json'
-	}).done(function (response) {
-		config = response;
+	}).done(function (res) {
+		config = res;
 		routes();
 	});
 

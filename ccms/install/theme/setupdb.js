@@ -1,5 +1,3 @@
-console.log('setupdb.js executed!');
-
 var saveDocs = function (database) {
 	
 	var title = $('#setup-db-title').val();
@@ -40,7 +38,8 @@ var saveDocs = function (database) {
 				copyrightYearsStart: year,
 				description: '',
 				postsPerPage: 10,
-				title: title
+				title: title,
+				theme: 'default'
 			}
 		}
 	};

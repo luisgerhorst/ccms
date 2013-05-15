@@ -1,1 +1,1 @@
-var template, config, couchdb, database, meta;
+var theme, config, couchdb, database, meta;
