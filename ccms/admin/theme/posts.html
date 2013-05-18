@@ -1,0 +1,25 @@
+<div class="posts">
+
+	<a href="#/create/post" class="create-post"><button id="create-post">Create Post</button></a>
+
+	<ol>
+
+		{{#posts}}
+		<a class="title" href="#/post/{{postID}}"><li class="post">
+			<h2>{{title}}</h2>
+			<time datetime="{{date}}"></time>
+		</li></a>
+		{{/posts}}
+
+		{{^posts}}
+		<h2 class="error">404 Not Found</h2>
+		{{/posts}}
+
+	</ol>
+	
+	{{#previousPage}}<a href="#/page/{{number}}"><button id="previous-page" class="page-nav grey">← Previous</button></a>{{/previousPage}}
+	{{#nextPage}}<a href="#/page/{{number}}"><button id="next-page" class="page-nav grey">Next →</button></a>{{/nextPage}}
+
+</div> <!-- .posts -->
+
+<script type="text/javascript" src="{{themePath}}/js/posts.js"></script>

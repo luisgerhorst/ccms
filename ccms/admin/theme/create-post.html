@@ -1,0 +1,20 @@
+<form class="post create" action="javascript:void(0);">
+	
+	<p><input type="text" class="title" name="title" placeholder="Title"></p>
+	
+	<p><textarea class="content" name="content" placeholder="Content"></textarea></p>
+	
+	<p class="margin10px"><input type="datetime" class="date" data-unix-timestamp="{{date}}" name="date" placeholder="Date"></p>
+	
+	<p><label for="date">Format "YYYY-MM-DD HH:mm"</label></p>
+	
+	<p class="margin10px"><input type="checkbox" class="autoCreatePostID" name="autoCreatePostID" checked> <label for="autoCreatePostID">Create URL automatically using title <span class="light">(uncheck to edit URL)</span></label></p>
+	
+	<p><code>/post/</code><input type="text" class="postID" data-old-post-id="{{postID}}" placeholder="post-id" readonly="readonly" ></p>
+	
+	<input type="submit" value="Save">
+	
+</form>
+
+<script type="text/javascript" src="{{themePath}}/js/post-functions.js"></script>
+<script type="text/javascript" src="{{themePath}}/js/create-post.js"></script>

@@ -50,6 +50,7 @@ button, input[type="submit"], input[type="button"] {
 	font-family: Helvetica, sans-serif;
 	text-decoration: none;
 	border-radius: 4px;
+	cursor: pointer;
 }
 
 button, input[type="submit"] {

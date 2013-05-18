@@ -1,1 +1,1 @@
-var config, template = new Template(), couchdb, database, meta;
+var config, theme = new Theme('ccms/admin/theme'), couchdb, database, meta;

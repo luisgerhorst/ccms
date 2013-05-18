@@ -18,14 +18,14 @@ var login = function () {
 	
 	var askUsernamePassword = function () {
 		
-		var redirectPath = template.currentPath();
+		var redirectPath = theme.currentPath();
 		if (redirectPath === '/login' || redirectPath === '/logout') redirectPath = '/';
 		
 		window.location = '#/login';
 		
-		template.route({
+		theme.route({
 			path: '/login',
-			templates: ['login'],
+			templates: ['login.html'],
 			done: function () {
 				
 				var tryUsernamePassword = function () { // case: username and password auth
@@ -63,7 +63,7 @@ var login = function () {
 	
 	var tryCookie = function () {
 		
-		var cPath = template.currentPath();
+		var cPath = theme.currentPath();
 		if (cPath === '/login' || cPath === '/logout') window.location = '#/';
 		
 		var c = couchdb;

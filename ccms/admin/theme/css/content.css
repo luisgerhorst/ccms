@@ -40,6 +40,13 @@ form.post .delete {
 	height: 80px;
 }
 
+.meta form input.theme {
+	line-height: 16px;
+	padding: 2px;
+	width: 160px;
+	font-family: Menlo, Consolas, Monaco, "Lucida Console", monospace;
+}
+
 #content footer {
 	margin: 40px 0 0 0;
 }

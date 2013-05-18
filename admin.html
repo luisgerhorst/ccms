@@ -2,181 +2,19 @@
 <html>
 <head>
 
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-
-	<meta name="viewport" content="initial-scale=1.0; maximum-scale=1.0;"/>
-
-	<link rel="stylesheet" type="text/css" href="css/normalize.css" />
-	<link rel="stylesheet" type="text/css" href="css/admin/global.css" />
-	<link rel="stylesheet" type="text/css" href="css/admin/login.css" />
-	<link rel="stylesheet" type="text/css" href="css/admin/sidebar.css" />
-	<link rel="stylesheet" type="text/css" href="css/admin/footer.css" />
-	<link rel="stylesheet" type="text/css" href="css/admin/posts.css" />
-	<link rel="stylesheet" type="text/css" href="css/admin/content.css" />
-
-	<script type="text/javascript" src="js/library/jquery-2.0.0.min.js"></script>
-	<script type="text/javascript" src="js/library/mustache.min.js"></script>
-	<script type="text/javascript" src="js/library/moment.min.js"></script>
+	<script type="text/javascript" src="ccms/js/library/jquery-2.0.0.min.js"></script>
+	<script type="text/javascript" src="ccms/js/library/mustache.min.js"></script>
+	<script type="text/javascript" src="ccms/js/library/moment.min.js"></script>
 	
-	<script type="text/javascript" src="js/global.js"></script>
-	<script type="text/javascript" src="js/database.js"></script>
-	<script type="text/javascript" src="js/template.js"></script>
+	<script type="text/javascript" src="ccms/js/global.js"></script>
+	<script type="text/javascript" src="ccms/js/database.js"></script>
+	<script type="text/javascript" src="ccms/js/theme.js"></script>
 	
-	<script type="text/javascript" src="js/admin/vars.js"></script>
-	<script type="text/javascript" src="js/admin/render.js"></script>
-	<script type="text/javascript" src="js/admin/routes.js"></script>
-	<script type="text/javascript" src="js/admin/login.js"></script>
-	<script type="text/javascript" src="js/admin/start.js"></script>
-	<script type="text/javascript" src="js/admin/tests.js"></script>
-	
-	<script type="text/ccms-template" data-template-id="login">
-	
-		<form id="login" action="javascript:void(0);">
-			
-			<input type="text" id="login-username" name="username" placeholder="Username">
-			
-			<input type="password" id="login-password" name="password" placeholder="Password">
-			
-			<input id="login-submit" type="submit" value="Login">
-			
-		</form>
-	
-	</script>
-	
-	<script type="text/ccms-template" data-template-id="header">
-		
-		<div id="center">
-		<div id="wrapper">
-			
-		<nav id="sidebar">
-			
-			<ul>
-				<a href="#/"><li>Posts</li></a>
-				<a href="#/meta"><li>Meta</li></a>
-			</ul>
-		
-		</nav>
-		
-		<div id="content">
-
-	</script>
-
-	<script type="text/ccms-template" data-template-id="posts">
-		
-		<div class="posts">
-
-			<a href="#/create/post" class="create-post"><button id="create-post">Create Post</button></a>
-	
-			<ol>
-	
-				{{#posts}}
-				<a class="title" href="#/post/{{postID}}"><li class="post">
-					<h2>{{title}}</h2>
-					<time datetime="{{date}}"></time>
-				</li></a>
-				{{/posts}}
-	
-				{{^posts}}
-				<h2 class="error">404 Not Found</h2>
-				{{/posts}}
-	
-			</ol>
-			
-			{{#previousPage}}<a href="#/page/{{number}}"><button id="previous-page" class="page-nav grey">← Previous</button></a>{{/previousPage}}
-			{{#nextPage}}<a href="#/page/{{number}}"><button id="next-page" class="page-nav grey">Next →</button></a>{{/nextPage}}
-		
-		</div> <!-- .posts -->
-
-	</script>
-
-	<script type="text/ccms-template" data-template-id="post">
-		
-		<form class="post edit" action="javascript:void(0);">
-			
-			<p><input type="text" class="post-title title" name="title" value="{{title}}" placeholder="Title"></p>
-			
-			<p><textarea class="post-content content" name="content" placeholder="Content">{{content}}</textarea></p>
-			
-			<p class="margin10px"><input type="datetime" class="date post-date" data-unix-timestamp="{{date}}" name="date" placeholder="Date"></p>
-			
-			<p><label for="date">Format "YYYY-MM-DD HH:mm"</label></p>
-			
-			<p class="margin10px"><input type="checkbox" class="autoCreatePostID" name="autoCreatePostID" checked> <label for="autoCreatePostID">Create URL automatically using title <span class="light">(uncheck to edit URL)</span></label></p>
-			
-			<p class="margin10px"><code>/post/</code><input type="text" class="postID post-postID" data-old-post-id="{{postID}}" value="{{postID}}" placeholder="post-id" readonly="readonly" ></p>
-			
-			<p><a href="index.html#/post/{{postID}}" target="_blank">Visit</a> this post on your site.</a></p>
-			
-			<input class="delete" type="button" value="Delete" class="grey">
-			<input type="submit" value="Save">
-			
-		</form>
-
-	</script>
-	
-	<script type="text/ccms-template" data-template-id="createPost">
-		
-		<form class="post create" action="javascript:void(0);">
-			
-			<p><input type="text" class="title" name="title" placeholder="Title"></p>
-			
-			<p><textarea class="content" name="content" placeholder="Content"></textarea></p>
-			
-			<p class="margin10px"><input type="datetime" class="date" data-unix-timestamp="{{date}}" name="date" placeholder="Date"></p>
-			
-			<p><label for="date">Format "YYYY-MM-DD HH:mm"</label></p>
-			
-			<p class="margin10px"><input type="checkbox" class="autoCreatePostID" name="autoCreatePostID" checked> <label for="autoCreatePostID">Create URL automatically using title <span class="light">(uncheck to edit URL)</span></label></p>
-			
-			<p><code>/post/</code><input type="text" class="postID" data-old-post-id="{{postID}}" placeholder="post-id" readonly="readonly" ></p>
-			
-			<input type="submit" value="Save">
-			
-		</form>
-	
-	</script>
-	
-	<script type="text/ccms-template" data-template-id="meta">
-		
-		<div class="meta">
-	
-			<form action="javascript:void(0);">
-				
-				<p><label for="title">Title:</label>
-				<input type="text" class="title" name="title" value="{{title}}" placeholder="Title"></p>
-				
-				<p><label for="description">Description:</label>
-				<textarea class="description" name="description" placeholder="Description">{{description}}</textarea></p>
-				
-				<p><label for="postsPerPage">Posts Per Page:</label>
-				<input type="number" class="postsPerPage" name="postsPerPage" value="{{postsPerPage}}" placeholder="Posts Per Page"></p>
-				
-				<p><label for="copyright">Copyright:</label>
-				<input type="text" class="copyright" name="copyright" value="{{copyright}}" placeholder="Copyright"></p>
-				
-				<p><input type="submit" value="Save"></p>
-				
-			</form>
-			
-			{{#ccms}}
-			<p class="nomargin">CCMS Version: <code>{{version}}</code></p>
-			{{/ccms}}
-		
-	</div> <!-- .meta -->
-		
-	</script>
-
-	<script type="text/ccms-template" data-template-id="footer">
-		
-		<footer><p><span class="left"><a href="#/logout">Logout</a></span><span class="right"><a href="index.html" target="_blank">Visit your site</a></span></p></footer>
-		
-		</div> <!-- #content -->
-		
-		</div> <!-- #wrapper -->
-	
-		</div> <!-- #center -->
-
-	</script>
+	<script type="text/javascript" src="ccms/admin/js/vars.js"></script>
+	<script type="text/javascript" src="ccms/admin/js/render.js"></script>
+	<script type="text/javascript" src="ccms/admin/js/routes.js"></script>
+	<script type="text/javascript" src="ccms/admin/js/login.js"></script>
+	<script type="text/javascript" src="ccms/admin/js/start.js"></script>
 
 </head>
 <body></body>
