@@ -9,16 +9,13 @@ $(document).ready(function () {
 		database = new couchdb.Database(config.database);
 
 		database.read('meta', function (res, err) {
-
 			if (err) console.log('Error while loading document "meta".', err);
-			
 			else {
 				meta = res;
 				theme = new Theme('themes/' + meta.theme);
-				render();
+				render(theme, database, meta);
 				routes();
 			}
-
 		});
 
 	});

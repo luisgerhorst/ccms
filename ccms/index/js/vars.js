@@ -1,1 +1,0 @@
-var theme, config, couchdb, database, meta;

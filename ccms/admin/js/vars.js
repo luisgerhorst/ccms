@@ -1,1 +1,0 @@
-var config, theme = new Theme('ccms/admin/theme'), couchdb, database, meta;

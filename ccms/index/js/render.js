@@ -1,4 +1,4 @@
-function render() {
+function render(theme, database, meta) {
 	
 	var views = {};
 	
