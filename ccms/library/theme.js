@@ -159,11 +159,9 @@ var Theme = function (themePath) {
 		
 		var route = searchRoute(currentPath);
 		
-		if (route.before) route.before(currentPath);
+		if (typeof route.before === 'function') route.before(currentPath);
 		
 		if (route.filenames) load(route, currentPath, function (loaded) {
-			
-			console.log(validateObject(loaded.views));
 			
 			$('body').html(loaded.html);
 			if (route.title) document.title = Mustache.render(route.title, validateObject(loaded.views));
@@ -221,8 +219,6 @@ var Theme = function (themePath) {
 		else views[object_filename] = view;
 	
 	};
-	
-	this.currentPath = getCurrentPath;
 	
 	/**
 	 * URL-change detection

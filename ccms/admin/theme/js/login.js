@@ -1,82 +1,60 @@
-var login = function () {
+var login = function (redirectPath, config) {
 	
-	var foundValid = function (newCouchDB, newDatabase) {
-		
-		couchdb = newCouchDB;
-		database = newDatabase;
-		
-		database.read('meta', function (response, error) {
-			if (error) console.log('Error while loading document "meta".', error);
+	var foundValid = function (c, d) {
+		window.location = '#' + redirectPath;
+		couchdb = c;
+		database = d;
+	};
+	
+	var tryUsernamePassword = function () { // case: username and password auth
+	
+		var c = new CouchDB(config.proxy);
+		c.authorize({
+			username: config.accountPrefix + $('#login-username').val(),
+			password: $('#login-password').val()
+		});
+		var d = new c.Database(config.database);
+	
+		d.save('test', { time: new Date().getTime() }, function (response, error) {
+	
+			if (error && error.code == 401) alert('Your username/password seems to be incorrect.');
+			else if (error && error.code == 403) alert('Please enter username and password.');
+			else if (error) alert('Error ' + error.code + ' ' + error.message + ' occured while logging in.');
 			else {
-				meta = response;
-				render();
-				routes();
+				c.remember();
+				foundValid(c, d);
 			}
+	
 		});
-		
+	
+		return false; // no reload
+	
 	};
 	
-	var askUsernamePassword = function () {
-		
-		var redirectPath = theme.currentPath();
-		if (redirectPath === '/login' || redirectPath === '/logout') redirectPath = '/';
-		
-		window.location = '#/login';
-		
-		theme.route({
-			path: '/login',
-			templates: ['login.html'],
-			done: function () {
-				
-				var tryUsernamePassword = function () { // case: username and password auth
-				
-					var c = couchdb;
-					c.authorize({
-						username: config.accountPrefix + $('#login-username').val(),
-						password: $('#login-password').val()
-					});
-					var d = new c.Database(config.database);
-					
-					d.save('test', { time: new Date().getTime() }, function (response, error) {
-						
-						if (error && error.code == 401) alert('Your username/password seems to be incorrect.');
-						else if (error && error.code == 403) alert('Please enter username and password.');
-						else if (error) alert('Error ' + error.code + ' ' + error.message + ' occured while logging in.');
-						else {
-							window.location = '#' + redirectPath;
-							c.remember();
-							foundValid(c, d);
-						}
-						
-					});
-				
-					return false; // no reload
-				
-				};
-				
-				$('#login').submit(tryUsernamePassword);
-				
-			}
-		});
-		
-	};
+	$('#login').submit(tryUsernamePassword);
 	
 	var tryCookie = function () {
-		
-		var cPath = theme.currentPath();
-		if (cPath === '/login' || cPath === '/logout') window.location = '#/';
-		
-		var c = couchdb;
+	
+		var c = new CouchDB(config.proxy);
 		c.authorize({ cookie: true });
 		var d = new c.Database(config.database);
-		
+	
 		d.save('test', { time: new Date().getTime() }, function (response, error) {
-			if (error) askUsernamePassword();
-			else foundValid(c, d);
+			if (!error) foundValid(c, d);
 		});
-		
+	
 	};
 	
 	tryCookie();
 	
 };
+
+var redirectPath = '/';
+
+$.ajax({
+	url: 'config.json'
+}).done(function (config) {
+
+	login(redirectPath, config);
+
+});
