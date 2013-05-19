@@ -1,4 +1,4 @@
-var saveDocs = function (database) {
+var saveDocs = function (database, ccms) {
 	
 	var title = $('#setup-db-title').val();
 	var year = parseInt(moment().format('YYYY'));
@@ -74,7 +74,12 @@ var setupDB = function () { // on save
 	});
 	var database = new couchdb.Database(config.database);
 	
-	saveDocs(database);
+	$.ajax({
+		url: 'ccms/system.json'
+	}).done(function (ccms) {
+		console.log(ccms);
+		saveDocs(database, ccms);
+	});
 
 	return false; // no reload
 

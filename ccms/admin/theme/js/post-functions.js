@@ -13,122 +13,93 @@ var autoCreatedPostID = function (title, postIDElement, autoCreatePostIDElement)
 	
 };
 
-var updateCopyrightYears = function () {
+var PostDoc = function (documentID) {
 	
-	var copyrightYearsString = function (start, end) {
-		if (start === end) return start + '';
-		else if (start < end) return start + ' - ' + end;
-		else if (start > end) return end + ' - ' + start;
+	var Doc = function (title, content, date, postID) {
+	
+		this.content = content;
+		this.date = moment(date, "YYYY-MM-DD HH:mm").unix();
+		this.postID = encodeURI(postID);
+		this.title = title;
+		this.type = 'post';
+	
 	};
-
-	var year = parseInt(moment().format('YYYY'));
-
-	database.read('meta', function (meta, error) { if (!error) {
-		
-		var options = {
-			
-			copyrightYearsEnd: year,
-			copyrightYears: copyrightYearsString(meta.copyrightYearsStart, year)
-			
-		};
-		
-		this.update(options);
-
-	}});
-
-};
-
-var PostDocument = function (content, date, postID, title) {
 	
-	this.content = content;
-	this.date = moment(date, "YYYY-MM-DD HH:mm").unix();
-	this.postID = encodeURI(postID);
-	this.title = title;
-	this.type = 'post';
+	this.create = function (title, content, date, postID) {
 	
-};
-
-var createPost = function (options) {
+		metaDoc.updateCopyrightYears();
 	
-	updateCopyrightYears();
+		var doc = new Doc(title, content, date, postID);
 	
-	var content = options.content,
-		date = options.date,
-		postID = options.postID,
-		title = options.title;
-
-	var post = new PostDocument(content, date, postID, title);
+		if (!doc.postID || !doc.title) alert('Please enter title and URL.');
 	
-	if (!post.postID || !post.title) alert('Please enter title and URL.');
-
-	else {
-		
-		database.view('posts', 'byPostID?key="' + post.postID + '"', function (response, error) { if (!error) {
-			
-			if (response.rows.length) alert('Post with URL /post/' + post.postID + ' does already exist.');
-			
-			else {
+		else {
+	
+			database.view('posts', 'byPostID?key="' + doc.postID + '"', function (res, err) { if (!err) {
+	
+				if (res.rows.length) alert('Post with URL /post/' + doc.postID + ' does already exist.');
+	
+				else {
+	
+					database.save(doc, function (res, err) { if (!err) {
+	
+						documentID = res.id;
+						window.location = '#/';
+					
+					}});
+					
+				}
 				
-				database.save(post, function (response, error) { if (!error) {
-			
-					window.location = '#/';
-			
-				}});
-			
-			}
-				
-		}});
-
-	}
-
-};
-
-var updatePost = function (options) {
+			}});
 	
-	updateCopyrightYears();
+		}
 	
-	var content = options.content,
-		date = options.date,
-		postID = options.postID,
-		title = options.title,
-		documentID = options.documentID;
+	};
 	
-	var post = new PostDocument(content, date, postID, title);
+	this.update = function (title, content, date, postID) {
 	
-	if (post.postID && post.title) {
+		metaDoc.updateCopyrightYears();
+	
+		var doc = new Doc(title, content, date, postID);
+	
+		if (doc.postID && doc.title) {
+	
+			database.view('posts', 'byPostID?key="' + doc.postID + '"', function (res, err) { if (!err) {
+	
+				if (res.rows.length && res.rows[0].value._id !== documentID) alert('Post with URL /post/' + doc.postID + ' does already exist.');
+	
+				else {
+	
+					database.save(documentID, doc, function (res, err) { if (!err) {
+	
+						window.location = '#/';
+	
+					}});
+	
+				}
+	
+			}});
+	
+		}
+	
+		else alert('Please enter title and URL.');
+	
+	};
+	
+	this.delete = function (newDocumentID) {
 		
-		database.view('posts', 'byPostID?key="' + post.postID + '"', function (response, error) { if (!error) {
-			
-			if (response.rows.length && response.rows[0].value._id !== documentID) alert('Post with URL /post/' + post.postID + ' does already exist.');
-			
-			else {
-				
-				database.save(documentID, post, function (response, error) { if (!error) {
-			
-					window.location = '#/';
-			
-				}});
-			
-			}
-				
-		}});
+		if (!documentID) documentID = newDocumentID;
 	
-	}
+		var confirmed = confirm('Do you really want to delete this post?');
 	
-	else alert('Please enter title and URL.');
+		if (confirmed) {
 	
-};
-
-var deletePost = function (documentID) {
+			database.remove(documentID, function (res, err) {
+				if (!err) window.location = '#/';
+			});
 	
-	var confirmed = confirm('Do you really want to delete this post?');
+		}
 	
-	if (confirmed) {
-		
-		database.remove(documentID, function (response, error) {
-			if (!error) window.location = '#/';
-		});
-		
-	}
+	};
 	
-};
+}

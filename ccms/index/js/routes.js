@@ -7,12 +7,12 @@ function routes() {
 			before: function (path) {
 				if (path === '/page/0') window.location = '#/';
 			},
-			title: '{{#header}}{{title}}{{/header}}'
+			title: '{{header_html.title}}'
 		},
 		{
 			path: /^\/post\/.+$/,
 			templates: ['header.html', 'post.html', 'footer.html'],
-			title: '{{#header}}{{title}} - {{/header}}{{#post}}{{title}}{{/post}}'
+			title: '{{header_html.title}} - {{post_html.title}}'
 		}
 	]);
 	

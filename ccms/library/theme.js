@@ -12,6 +12,19 @@ var Theme = function (themePath) {
 	
 	var views = {};
 	
+	var validateObject = function (object) {
+		
+		var validatedObject = {};
+		
+		for (var key in object) {
+			var validatedKey = key.replace(/\./g, '_');
+			validatedObject[validatedKey] = object[key];
+		}
+		
+		return validatedObject;
+		
+	}
+	
 	var getCurrentPath = function () {
 		var url = document.URL;
 		url = /#.+$/.test(url) ? url.replace(/^.*#/, '') : '/';
@@ -74,6 +87,7 @@ var Theme = function (themePath) {
 					if (!view.themePath) view.themePath = themePath;
 					
 					html[i] = Mustache.render(template, view);
+					loadedViews[filename] = view;
 					onHTMLUpdate();
 				
 				}
@@ -149,8 +163,10 @@ var Theme = function (themePath) {
 		
 		if (route.filenames) load(route, currentPath, function (loaded) {
 			
+			console.log(validateObject(loaded.views));
+			
 			$('body').html(loaded.html);
-			if (route.title) document.title = Mustache.render(route.title, loaded.views);
+			if (route.title) document.title = Mustache.render(route.title, validateObject(loaded.views));
 			if (route.done) route.done(loaded.views, currentPath);
 			
 		});

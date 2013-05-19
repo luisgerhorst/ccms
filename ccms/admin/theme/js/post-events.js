@@ -8,9 +8,9 @@ var contentTextarea = $('form.post.edit textarea.content'),
 	form = $('form.post.edit'),
 	deleteButton = $('form.post.edit input.delete');
 	
-var documentID = form.data('document-id');
+var documentID = form.data('document-id'),
+	postDoc = new PostDoc(documentID);
 	
-
 // Actions
 
 autoCreatedPostID(titleInput.val(), postIDInput, autoCreatePostIDCheckbox);
@@ -31,19 +31,9 @@ titleInput.blur(function () {
 });
 
 form.submit(function () { // on save
-
-	updatePost({
-		documentID: documentID,
-		title: titleInput.val(),
-		content: contentTextarea.val(),
-		postID: postIDInput.val(),
-		date: dateInput.val()
-	});
-
-	return false;
-
+	postDoc.update(titleInput.val(), contentTextarea.val(), dateInput.val(), postIDInput.val());
 });
 
 deleteButton.click(function () {
-	deletePost(documentID);
+	postDoc.delete();
 });

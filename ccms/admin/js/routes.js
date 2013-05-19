@@ -14,22 +14,22 @@ function routes() {
 			before: function (path) {
 				if (path === '/page/0') window.location = '#/';
 			},
-			title: '{{#header}}{{title}}{{/header}}'
+			title: '{{header_html.title}}'
 		},
 		{
 			path: '/meta',
 			templates: ['header.html', 'meta.html', 'footer.html'],
-			title: '{{#header}}{{title}} - {{/header}}Meta'
+			title: '{{header_html.title}} - Meta'
 		},
 		{
 			path: /^\/post\/.+$/,
 			templates: ['header.html', 'post.html', 'footer.html'],
-			title: '{{#header}}{{title}} - {{/header}}{{#post}}{{title}}{{/post}}'
+			title: '{{header_html.title}} - {{post_html.title}}'
 		},
 		{
 			path: '/create/post',
 			templates: ['header.html', 'create-post.html', 'footer.html'],
-			title: '{{#header}}{{title}} - {{/header}}Create Post'
+			title: '{{header_html.title}} - Create Post'
 		}
 	]);
 	

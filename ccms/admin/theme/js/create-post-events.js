@@ -4,6 +4,8 @@ var form = $('form.post.create'),
 	postIDInput = $('form.post.create input.postID'),
 	titleInput = $('form.post.create input.title'),
 	autoCreatePostIDCheckbox = $('form.post.create input.autoCreatePostID');
+	
+var postDoc = new PostDoc();
 
 // Actions
 
@@ -24,12 +26,7 @@ titleInput.keyup(function () {
 
 form.submit(function () {
 	
-	createPost({
-		content: contentTextarea.val(),
-		date: dateInput.val(),
-		postID: postIDInput.val(),
-		title: titleInput.val()
-	});
+	postDoc.create(titleInput.val(), contentTextarea.val(), dateInput.val(), postIDInput.val());
 	
 	return false;
 	
