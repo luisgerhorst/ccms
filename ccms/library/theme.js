@@ -4,13 +4,13 @@ var Theme = function (themePath) {
 	 * @type {Array.<{path, filenames, done, before, title}>}
 	 */
 	
-	var routes = [];
+	this.routes = [];
 	
 	/**
 	 * @type {Object.<string, {({Object}|function(string, boolean))}>}
 	 */
 	
-	var views = {};
+	this.views = {};
 	
 	var validateObject = function (object) {
 		
@@ -43,7 +43,7 @@ var Theme = function (themePath) {
 		var html = [],
 			loadedViews = {};
 		
-		var filenames = route.filenames;
+		var filenames = route.templates;
 		
 		var onHTMLUpdate = function () {
 			
@@ -59,7 +59,7 @@ var Theme = function (themePath) {
 		
 		var getView = function (filename, got) {
 			
-			var view = views[filename];
+			var view = this.views[filename];
 			
 			switch (view === null ? type = 'null' : typeof view) {
 				case 'function':
@@ -118,6 +118,8 @@ var Theme = function (themePath) {
 	
 	var searchRoute = function (path) {
 		
+		var routes = this.routes;
+		
 		var i = routes.length;
 		
 		for (i; i--;) { // new routes overwrite old routes
@@ -161,7 +163,7 @@ var Theme = function (themePath) {
 		
 		if (typeof route.before === 'function') route.before(currentPath);
 		
-		if (route.filenames) load(route, currentPath, function (loaded) {
+		if (route.templates) load(route, currentPath, function (loaded) {
 			
 			$('body').html(loaded.html);
 			if (route.title) document.title = Mustache.render(route.title, validateObject(loaded.views));
@@ -178,12 +180,14 @@ var Theme = function (themePath) {
 		
 	};
 	
-	this.route = function (param) {
+	this.update = update;
+	
+	/*this.route = function (param) {
 		
 		var Route = function (route) {
 		
 			this.path = route.path;
-			this.filenames = route.templates;
+			this.templates = route.templates;
 			this.done = route.done;
 			this.before = route.before;
 			this.title = route.title;
@@ -192,7 +196,7 @@ var Theme = function (themePath) {
 	
 		var addRoute = function (route) {
 			
-			routes.push(new Route(route));
+			this.routes.push(new Route(route));
 			
 		};
 		
@@ -215,10 +219,10 @@ var Theme = function (themePath) {
 	
 	this.render = function (object_filename, view) {
 	
-		if (typeof object_filename === 'object' && !view) for (var filename in object_filename) views[filename] = object_filename[filename];
-		else views[object_filename] = view;
+		if (typeof object_filename === 'object' && !view) for (var filename in object_filename) this.views[filename] = object_filename[filename];
+		else this.views[object_filename] = view;
 	
-	};
+	};*/
 	
 	/**
 	 * URL-change detection
