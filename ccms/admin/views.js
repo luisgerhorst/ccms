@@ -1,15 +1,8 @@
-var views = function (theme, database) {
+var views = function (database) {
+	
+	var views = {};
 
-	theme.views['header.html'] = function (callback) {
-
-		database.read('meta', function (response, error) {
-			if (error) console.log('Error while getting view "' + func + '" of design document "posts".', error);
-			callback(response);
-		}); // loads the newest posts
-
-	};
-
-	theme.views['footer.html'] = function (callback) {
+	views['header.html'] = function (callback) {
 
 		database.read('meta', function (response, error) {
 			if (error) console.log('Error while getting view "' + func + '" of design document "posts".', error);
@@ -18,7 +11,16 @@ var views = function (theme, database) {
 
 	};
 
-	theme.views['posts.html'] = function (callback, path) {
+	views['footer.html'] = function (callback) {
+
+		database.read('meta', function (response, error) {
+			if (error) console.log('Error while getting view "' + func + '" of design document "posts".', error);
+			callback(response);
+		}); // loads the newest posts
+
+	};
+
+	views['posts.html'] = function (callback, path) {
 
 		var postsPerPage = 10,
 			pageIndex = path === '/' ? 0 : parseInt(path.replace(/^\/page\//, '')),
@@ -67,7 +69,7 @@ var views = function (theme, database) {
 
 	};
 
-	theme.views['post.html'] = function (callback, path) {
+	views['post.html'] = function (callback, path) {
 
 		var postID = path.replace(/^\/post\//, '');
 
@@ -90,6 +92,6 @@ var views = function (theme, database) {
 
 	};
 
-	return theme;
+	return views;
 
 };

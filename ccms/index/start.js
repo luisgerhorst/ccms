@@ -2,19 +2,18 @@ $(document).ready(function () {
 
 	$.ajax({
 		url: 'config.json'
-	}).done(function (res) {
+	}).done(function (config) {
 
-		config = res;
 		couchdb = new CouchDB(config.proxy);
 		database = new couchdb.Database(config.database);
 
-		database.read('meta', function (res, err) {
+		database.read('meta', function (meta, err) {
 			if (err) console.log('Error while loading document "meta".', err);
 			else {
-				meta = res;
 				theme = new Theme('themes/' + meta.theme);
-				render(theme, database, meta);
-				routes();
+				theme.views = views(database, meta);
+				theme.routes = routes;
+				theme.update();
 			}
 		});
 

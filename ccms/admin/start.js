@@ -8,11 +8,9 @@ $(document).ready(function () {
 		
 		var database = new ((new CouchDB(config.proxy)).Database)(config.database);
 		
-		theme = views(theme, database);
-		theme = routes(theme);
+		theme.views = views(database);
+		theme.routes = routes;
 		theme.update();
-		
-		console.log(theme);
 		
 	});
 

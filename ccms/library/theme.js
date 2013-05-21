@@ -1,18 +1,8 @@
 var Theme = function (themePath) {
 	
-	/**
-	 * @type {Array.<{path, filenames, done, before, title}>}
-	 */
+	var Theme = this;
 	
-	this.routes = [];
-	
-	/**
-	 * @type {Object.<string, {({Object}|function(string, boolean))}>}
-	 */
-	
-	this.views = {};
-	
-	var validateObject = function (object) {
+	var validateObjectKeys = function (object) {
 		
 		var validatedObject = {};
 		
@@ -23,7 +13,7 @@ var Theme = function (themePath) {
 		
 		return validatedObject;
 		
-	}
+	};
 	
 	var getCurrentPath = function () {
 		var url = document.URL;
@@ -59,7 +49,7 @@ var Theme = function (themePath) {
 		
 		var getView = function (filename, got) {
 			
-			var view = this.views[filename];
+			var view = Theme.views[filename];
 			
 			switch (view === null ? type = 'null' : typeof view) {
 				case 'function':
@@ -118,7 +108,7 @@ var Theme = function (themePath) {
 	
 	var searchRoute = function (path) {
 		
-		var routes = this.routes;
+		var routes = Theme.routes;
 		
 		var i = routes.length;
 		
@@ -153,6 +143,12 @@ var Theme = function (themePath) {
 			
 		}
 		
+		console.log('No route was found.', routes);
+		return {
+			templates: ['error/404.html'],
+			title: '404 Not Found'
+		};
+		
 	};
 	
 	var update = function () {
@@ -166,7 +162,7 @@ var Theme = function (themePath) {
 		if (route.templates) load(route, currentPath, function (loaded) {
 			
 			$('body').html(loaded.html);
-			if (route.title) document.title = Mustache.render(route.title, validateObject(loaded.views));
+			if (route.title) document.title = Mustache.render(route.title, validateObjectKeys(loaded.views));
 			if (route.done) route.done(loaded.views, currentPath);
 			
 		});
@@ -180,50 +176,20 @@ var Theme = function (themePath) {
 		
 	};
 	
-	this.update = update;
+	/**
+	 * @type {Array.<{path, filenames, done, before, title}>}
+	 */
 	
-	/*this.route = function (param) {
-		
-		var Route = function (route) {
-		
-			this.path = route.path;
-			this.templates = route.templates;
-			this.done = route.done;
-			this.before = route.before;
-			this.title = route.title;
-		
-		};
+	Theme.routes = [];
 	
-		var addRoute = function (route) {
-			
-			this.routes.push(new Route(route));
-			
-		};
-		
-		var addArray = function (array) {
-			
-			var l = array.length;
-			for (var i = 0; i < l; i++) addRoute(array[i]);
-			
-		};
-		
-		// Actions
+	/**
+	 * @type {Object.<string, {({Object}|function(string, boolean))}>}
+	 */
 	
-		if (param instanceof Array) addArray(param);
-		
-		else if (typeof param === 'object') addRoute(param);
+	Theme.views = {};
 	
-		update();
-	
-	};
-	
-	this.render = function (object_filename, view) {
-	
-		if (typeof object_filename === 'object' && !view) for (var filename in object_filename) this.views[filename] = object_filename[filename];
-		else this.views[object_filename] = view;
-	
-	};*/
-	
+	Theme.update = update;
+
 	/**
 	 * URL-change detection
 	 * via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js

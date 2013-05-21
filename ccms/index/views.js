@@ -1,4 +1,4 @@
-function render(theme, database, meta) {
+function views(database, meta) {
 	
 	var views = {};
 	
@@ -128,6 +128,6 @@ function render(theme, database, meta) {
 		
 	};
 
-	theme.render(views);
+	return views;
 	
 }
