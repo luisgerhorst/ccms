@@ -254,22 +254,20 @@ var theme = new (function () {
 		
 		var Template = this;
 		
-		var template, view;
-		
 		$.ajax({
 			url: Theme.path + '/' + Template.name,
-		}).done(function (res) {
-			template = res;
-			Template.chunkReceived(template, view, callback);
+		}).done(function (template) {
+			Template.template = template;
+			Template.chunkReceived(callback);
 		}).fail(function () {
-			console.log('Template ' + filename + ' could not be loaded.');
-			template = null;
-			Template.chunkReceived(template, view, callback);
+			console.log('Template ' + Template.name + ' could not be loaded.');
+			Template.template = null;
+			Template.chunkReceived(callback);
 		});
 		
-		getView(Template.name, currentPath, function (res) {
-			view = res;
-			Template.chunkReceived(template, view, callback);
+		getView(Template.name, currentPath, function (view) {
+			Template.view = view;
+			Template.chunkReceived(callback);
 		});
 		
 	};
