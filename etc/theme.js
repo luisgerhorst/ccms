@@ -22,29 +22,29 @@ var theme = new (function () {
 		return url;
 	};
 	
+	var getView = function (filename, currentPath, got) {
+		
+		var view = themeViews[filename];
+		
+		switch (view === null ? type = 'null' : typeof view) {
+			case 'function':
+				view(got, currentPath);
+				break;
+			case 'object':
+				got(view);
+				break;
+			default:
+				got({});
+		}
+		
+	};
+	
 	var load = function (route, currentPath, loaded) {
 		
 		var stringify = function (array) {
 			var string = '', length = array.length;
 			for (var i = 0; i < length; i++) string += array[i] || '';
 			return string;
-		};
-		
-		var getView = function (filename, got) {
-			
-			var view = themeViews[filename];
-			
-			switch (view === null ? type = 'null' : typeof view) {
-				case 'function':
-					view(got, currentPath);
-					break;
-				case 'object':
-					got(view);
-					break;
-				default:
-					got({});
-			}
-			
 		};
 		
 		var html = [],
@@ -91,7 +91,7 @@ var theme = new (function () {
 				onResponse();
 			});
 			
-			getView(filename, function (res) {
+			getView(filename, currentPath, function (res) {
 				view = res;
 				onResponse();
 			});
@@ -210,21 +210,31 @@ var theme = new (function () {
 		 * Get the head
 		 */
 		 
-		$.ajax({
-			url: themePath + '/head.html',
-		}).done(function (template) {
+		(function (filename) {
 			
-			var view = {
-				themePath: themePath
-			};
+			var template, view;
 			
-			var head = Mustache.render(template, view);
+			var onResponse = function () { if (template && view) {
+				if (!view.themePath) view.themePath = themePath;
+				var head = Mustache.render(template, view);
+				$('head').html(head);
+			}};
 			
-			$('head').append(head);
+			$.ajax({
+				url: themePath + '/' + filename,
+			}).done(function (res) {
+				template = res;
+				onResponse();
+			}).fail(function () {
+				console.log('No head.html found.');
+			});
 			
-		}).fail(function () {
-			console.log('No head.html found, no problem.');
-		});
+			getView(filename, null, function (res) {
+				view = res;
+				onResponse();
+			});
+			
+		})('head.html');
 		
 	};
 	

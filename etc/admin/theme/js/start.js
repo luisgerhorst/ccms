@@ -1,4 +1,4 @@
-var redirectPath = function () {
+var getRedirectPath = function () {
 	
 	var path = document.URL;
 	path = /#.+$/.test(path) ? path.replace(/^.*#/, '') : '/';
@@ -13,4 +13,4 @@ var redirectPath = function () {
 	
 };
 
-window.location = '#/login/redirect=' + redirectPath();
+window.location = '#/login/redirect=' + getRedirectPath();

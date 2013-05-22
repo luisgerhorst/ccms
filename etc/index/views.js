@@ -6,6 +6,8 @@ function views(database, meta) {
 	
 	views['footer.html'] = meta;
 	
+	views['head.html'] = meta;
+	
 	var cache = {
 		index: [],
 		post: {}
