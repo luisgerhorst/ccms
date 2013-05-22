@@ -183,6 +183,97 @@ var theme = new (function () {
 		
 	};
 	
+	var Route = function (route) {
+		
+		this.path = route.path;
+		this.templates = route.template;
+		this.title = route.title;
+		this.before = route.before;
+		this.done = route.done;
+		
+	};
+	
+	Route.prototype.chunkReceived = function (html, views, templateNames, callback) {
+		
+		var isDone = true;
+		for (var j = templateNames.length; j--;) if (!html[j]) isDone = false;
+		
+		if (isDone) callback({
+			body: stringifyArray(html),
+			views: views
+		});
+		
+	};
+	
+	Route.prototype.load = function () {
+		
+		var templates = this.templates;
+		
+		var html = [],
+			views = {};
+		
+		for (var i = templates.length; i--;) (function (i) {
+			
+			var template = templates[i];
+			
+			template.load(currentPath, function (res) {
+				
+				html[i] = res.rendered;
+				views[templateName] = res.view;
+				routeChunkReceived(html, views, templateNames, callback);
+				
+			});
+			
+		})(i);
+		
+	};
+	
+	var Template = function (name) {
+		
+		this.name = name;
+		
+	}
+	
+	Template.prototype.chunkReceived = function (template, view, callback) {
+		
+		if (typeof template !== 'undefined' && typeof view !== 'undefined') {
+			
+			if (!view.themePath) view.themePath = Theme.path;
+			
+			callback({
+				rendered: Mustache.render(template, view),
+				template: template,
+				view: view
+			});
+		
+		}
+		
+	};
+	
+	Template.prototype.load = function () {
+		
+		var Template = this;
+		
+		var template, view;
+		
+		$.ajax({
+			url: Theme.path + '/' + Template.name,
+		}).done(function (res) {
+			template = res;
+			Template.chunkReceived(template, view, callback);
+		}).fail(function () {
+			console.log('Template ' + filename + ' could not be loaded.');
+			template = null;
+			Template.chunkReceived(template, view, callback);
+		});
+		
+		getView(Template.name, currentPath, function (res) {
+			view = res;
+			Template.chunkReceived(template, view, callback);
+		});
+		
+	};
+	
 	this.currentPath = getCurrentPath;
 	
 	this.setup = function (path, routes, views) {
