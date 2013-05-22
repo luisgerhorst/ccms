@@ -49,7 +49,22 @@ var login = function (redirectPath, config) {
 	
 };
 
-var redirectPath = '/';
+var urlQuery = function () {
+	var p = document.URL; // http://domain.com/path/key=value/key2=value2
+	p = p.replace(/.*\/login\//, '').replace(/\/$/, ''); // key=value/key2=value2
+	p = p.split('/'); // ['key=value', 'key2=value2']
+	var o = {};
+	for (var i = p.length; i--;) {
+		var s = p[i];
+		var k = s.replace(/=.*/, ''); // key
+		var v = decodeURIComponent(s.replace(/.*=/, '')); // value
+		o[k] = v;
+	}
+	return o;
+};
+
+var redirectPath = urlQuery().redirect;
+	redirectPath = redirectPath ? redirectPath : '/';
 
 $.ajax({
 	url: 'config.json'

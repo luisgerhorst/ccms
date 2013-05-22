@@ -1,6 +1,6 @@
 var routes = [
 	{
-		path: '/login',
+		path: ['/login', /^\/login\/.*/],
 		templates: ['login.html'],
 	},
 	{

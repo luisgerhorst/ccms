@@ -68,17 +68,25 @@ var saveDocs = function (database, ccms) {
 
 var setupDB = function () { // on save
 	
-	var couchdb = new CouchDB(config.proxy).forget().authorize({
-		username: config.accountPrefix + $('#setup-db-username').val(),
-		password: $('#setup-db-password').val()
-	});
-	var database = new couchdb.Database(config.database);
-	
 	$.ajax({
-		url: 'ccms/system.json'
-	}).done(function (ccms) {
-		console.log(ccms);
-		saveDocs(database, ccms);
+		url: 'config.json'
+	}).done(function (config) {
+		
+		var couchdb = new CouchDB(config.proxy).forget().authorize({
+			username: config.accountPrefix + $('#setup-db-username').val(),
+			password: $('#setup-db-password').val()
+		});
+		
+		var database = new couchdb.Database(config.database);
+		
+		$.ajax({
+			url: 'etc/system.json'
+		}).done(function (ccms) {
+			
+			saveDocs(database, ccms);
+			
+		});
+		
 	});
 
 	return false; // no reload

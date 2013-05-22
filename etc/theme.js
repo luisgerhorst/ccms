@@ -1,6 +1,6 @@
-var Theme = function (themePath) {
+var theme = new (function () {
 	
-	var Theme = this;
+	var themePath, themeRoutes, themeViews;
 	
 	var validateObjectKeys = function (object) {
 		
@@ -30,26 +30,9 @@ var Theme = function (themePath) {
 			return string;
 		};
 		
-		var html = [],
-			loadedViews = {};
-		
-		var filenames = route.templates;
-		
-		var onHTMLUpdate = function () {
-			
-			var isDone = true;
-			for (var j = filenames.length; j--;) if (!html[j]) isDone = false;
-			
-			if (isDone) loaded({
-				html: stringify(html),
-				views: loadedViews
-			});
-			
-		};
-		
 		var getView = function (filename, got) {
 			
-			var view = Theme.views[filename];
+			var view = themeViews[filename];
 			
 			switch (view === null ? type = 'null' : typeof view) {
 				case 'function':
@@ -64,30 +47,47 @@ var Theme = function (themePath) {
 			
 		};
 		
+		var html = [],
+			views = {};
+		
+		var filenames = route.templates;
+		
+		var onHTMLUpdate = function () {
+			
+			var isDone = true;
+			for (var j = filenames.length; j--;) if (!html[j]) isDone = false;
+			
+			if (isDone) loaded({
+				html: stringify(html),
+				views: views
+			});
+			
+		};
+		
 		var renderFile = function (i) {
 			
 			var filename = filenames[i];
 			
 			var template, view;
 			
-			var onResponse = function () {
-
-				if (template && view) {
+			var onResponse = function () { if (template && view) {
 					
-					if (!view.themePath) view.themePath = themePath;
-					
-					html[i] = Mustache.render(template, view);
-					loadedViews[filename] = view;
-					onHTMLUpdate();
+				if (!view.themePath) view.themePath = themePath;
 				
-				}
+				html[i] = Mustache.render(template, view);
+				views[filename] = view;
+				onHTMLUpdate();
 				
-			};
+			}};
 			
 			$.ajax({
 				url: themePath + '/' + filename,
 			}).done(function (res) {
 				template = res;
+				onResponse();
+			}).fail(function () {
+				console.log('Template ' + filename + ' could not be loaded.');
+				template = '<code>404 Not Found</code>';
 				onResponse();
 			});
 			
@@ -108,7 +108,7 @@ var Theme = function (themePath) {
 	
 	var searchRoute = function (path) {
 		
-		var routes = Theme.routes;
+		var routes = themeRoutes;
 		
 		var i = routes.length;
 		
@@ -143,7 +143,7 @@ var Theme = function (themePath) {
 			
 		}
 		
-		console.log('No route was found.', routes);
+		console.log('No route was found. ', routes);
 		return {
 			templates: ['error/404.html'],
 			title: '404 Not Found'
@@ -176,52 +176,56 @@ var Theme = function (themePath) {
 		
 	};
 	
-	/**
-	 * @type {Array.<{path, filenames, done, before, title}>}
-	 */
+	this.currentPath = getCurrentPath;
 	
-	Theme.routes = [];
-	
-	/**
-	 * @type {Object.<string, {({Object}|function(string, boolean))}>}
-	 */
-	
-	Theme.views = {};
-	
-	Theme.update = update;
-
-	/**
-	 * URL-change detection
-	 * via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js
-	 */
-	 
-	if ('onhashchange' in window) window.onhashchange = update;
-	else {
-		var hash = window.location.hash;
-		window.setInterval(function () {
-			if (window.location.hash !== hash) {
-				hash = window.location.hash;
-				update();
-			}
-		}, 100);
-	}
-	
-	/**
-	 * Get the head
-	 */
-	 
-	$.ajax({
-		url: themePath + '/head.html',
-	}).done(function (template) {
+	this.setup = function (path, routes, views) {
 		
-		var view = {
-			themePath: themePath
-		};
+		themePath = typeof path === 'string' ? path : '';
 		
-		var head = Mustache.render(template, view);
+		/** @type {Array.<{path, templates, done, before, title}>} */
+		themeRoutes = routes instanceof Array ? routes : [];
 		
-		$('head').append(head);
+		/** @type {Object.<string, {({Object}|function(string, boolean))}>} */
+		themeViews = (views && typeof views === 'object') ? views : {};
 		
-	});
+		update();
+		
+		/**
+		 * URL-change detection
+		 * via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js
+		 */
+		
+		if ('onhashchange' in window) window.onhashchange = update;
+		else {
+			var hash = window.location.hash;
+			window.setInterval(function () {
+				if (window.location.hash !== hash) {
+					hash = window.location.hash;
+					update();
+				}
+			}, 100);
+		}
+		
+		/**
+		 * Get the head
+		 */
+		 
+		$.ajax({
+			url: themePath + '/head.html',
+		}).done(function (template) {
+			
+			var view = {
+				themePath: themePath
+			};
+			
+			var head = Mustache.render(template, view);
+			
+			$('head').append(head);
+			
+		}).fail(function () {
+			console.log('No head.html found, no problem.');
+		});
+		
+	};
 	
-};
+})();

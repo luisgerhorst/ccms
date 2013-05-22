@@ -3,6 +3,8 @@
 
 var CouchDB = function (proxyURL) {
 	
+	var CouchDB = this;
+	
 	// Data Constructors
 	
 	var Credentials = function (credentials) {
@@ -37,23 +39,23 @@ var CouchDB = function (proxyURL) {
 	
 	// Methods
 	
-	this.authorize = function (object) {
+	CouchDB.authorize = function (object) {
 		
 		credentials = new Credentials(object);
 		
-		return this;
+		return CouchDB;
 		
 	};
 	
-	this.deauthorize = function () {
+	CouchDB.deauthorize = function () {
 		
 		credentials = new Credentials(null);
 		
-		return this;
+		return CouchDB;
 		
 	};
 	
-	this.remember = function () {
+	CouchDB.remember = function () {
 			
 		if (credentials.username && credentials.password) {
 			
@@ -72,11 +74,11 @@ var CouchDB = function (proxyURL) {
 	
 		}
 		
-		return this;
+		return CouchDB;
 			
 	};
 	
-	this.forget = function () {
+	CouchDB.forget = function () {
 		
 		var options = {
 			url: proxyURL + '/_session',
@@ -89,11 +91,13 @@ var CouchDB = function (proxyURL) {
 			credentials.cookie = false;
 		});
 		
-		return this;
+		return CouchDB;
 		
 	};
 	
-	this.Database = function (databaseName) {
+	CouchDB.Database = function (databaseName) {
+		
+		var Database = this;
 		
 		var AjaxOptions = function (options) {
 			
@@ -125,7 +129,7 @@ var CouchDB = function (proxyURL) {
 			
 		};
 		
-		this.read = function (document, callback) {
+		Database.read = function (document, callback) {
 			
 			request({
 				document: document
@@ -133,11 +137,11 @@ var CouchDB = function (proxyURL) {
 				callback(JSON.parse(data), parseError(jqXHR));
 			});
 			
-			return this;
+			return Database;
 			
 		};
 		
-		this.exists = function (document, callback) {
+		Database.exists = function (document, callback) {
 			
 			request({
 				document: document,
@@ -150,11 +154,11 @@ var CouchDB = function (proxyURL) {
 				
 			});
 			
-			return this;
+			return Database;
 			
 		};
 		
-		this.view = function (doc, func, callback) {
+		Database.view = function (doc, func, callback) {
 			
 			request({
 				document: '_design/' + doc + '/_view/' + func
@@ -162,11 +166,11 @@ var CouchDB = function (proxyURL) {
 				callback(JSON.parse(data), parseError(jqXHR));
 			});
 			
-			return this;
+			return Database;
 			
 		};
 			
-		this.save = function (parameterOne, parameterTwo, parameterThree) {
+		Database.save = function (parameterOne, parameterTwo, parameterThree) {
 			
 			var put = function () {
 				
@@ -215,11 +219,11 @@ var CouchDB = function (proxyURL) {
 			if (typeof parameterOne === 'string') put();
 			else post();
 			
-			return this;
+			return Database;
 				
 		};
 			
-		this.remove = function (document, callback) {
+		Database.remove = function (document, callback) {
 			
 			request({
 				document: document,
@@ -239,7 +243,7 @@ var CouchDB = function (proxyURL) {
 				
 			});
 			
-			return this;
+			return Database;
 		
 		};
 		
