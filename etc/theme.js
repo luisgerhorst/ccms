@@ -7,7 +7,7 @@ var theme = new (function () {
 		var validatedObject = {};
 		
 		for (var key in object) {
-			var validatedKey = key.replace(/\./g, '_');
+			var validatedKey = key.replace('.', '_');
 			validatedObject[validatedKey] = object[key];
 		}
 		
