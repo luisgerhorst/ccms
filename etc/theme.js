@@ -1,6 +1,6 @@
 var theme = new (function () {
 	
-	var Theme = {};
+	var Theme = {}, Templates = {};
 	
 	var validateObjectKeys = function (object) {
 		var validatedObject = {};
@@ -8,7 +8,7 @@ var theme = new (function () {
 		return validatedObject;
 	};
 	
-	var getCurrentPath = function () {
+	var currentPath = function () {
 		var url = document.URL;
 		url = /#.+$/.test(url) ? url.replace(/^.*#/, '') : '/';
 		url = url === '/' ? url : url.replace(/\/$/, '');
@@ -21,62 +21,17 @@ var theme = new (function () {
 		return string;
 	};
 	
-	var getView = function (filename, currentPath, callback) {
+	var Route = function (route) {
 		
-		var view = Theme.views[filename];
-		
-		switch (view === null ? type = 'null' : typeof view) {
-			case 'function':
-				view(callback, currentPath);
-				break;
-			case 'object':
-				callback(view);
-				break;
-			default:
-				callback({});
-		}
+		this.path = route.path;
+		this.templates = route.templates; // every template will be linked to Templates
+		this.title = route.title;
+		this.before = route.before;
+		this.done = route.done;
 		
 	};
 	
-	var fileChunkReceived = function (template, view, callback) {
-		
-		if (typeof template !== 'undefined' && typeof view !== 'undefined') {
-			
-			if (!view.themePath) view.themePath = Theme.path;
-			
-			callback({
-				rendered: Mustache.render(template, view),
-				template: template,
-				view: view
-			});
-		
-		}
-		
-	};
-	
-	var loadFile = function (filename, currentPath, callback) {
-		
-		var template, view;
-		
-		$.ajax({
-			url: Theme.path + '/' + filename,
-		}).done(function (res) {
-			template = res;
-			fileChunkReceived(template, view, callback);
-		}).fail(function () {
-			console.log('Template ' + filename + ' could not be loaded.');
-			template = null;
-			fileChunkReceived(template, view, callback);
-		});
-		
-		getView(filename, currentPath, function (res) {
-			view = res;
-			fileChunkReceived(template, view, callback);
-		});
-		
-	};
-	
-	var routeChunkReceived = function (html, views, templateNames, callback) {
+	Route.prototype.chunkReceived = function (html, views, templateNames, callback) {
 		
 		var isDone = true;
 		for (var j = templateNames.length; j--;) if (!html[j]) isDone = false;
@@ -88,32 +43,98 @@ var theme = new (function () {
 		
 	};
 	
-	var loadRoute = function (route, currentPath, callback) {
+	Route.prototype.load = function () {
+		
+		var templates = this.templates;
 		
 		var html = [],
 			views = {};
 		
-		var templateNames = route.templates;
-		
-		for (var i = templateNames.length; i--;) (function (i) {
+		for (var i = templates.length; i--;) (function (i) {
 			
-			var templateName = templateNames[i];
+			var template = templates[i];
 			
-			loadFile(templateName, currentPath, function (res) {
+			template.load(function (template) {
 				
-				html[i] = res.rendered;
+				html[i] = res.output;
 				views[templateName] = res.view;
 				routeChunkReceived(html, views, templateNames, callback);
 				
 			});
 			
 		})(i);
+		
+	};
 	
+	var Template = function (name, viewResource) {
+		
+		this.name = name;
+		this.viewResource = viewResource;
+		
+	};
+	
+	Template.prototype.loaded = function (callback) {
+		
+		var template = this.template, view = this.view;
+		
+		if (!view.themePath) view.themePath = Theme.path;
+		
+		callback({
+			output: Mustache.render(template, view),
+			template: template,
+			view: view
+		});
+		
+		// console.log(this);
+		
+	};
+	
+	Template.prototype.chunkReceived = function (callback) {
+		if (typeof template !== 'undefined' && typeof view !== 'undefined') this.loaded(callback);
+	};
+	
+	Template.prototype.processViewResource = function (callback) {
+		
+		var view = this.view;
+		
+		switch (view === null ? type = 'null' : typeof view) {
+			case 'function':
+				view(callback, Theme.currentPath);
+				break;
+			case 'object':
+				callback(view);
+				break;
+			default:
+				callback({});
+		}
+		
+	};
+	
+	Template.prototype.load = function (callback) {
+		
+		var Template = this;
+		
+		$.ajax({
+			url: Theme.path + '/' + Template.name,
+		}).done(function (template) {
+			Template.template = template;
+			Template.chunkReceived(callback);
+		}).fail(function () {
+			console.log('Template ' + Template.name + ' could not be loaded.');
+			Template.template = null;
+			Template.chunkReceived(callback);
+		});
+		
+		Template.processViewResource(function (view) {
+			Template.view = view;
+			Template.chunkReceived(callback);
+		});
+		
 	};
 	
 	/** Search a route that matches the current path. */
 	
-	var searchRoute = function (path) {
+	Theme.searchRoute = function (path) {
 		
 		var routes = Theme.routes;
 		
@@ -150,21 +171,17 @@ var theme = new (function () {
 			
 		}
 		
-		console.log('No route was found. ', routes);
-		return {
-			templates: ['error/404.html'],
-			title: '404 Not Found'
-		};
+		console.log('No route was found.', Theme.currentPath, routes);
 		
 	};
 	
-	var updateTheme = function () {
+	Theme.update = function () {
 		
-		var currentPath = getCurrentPath();
+		Theme.currentPath = currentPath();
 		
-		var route = searchRoute(currentPath);
+		var route = Theme.searchRoute(Theme.currentPath);
 		
-		if (typeof route.before === 'function') route.before(currentPath);
+		if (typeof route.before === 'function') route.before(Theme.currentPath);
 		
 		if (route.templates) loadRoute(route, currentPath, function (loaded) {
 			
@@ -183,95 +200,6 @@ var theme = new (function () {
 		
 	};
 	
-	var Route = function (route) {
-		
-		this.path = route.path;
-		this.templates = route.template;
-		this.title = route.title;
-		this.before = route.before;
-		this.done = route.done;
-		
-	};
-	
-	Route.prototype.chunkReceived = function (html, views, templateNames, callback) {
-		
-		var isDone = true;
-		for (var j = templateNames.length; j--;) if (!html[j]) isDone = false;
-		
-		if (isDone) callback({
-			body: stringifyArray(html),
-			views: views
-		});
-		
-	};
-	
-	Route.prototype.load = function () {
-		
-		var templates = this.templates;
-		
-		var html = [],
-			views = {};
-		
-		for (var i = templates.length; i--;) (function (i) {
-			
-			var template = templates[i];
-			
-			template.load(currentPath, function (res) {
-				
-				html[i] = res.rendered;
-				views[templateName] = res.view;
-				routeChunkReceived(html, views, templateNames, callback);
-				
-			});
-			
-		})(i);
-		
-	};
-	
-	var Template = function (name) {
-		
-		this.name = name;
-		
-	}
-	
-	Template.prototype.chunkReceived = function (template, view, callback) {
-		
-		if (typeof template !== 'undefined' && typeof view !== 'undefined') {
-			
-			if (!view.themePath) view.themePath = Theme.path;
-			
-			callback({
-				rendered: Mustache.render(template, view),
-				template: template,
-				view: view
-			});
-		
-		}
-		
-	};
-	
-	Template.prototype.load = function () {
-		
-		var Template = this;
-		
-		$.ajax({
-			url: Theme.path + '/' + Template.name,
-		}).done(function (template) {
-			Template.template = template;
-			Template.chunkReceived(callback);
-		}).fail(function () {
-			console.log('Template ' + Template.name + ' could not be loaded.');
-			Template.template = null;
-			Template.chunkReceived(callback);
-		});
-		
-		getView(Template.name, currentPath, function (view) {
-			Template.view = view;
-			Template.chunkReceived(callback);
-		});
-		
-	};
-	
 	this.currentPath = getCurrentPath;
 	
 	this.setup = function (path, routes, views) {
@@ -284,7 +212,7 @@ var theme = new (function () {
 		/** @type {Object.<string, {({Object}|function(string, boolean))}>} */
 		Theme.views = (views && typeof views === 'object') ? views : {};
 		
-		updateTheme();
+		Theme.update();
 		
 		/**
 		 * URL-change detection
