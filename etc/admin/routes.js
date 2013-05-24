@@ -2,10 +2,12 @@ var routes = [
 	{
 		path: ['/login', /^\/login\/.*/],
 		templates: ['login.html'],
+		title: 'Login'
 	},
 	{
 		path: '/logout',
 		templates: ['logout.html'],
+		title: 'Logging out ...'
 	},
 	{
 		path: ['/', /^\/page\/\d+$/],

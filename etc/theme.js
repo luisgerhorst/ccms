@@ -2,7 +2,10 @@ var theme = new (function () {
 	
 	var Theme = this;
 	
-	var log = false;
+	var log = false,
+		templates = {},
+		routes = [],
+		themePath = '';
 	
 	var validateObjectKeys = function (object) {
 		var validatedObject = {};
@@ -11,10 +14,10 @@ var theme = new (function () {
 	};
 	
 	var currentPath = function () {
-		var url = document.URL;
-		url = /#.+$/.test(url) ? url.replace(/^.*#/, '') : '/';
-		url = url === '/' ? url : url.replace(/\/$/, '');
-		return url;
+		var path = document.URL;
+		path = /#.+$/.test(path) ? path.replace(/^.*#/, '') : '/';
+		path = path === '/' ? path : path.replace(/\/$/, '');
+		return path;
 	};
 	
 	var stringifyArray = function (array) {
@@ -23,15 +26,21 @@ var theme = new (function () {
 		return string;
 	};
 	
-	var Template = function (name, viewResource) {
+	var Template = function (name, viewSource) {
 		
 		var Template = this;
 		
 		Template.name = name;
 		
-		if (viewResource) Template.viewResource = viewResource;
+		Template.loaded = undefined;
+		Template.template = undefined;
+		Template.view = undefined;
+		
+		if (viewSource) Template.viewSource = viewSource;
 		
 	};
+	
+	Template.prototype.viewSource = {};
 	
 	Template.prototype.reset = function () {
 		
@@ -47,15 +56,11 @@ var theme = new (function () {
 		
 		var Template = this;
 		
-		if (log) console.log('Template chunk of ' + Template.name + ' received ...');
-		
 		var done = Template.template !== null && Template.view !== null;
 		
 		if (done) {
 			
-			if (log) console.log('Template ' + Template.name + ' loaded!');
-			
-			if (!Template.view.themePath) Template.view.themePath = Theme.path;
+			if (!Template.view.themePath) Template.view.themePath = themePath;
 			
 			var output = Mustache.render(Template.template, Template.view);
 			
@@ -70,71 +75,56 @@ var theme = new (function () {
 		
 		var Template = this;
 		
-		if (log) console.log('Started loading template ' + Template.name);
-		
 		Template.loaded = callback;
 		Template.template = null;
 		Template.view = null;
 		
 		$.ajax({
-			url: Theme.path + '/' + Template.name,
+			url: themePath + '/' + Template.name,
 		}).done(function (template) {
 			Template.template = template;
 			Template.chunkReceived();
 		}).fail(function () {
-			if (log) console.log('Template ' + Template.name + ' could not be loaded.');
+			console.log(Template.name + ': Error, unable to load template.');
 			Template.template = '';
 			Template.chunkReceived();
 		});
 		
-		var viewResource = Template.viewResource;
+		var viewSource = Template.viewSource;
 		
-		switch (viewResource === null ? 'null' : typeof viewResource) {
+		switch (viewSource === null ? 'null' : typeof viewSource) {
 			case 'function':
-				viewResource(function (view) {
+				viewSource(function (view) {
 					Template.view = view;
 					Template.chunkReceived();
 				}, Theme.currentPath);
 				break;
 			case 'object':
-				Template.view = viewResource;
+				Template.view = viewSource;
 				Template.chunkReceived();
 				break;
 			default:
-				if (log) console.log('No view resource for ' + Template.name + ' found.');
+				console.log(Template.name + ': Error, unable to prozess view source. View source:', Template.viewSource);
 				Template.view = {};
 				Template.chunkReceived();
 		}
 		
 	};
 	
-	var Route = function (resource) {
+	var Route = function (source) {
 		
 		var Route = this;
 		
-		Route.path = resource.path;
-		Route.title = resource.title;
+		Route.path = source.path;
+		Route.title = source.title;
 		
-		if (resource.before) Route.before = resource.before;
-		if (resource.done) Route.done = resource.done;
-		if (resource.templates) {
-			
-			Route.templates = [];
-			
-			for (var i = resource.templates.length; i--;) {
-				
-				var name = resource.templates[i];
-				
-				if (Theme.templates[name]) Route.templates[i] = Theme.templates[name];
-				
-				else {
-					Theme.templates[name] = new Template(name);
-					Route.templates[i] = Theme.templates[name];
-				}
-				
-			}
-			
-		}
+		Route.loaded = undefined;
+		Route.body = undefined;
+		Route.views = undefined;
+		
+		if (source.before) Route.before = source.before;
+		if (source.done) Route.done = source.done;
+		if (source.templates) Route.templates = source.templates;
 		
 	};
 	
@@ -142,16 +132,31 @@ var theme = new (function () {
 	Route.prototype.done = function () {};
 	Route.prototype.templates = [];
 	
+	Route.prototype.body = [];
+	Route.prototype.views = {};
+	
+	Route.prototype.reset = function () {
+		
+		var Route = this;
+		
+		Route.loaded = undefined;
+		Route.body = undefined;
+		Route.views = undefined;
+		
+	};
+	
 	Route.prototype.chunkReceived = function () {
 		
 		var Route = this;
 		
 		var done = true;
-		for (var j = Route.templates.length; j--;) if (!Route.body[j]) done = false;
+		for (var i = Route.templates.length; i--;) if (!Route.body[i]) done = false;
+		
 		if (done) {
 			var body = stringifyArray(Route.body),
 				views = Route.views;
 			Route.loaded(body, views);
+			Route.reset();
 		}
 		
 	};
@@ -160,14 +165,11 @@ var theme = new (function () {
 		
 		var Route = this;
 		
-		if (log) console.log('Loading route.', Route);
-		
 		Route.loaded = callback;
-		
-		var templates = Route.templates;
-		
 		Route.body = [];
 		Route.views = {};
+		
+		var templates = Route.templates;
 		
 		for (var i = templates.length; i--;) (function (i) {
 			
@@ -183,13 +185,13 @@ var theme = new (function () {
 			
 		})(i);
 		
+		if (!templates.length) Route.chunkReceived();
+		
 	};
 	
 	/** Search a route that matches the current path. */
 	
-	Theme.searchRoute = function (path) {
-		
-		var routes = Theme.routes;
+	var searchRoute = function (path) {
 		
 		var i = routes.length;
 		
@@ -224,81 +226,99 @@ var theme = new (function () {
 			
 		}
 		
-		console.log('No route was found.', Theme.currentPath, routes);
+		return null;
 		
 	};
 	
-	Theme.update = function () {
+	var updateTheme = function () {
 		
 		Theme.currentPath = currentPath();
 		
-		var route = Theme.searchRoute(Theme.currentPath);
+		var route = searchRoute(Theme.currentPath);
 		
-		if (log) console.log('Found route.', route);
-		
-		route.before(Theme.currentPath);
-		
-		if (log) console.time('Loaded route');
-		
-		if (route.templates.length) route.load(function (body, views) {
+		if (!route) {
 			
-			if (log) console.timeEnd('Loaded route');
+			console.log('No route was found.', 'Current path:', Theme.currentPath, 'Routes:', routes);
+			document.title = 'Page not found';
+			$('body').html('404 Not Found');
 			
-			$('body').html(body);
-			if (route.title) document.title = Mustache.render(route.title, validateObjectKeys(views));
-			route.done(views, currentPath);
+		} else {
 			
-		});
-		
-		else {
+			route.before(currentPath);
 			
-			if (route.title) document.title = route.title;
-			route.done(null, currentPath);
+			if (route.templates.length) route.load(function (body, views) {
+				
+				$('body').html(body);
+				document.title = Mustache.render(route.title, validateObjectKeys(views));
+				route.done(views, currentPath);
+				
+			});
+			
+			else {
+				
+				document.title = route.title;
+				route.done(null, currentPath);
+				
+			}
 			
 		}
 		
 	};
 	
-	Theme.currentPath = currentPath;
-	
-	Theme.setup = function (path, routeResources, viewResources, options) {
+	Theme.setup = function (themePathParam, routeSources, viewSources, options) {
 
 		var valid = {
-			path: typeof path === 'string',
-			routes: routeResources instanceof Array,
-			views: viewResources !== null && typeof viewResources === 'object' || viewResources === undefined,
+			path: typeof themePathParam === 'string',
+			routes: routeSources instanceof Array,
+			views: viewSources !== null && typeof viewSources === 'object' || viewSources === undefined,
 			options: options !== null && typeof options === 'object' || options === undefined
 		};
 		
-		if (valid.path && valid.routes && valid.views) {
+		if (valid.path && valid.routes && valid.views && valid.options) {
 			
 			if (options && options.log) log = options.log;
 			
-			Theme.path = path;
+			themePath = themePathParam;
 		
 			/** @type {Object.<string, {({Object}|function(string, boolean))}>} */
-			Theme.templates = {};
-			for (var name in viewResources) Theme.templates[name] = new Template(name, viewResources[name]);
+			
+			for (var name in viewSources) templates[name] = new Template(name, viewSources[name]);
 			
 			/** @type {Array.<{path, templates, done, before, title}>} */
 			
-			Theme.routes = [];
-			for (var i = routeResources.length; i--;) Theme.routes[i] = new Route(routeResources[i]);
+			for (var i = routeSources.length; i--;) {
+				
+				var routeSource = routeSources[i],
+					routeTemplates = routeSource.templates;
+				
+				for (var j = routeTemplates.length; j--;) {
+					
+					var n = routeTemplates[j];
+					
+					if (templates[n]) routeTemplates[j] = templates[n];
+					
+					else routeTemplates[j] = templates[n] = new Template(n);
+					
+				}
+				
+				var route = routes[i] = new Route(routeSource);
+				
+			}
 			
-			Theme.update();
+			updateTheme();
 			
 			/**
 			 * URL-change detection
 			 * via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js
 			 */
 			
-			if ('onhashchange' in window) window.onhashchange = Theme.update;
+			if ('onhashchange' in window) window.onhashchange = updateTheme;
 			else {
 				var hash = window.location.hash;
 				window.setInterval(function () {
 					if (window.location.hash !== hash) {
 						hash = window.location.hash;
-						Theme.update();
+						updateTheme();
 					}
 				}, 100);
 			}
@@ -307,21 +327,17 @@ var theme = new (function () {
 			 * Get the head
 			 */
 			 
-			var template = new Template('head.html');
+			var head = templates['head.html'] = new Template('head.html');
 			
-			if (log) console.log('Head', template);
-			
-			template.load(function (output) {
+			head.load(function (output) {
 				$('head').html(output);
 			});
-			
-			return true;
 			
 		}
 		
 		else {
 			
-			console.log('Invalid setup parameters.', valid, path, routeResources, viewResources, options);
+			console.log('Invalid setup parameters.', valid, themePathParam, routeSources, viewSources, options);
 			return false;
 			
 		}
