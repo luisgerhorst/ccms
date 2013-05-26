@@ -305,32 +305,34 @@ var theme = new (function () {
 				
 			}
 			
-			updateTheme();
-			
-			/**
-			 * URL-change detection
-			 * via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js
-			 */
-			
-			if ('onhashchange' in window) window.onhashchange = updateTheme;
-			else {
-				var hash = window.location.hash;
-				window.setInterval(function () {
-					if (window.location.hash !== hash) {
-						hash = window.location.hash;
-						updateTheme();
-					}
-				}, 100);
-			}
-			
 			/**
 			 * Get the head
 			 */
 			 
 			var head = templates['head.html'] = new Template('head.html');
 			
-			head.load(function (output) {
-				$('head').html(output);
+			head.load(function (headOutput) {
+				
+				$('head').html(headOutput);
+				
+				updateTheme();
+				
+				/**
+				 * URL-change detection
+				 * via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js
+				 */
+				
+				if ('onhashchange' in window) window.onhashchange = updateTheme;
+				else {
+					var hash = window.location.hash;
+					window.setInterval(function () {
+						if (window.location.hash !== hash) {
+							hash = window.location.hash;
+							updateTheme();
+						}
+					}, 100);
+				}
+				
 			});
 			
 		}
