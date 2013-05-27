@@ -26,88 +26,85 @@ var theme = new (function () {
 		return string;
 	};
 	
-	var Template = function (name, viewSource) {
+	var parallel = function (todos, allDone) {
+	
+		var todoCount = 0,
+			data = {};
+	
+		var save = function (key, value) {
+			data[key] = value;
+		};
+	
+		var done = function (key, value) {
+	
+			if (key && value) save(key, value);
+	
+			todoCount--;
+			if (!todoCount) allDone(data);
+	
+		};
+	
+		todoCount = todos.length;
+		for (var i = todos.length; i--;) todos[i](done, save);
+	
+	};
+	
+	var Template = function (name, options) {
 		
 		var Template = this;
 		
 		Template.name = name;
 		
-		Template.loaded = undefined;
-		Template.template = undefined;
-		Template.view = undefined;
-		
-		if (viewSource) Template.viewSource = viewSource;
+		if (options) {
+			if (options.viewSource) Template.viewSource = options.viewSource;
+			if (options.fallbackTemplate) Template.fallbackTemplate = options.fallbackTemplate;
+		}
 		
 	};
 	
+	Template.prototype.fallbackTemplate = ''; // fallback
 	Template.prototype.viewSource = {};
 	
-	Template.prototype.reset = function () {
+	Template.prototype.load = function (loaded) {
 		
 		var Template = this;
 		
-		Template.loaded = undefined;
-		Template.template = undefined;
-		Template.view = undefined;
-		
-	};
-	
-	Template.prototype.chunkReceived = function () {
-		
-		var Template = this;
-		
-		var done = Template.template !== null && Template.view !== null;
-		
-		if (done) {
+		parallel([function (done) {
 			
-			if (!Template.view.themePath) Template.view.themePath = themePath;
+			$.ajax({
+				url: themePath + '/' + Template.name,
+			}).done(function (template) {
+				done('template', template);
+			}).fail(function () {
+				console.log(Template.name + ': Error, unable to load template.');
+				done('template', Template.fallbackTemplate);
+			});
 			
-			var output = Mustache.render(Template.template, Template.view);
+		}, function (done) {
 			
-			Template.loaded(output, Template.view);
-			Template.reset();
+			var viewSource = Template.viewSource;
 			
-		}
-		
-	};
-	
-	Template.prototype.load = function (callback) {
-		
-		var Template = this;
-		
-		Template.loaded = callback;
-		Template.template = null;
-		Template.view = null;
-		
-		$.ajax({
-			url: themePath + '/' + Template.name,
-		}).done(function (template) {
-			Template.template = template;
-			Template.chunkReceived();
-		}).fail(function () {
-			console.log(Template.name + ': Error, unable to load template.');
-			Template.template = '';
-			Template.chunkReceived();
+			switch (viewSource === null ? 'null' : typeof viewSource) {
+				case 'function':
+					viewSource(function (view) {
+						done('view', view);
+					}, Theme.currentPath);
+					break;
+				case 'object':
+					done('view', viewSource);
+					break;
+				default:
+					console.log(Template.name + ': Error, unable to prozess view source. View source:', Template.viewSource);
+					done('view', {});
+			}
+			
+		}], function (data) {
+			
+			if (!data.view.themePath) data.view.themePath = themePath;
+			var output = Mustache.render(data.template, data.view);
+			loaded(output, data.view);
+			
 		});
-		
-		var viewSource = Template.viewSource;
-		
-		switch (viewSource === null ? 'null' : typeof viewSource) {
-			case 'function':
-				viewSource(function (view) {
-					Template.view = view;
-					Template.chunkReceived();
-				}, Theme.currentPath);
-				break;
-			case 'object':
-				Template.view = viewSource;
-				Template.chunkReceived();
-				break;
-			default:
-				console.log(Template.name + ': Error, unable to prozess view source. View source:', Template.viewSource);
-				Template.view = {};
-				Template.chunkReceived();
-		}
 		
 	};
 	
@@ -142,21 +139,21 @@ var theme = new (function () {
 		Route.loaded = undefined;
 		Route.body = undefined;
 		Route.views = undefined;
+		Route.toLoad = undefined;
 		
 	};
 	
-	Route.prototype.chunkReceived = function () {
+	Route.prototype.templateLoaded = function () {
 		
 		var Route = this;
 		
-		var done = true;
-		for (var i = Route.templates.length; i--;) if (!Route.body[i]) done = false;
-		
-		if (done) {
+		if (!Route.toLoad) {
+			
 			var body = stringifyArray(Route.body),
 				views = Route.views;
 			Route.loaded(body, views);
 			Route.reset();
+			
 		}
 		
 	};
@@ -165,11 +162,12 @@ var theme = new (function () {
 		
 		var Route = this;
 		
+		var templates = Route.templates;
+		
 		Route.loaded = callback;
 		Route.body = [];
 		Route.views = {};
-		
-		var templates = Route.templates;
+		Route.toLoad = templates.length;
 		
 		for (var i = templates.length; i--;) (function (i) {
 			
@@ -179,13 +177,12 @@ var theme = new (function () {
 				
 				Route.body[i] = output;
 				Route.views[template.name] = view;
-				Route.chunkReceived();
+				Route.toLoad--;
+				Route.templateLoaded();
 				
 			});
 			
 		})(i);
-		
-		if (!templates.length) Route.chunkReceived();
 		
 	};
 	
@@ -282,7 +279,9 @@ var theme = new (function () {
 		
 			/** @type {Object.<string, {({Object}|function(string, boolean))}>} */
 			
-			for (var name in viewSources) templates[name] = new Template(name, viewSources[name]);
+			for (var name in viewSources) templates[name] = new Template(name, {
+				viewSource: viewSources[name]
+			});
 			
 			/** @type {Array.<{path, templates, done, before, title}>} */
 			
