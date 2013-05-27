@@ -3,9 +3,13 @@ var theme = new (function () {
 	var Theme = this;
 	
 	var log = false,
+		/** @type {Object.<string, {({Object}|function(string, boolean))}>} */
 		templates = {},
+		/** @type {Array.<{path, templates, done, before, title}>} */
 		routes = [],
-		themePath = '';
+		themePath = '',
+		headLoaded = false,
+		bodyLoaded = false;
 	
 	var validateObjectKeys = function (object) {
 		var validatedObject = {};
@@ -26,29 +30,6 @@ var theme = new (function () {
 		return string;
 	};
 	
-	var parallel = function (todos, allDone) {
-	
-		var todoCount = 0,
-			data = {};
-	
-		var save = function (key, value) {
-			data[key] = value;
-		};
-	
-		var done = function (key, value) {
-	
-			if (key && value) save(key, value);
-	
-			todoCount--;
-			if (!todoCount) allDone(data);
-	
-		};
-	
-		todoCount = todos.length;
-		for (var i = todos.length; i--;) todos[i](done, save);
-	
-	};
-	
 	var Template = function (name, options) {
 		
 		var Template = this;
@@ -65,47 +46,79 @@ var theme = new (function () {
 	Template.prototype.fallbackTemplate = ''; // fallback
 	Template.prototype.viewSource = {};
 	
-	Template.prototype.load = function (loaded) {
-		
+	Template.prototype.reset = function () {
+	
+		var Template = this;
+	
+		Template.loaded = undefined;
+		Template.toLoad = undefined;
+		Template.template = undefined;
+		Template.view = undefined;
+	
+	};
+	
+	Template.prototype.chunkReceived = function () {
+	
 		var Template = this;
 		
-		parallel([function (done) {
-			
-			$.ajax({
-				url: themePath + '/' + Template.name,
-			}).done(function (template) {
-				done('template', template);
-			}).fail(function () {
-				console.log(Template.name + ': Error, unable to load template.');
-				done('template', Template.fallbackTemplate);
-			});
-			
-		}, function (done) {
-			
-			var viewSource = Template.viewSource;
-			
-			switch (viewSource === null ? 'null' : typeof viewSource) {
-				case 'function':
-					viewSource(function (view) {
-						done('view', view);
-					}, Theme.currentPath);
-					break;
-				case 'object':
-					done('view', viewSource);
-					break;
-				default:
-					console.log(Template.name + ': Error, unable to prozess view source. View source:', Template.viewSource);
-					done('view', {});
-			}
-			
-		}], function (data) {
-			
-			if (!data.view.themePath) data.view.themePath = themePath;
-			var output = Mustache.render(data.template, data.view);
-			loaded(output, data.view);
-			
+		Template.toLoad--;
+	
+		if (!Template.toLoad) {
+	
+			if (!Template.view.themePath) Template.view.themePath = themePath;
+	
+			var output = Mustache.render(Template.template, Template.view);
+	
+			Template.loaded(output, Template.view);
+			Template.reset();
+	
+		}
+	
+	};
+	
+	Template.prototype.load = function (callback) {
+	
+		var Template = this;
+	
+		Template.loaded = callback;
+		Template.toLoad = 2;
+		Template.template = null;
+		Template.view = null;
+	
+		$.ajax({
+			url: themePath + '/' + Template.name,
+		}).done(function (template) {
+			Template.template = template;
+			Template.chunkReceived();
+		}).fail(function () {
+			console.log(Template.name + ': Error, unable to load template.');
+			Template.template = Template.fallbackTemplate;
+			Template.chunkReceived();
 		});
-		
+	
+		var viewSource = Template.viewSource;
+	
+		switch (viewSource === null ? 'null' : typeof viewSource) {
+			
+			case 'function':
+				viewSource(function (view) {
+					Template.view = view;
+					Template.chunkReceived();
+				}, Theme.currentPath);
+				break;
+				
+			case 'object':
+				Template.view = viewSource;
+				Template.chunkReceived();
+				break;
+				
+			default:
+				console.log(Template.name + ': Error, unable to prozess view source. View source:', Template.viewSource);
+				Template.view = {};
+				Template.chunkReceived();
+				
+		}
+	
 	};
 	
 	var Route = function (source) {
@@ -129,23 +142,22 @@ var theme = new (function () {
 	Route.prototype.done = function () {};
 	Route.prototype.templates = [];
 	
-	Route.prototype.body = [];
-	Route.prototype.views = {};
-	
 	Route.prototype.reset = function () {
 		
 		var Route = this;
 		
 		Route.loaded = undefined;
+		Route.toLoad = undefined;
 		Route.body = undefined;
 		Route.views = undefined;
-		Route.toLoad = undefined;
 		
 	};
 	
 	Route.prototype.templateLoaded = function () {
 		
 		var Route = this;
+		
+		Route.toLoad--;
 		
 		if (!Route.toLoad) {
 			
@@ -165,9 +177,9 @@ var theme = new (function () {
 		var templates = Route.templates;
 		
 		Route.loaded = callback;
+		Route.toLoad = templates.length;
 		Route.body = [];
 		Route.views = {};
-		Route.toLoad = templates.length;
 		
 		for (var i = templates.length; i--;) (function (i) {
 			
@@ -177,7 +189,6 @@ var theme = new (function () {
 				
 				Route.body[i] = output;
 				Route.views[template.name] = view;
-				Route.toLoad--;
 				Route.templateLoaded();
 				
 			});
@@ -241,20 +252,20 @@ var theme = new (function () {
 			
 		} else {
 			
-			route.before(currentPath);
+			route.before(Theme.currentPath);
 			
 			if (route.templates.length) route.load(function (body, views) {
 				
 				$('body').html(body);
 				document.title = Mustache.render(route.title, validateObjectKeys(views));
-				route.done(views, currentPath);
+				route.done(views, Theme.currentPath);
 				
 			});
 			
 			else {
 				
 				document.title = route.title;
-				route.done(null, currentPath);
+				route.done(null, Theme.currentPath);
 				
 			}
 			
@@ -276,14 +287,10 @@ var theme = new (function () {
 			if (options && options.log) log = options.log;
 			
 			themePath = themePathParam;
-		
-			/** @type {Object.<string, {({Object}|function(string, boolean))}>} */
 			
 			for (var name in viewSources) templates[name] = new Template(name, {
 				viewSource: viewSources[name]
 			});
-			
-			/** @type {Array.<{path, templates, done, before, title}>} */
 			
 			for (var i = routeSources.length; i--;) {
 				
@@ -308,7 +315,7 @@ var theme = new (function () {
 			 * Get the head
 			 */
 			 
-			var head = templates['head.html'] = new Template('head.html');
+			var head = new Template('head.html');
 			
 			head.load(function (headOutput) {
 				
@@ -316,10 +323,7 @@ var theme = new (function () {
 				
 				updateTheme();
 				
-				/**
-				 * URL-change detection
-				 * via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js
-				 */
+				/** URL-change detection via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js */
 				
 				if ('onhashchange' in window) window.onhashchange = updateTheme;
 				else {
