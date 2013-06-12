@@ -1,5 +1,4 @@
 - nice error pages
-- debug Chrome/Firefox/Opera
 
 # Installation
 - style install.html
