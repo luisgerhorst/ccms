@@ -2,14 +2,11 @@ var theme = new (function () {
 	
 	var Theme = this;
 	
-	var log = false,
-		/** @type {Object.<string, {({Object}|function(string, boolean))}>} */
+	var /** @type {Object.<string, {({Object}|function(string, boolean))}>} */
 		templates = {},
 		/** @type {Array.<{path, templates, done, before, title}>} */
 		routes = [],
-		themePath = '',
-		headLoaded = false,
-		bodyLoaded = false;
+		themePath = '';
 	
 	var validateObjectKeys = function (object) {
 		var validatedObject = {};
@@ -43,7 +40,7 @@ var theme = new (function () {
 		
 	};
 	
-	Template.prototype.fallbackTemplate = ''; // fallback
+	Template.prototype.fallbackTemplate = '';
 	Template.prototype.viewSource = {};
 	
 	Template.prototype.reset = function () {
@@ -65,7 +62,7 @@ var theme = new (function () {
 	
 		if (!Template.toLoad) {
 	
-			if (!Template.view.themePath) Template.view.themePath = themePath;
+			Template.view.themePath = themePath;
 	
 			var output = Mustache.render(Template.template, Template.view);
 	
