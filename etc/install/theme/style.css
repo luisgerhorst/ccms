@@ -1,3 +1,76 @@
 html {
-	background: #eee;
+	background: #fff; /* dark blue */
+}
+
+body {
+	font-family: "Lucida Grande", "Helvetica Neue", sans-serif;
+	color: rgb(110,110,110);
+	font-size: 13px;
+	line-height: 16px;
+}
+
+* {
+	margin: 0;
+	padding: 0;
+	text-decoration: none;
+}
+
+p, h3 {
+	margin: 0 0 20px 0;
+}
+
+h3 {
+	font-weight: bold;
+	font-size: 13px;
+	line-height: 16px;
+}
+
+a {
+	color: rgb(110,110,110);
+	text-decoration: underline;
+}
+
+a:hover {
+	color: rgb(80,80,80);
+}
+
+a:active {
+	color: rgb(110,110,110);
+}
+
+code {
+	font-family: Menlo, Consolas, Monaco, "Lucida Console", monospace;
+	color: rgb(160,160,160);
+}
+
+#wrapper {
+	width: 300px;
+	margin: 150px auto 0 auto;
+}
+
+#content {
+	width: 660px;
+	box-sizing: border-box;
+	margin: 20px;
+	float: right;
+	border-radius: 4px;
+}
+
+label {
+	display: block;
+	margin: 10px 0 0 0;
+	font-style: italic;
+	line-height: 18px;
+}
+
+input[type="text"], input[type="password"] {
+	box-sizing: border-box;
+	margin: 20px auto 0 auto;
+	width: 100%;
+}
+
+input[type="submit"] {
+	margin: 20px 0 0 0;
+	width: auto;
+	float: right;
 }

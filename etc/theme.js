@@ -292,7 +292,7 @@ var theme = new (function () {
 			for (var i = routeSources.length; i--;) {
 				
 				var routeSource = routeSources[i],
-					routeTemplates = routeSource.templates;
+					routeTemplates = routeSource.templates || [];
 				
 				for (var j = routeTemplates.length; j--;) {
 					
