@@ -1,6 +1,8 @@
-var views = function (database) {
+var views = function (database, config) {
 	
 	var views = {};
+	
+	views['login.html'] = config;
 
 	views['header.html'] = function (callback) {
 

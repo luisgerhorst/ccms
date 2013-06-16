@@ -1,5 +1,11 @@
 $(document).ready(function () {
 	
-	theme.setup('etc/install/theme', routes);
+	$.ajax({
+		url: 'config.json'
+	}).done(function (config) {
+		
+		theme.setup('etc/install/theme', routes, views(config));
+		
+	});
 
 });

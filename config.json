@@ -1,5 +1,5 @@
 {
 	"proxy": "/couchdb",
-	"accountPrefix": "",
+	"accountPrefix": "ccms/",
 	"database": "ccms"
 }

@@ -6,7 +6,7 @@ $(document).ready(function () {
 		
 		var database = new (new CouchDB(config.proxy)).Database(config.database);
 		
-		theme.setup('etc/admin/theme', routes, views(database), { log: true });
+		theme.setup('etc/admin/theme', routes, views(database, config), { log: true });
 		
 	});
 

@@ -25,7 +25,7 @@ form.post .postID {
 	font-family: Menlo, Consolas, Monaco, "Lucida Console", monospace;
 }
 
-form.post .delete {
+form.post input[type="submit"], .meta form input[type="submit"] {
 	float: right;
 }
 

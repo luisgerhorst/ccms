@@ -44,17 +44,25 @@ var saveDocs = function (database, ccms) {
 		}
 	};
 	
+	var errorThrown = false; // no multiple alerts
+	
 	for (var i in docs) (function (i) {
 			
 		var doc = docs[i];
 		
 		database.save(doc.id, doc.content, function (response, error) {
 			
-			if (error) console.log('Error while saving document.', doc.id, error);
-			else {
+			if (!errorThrown && error) {
+				if (error.code == 401) alert('Your username/password seems to be incorrect.');
+				else if (error.code == 403) alert('Please enter username and password.');
+				else alert('Error ' + error.code + ' ' + error.message + ' occured while logging in.');
+			}
+			else if (!error) {
 				console.log('Successfully saved document.', doc.id);
 				docs[i].created = true;
 			}
+			
+			if (error) errorThrown = true;
 			
 			var allCreated = true;
 			for (var j in docs) if (!docs[j].created) allCreated = false;

@@ -25,6 +25,8 @@ var login = function (redirectPath, config) {
 				c.remember();
 				foundValid(c, d);
 			}
+			
+			if (error) $('#login p.help').show();
 	
 		});
 	
@@ -73,4 +75,10 @@ $.ajax({
 
 	login(redirectPath, config);
 
+});
+
+// Events
+
+$('#login p.show-help').click(function () {
+	$('#login p.help').toggle();
 });

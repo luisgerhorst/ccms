@@ -7,6 +7,7 @@
 
 # Administration
 - html notifications
+- submit buttons on the right
 
 # Blog
 - nice default theme

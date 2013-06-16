@@ -12,9 +12,9 @@ You first have to add some special configurations to your server. Maybe I'll add
 
 Install CouchDB on [Mac, Windows, download the Source](http://couchdb.apache.org/#download) or on [Ubuntu, FreeBSD, etc.](http://wiki.apache.org/couchdb/Installation)
 
-First you have to create a admin account for CCMS. Because of security reasons, all CouchDB accounts used by CCMS *must* begin with `ccms/`, after the `/`, the actual username you'll have to use to log in to the CCMS admin panel begins. For the beginning, create an account named `ccms/admin`.
+First you have to create a admin account for CCMS. For the beginning, create an account named `ccms/admin`.
 
-Create a database named `ccms`. Add the user `ccms/admin` to the  database's Admins (very important, otherwise everyone can edit the database).
+Create a database named `ccms`. Add the user `ccms/admin` to the  database's admins (very important, otherwise everyone can edit the database).
 
 ## Apache
 
@@ -47,7 +47,7 @@ This file contains some basic information about the configuration of your backen
 
 `proxy`: The first part of the path you used for Apache's CouchDB proxy, default is `/couchdb`.
 
-`accountPrefix`: The prefix you want to use for CouchDB accounts used by CCMS, when you log in to CCMS you only have to enter everything after this prefix. Means, when you create an CouchDB account named `ccms/admin`, you can login to it using CCMS by entering the username `admin`. Default is `ccms/`.
+`accountPrefix`: The prefix you want to use for CouchDB accounts used by CCMS, when you log in to CCMS you only have to enter everything after this prefix. Means, when you create an CouchDB account named `ccms/admin`, you can login to it using CCMS by entering the username `admin`. The default prefix is `ccms/`.
 
 `database`: Name of the CouchDB database you created for CCMS, default is `ccms`.
 
