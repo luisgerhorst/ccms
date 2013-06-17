@@ -40,57 +40,34 @@ var theme = new (function () {
 		
 	};
 	
-	Template.prototype.fallbackTemplate = '';
 	Template.prototype.viewSource = {};
+	Template.prototype.fallbackTemplate = '';
 	
-	Template.prototype.reset = function () {
-	
-		var Template = this;
-	
-		Template.loaded = undefined;
-		Template.toLoad = undefined;
-		Template.template = undefined;
-		Template.view = undefined;
-	
-	};
-	
-	Template.prototype.chunkReceived = function () {
-	
-		var Template = this;
+	Template.prototype.load = function (loaded) {
 		
-		Template.toLoad--;
-	
-		if (!Template.toLoad) {
-	
-			Template.view.themePath = themePath;
-	
-			var output = Mustache.render(Template.template, Template.view);
-	
-			Template.loaded(output, Template.view);
-			Template.reset();
-	
-		}
-	
-	};
-	
-	Template.prototype.load = function (callback) {
-	
 		var Template = this;
 	
-		Template.loaded = callback;
-		Template.toLoad = 2;
-		Template.template = null;
-		Template.view = null;
+		var toLoad = 2,
+			template = null,
+			view = {};
+			
+		var chunkReceived = function () {
+			toLoad--;
+			if (!toLoad) {
+				view.themePath = themePath;
+				loaded(Mustache.render(template, view), view);
+			}
+		};
 	
 		$.ajax({
 			url: themePath + '/' + Template.name,
-		}).done(function (template) {
-			Template.template = template;
-			Template.chunkReceived();
+		}).done(function (response) {
+			template = response;
+			chunkReceived();
 		}).fail(function () {
 			console.log(Template.name + ': Error, unable to load template.');
-			Template.template = Template.fallbackTemplate;
-			Template.chunkReceived();
+			template = Template.fallbackTemplate;
+			chunkReceived();
 		});
 	
 		var viewSource = Template.viewSource;
@@ -98,21 +75,21 @@ var theme = new (function () {
 		switch (viewSource === null ? 'null' : typeof viewSource) {
 			
 			case 'function':
-				viewSource(function (view) {
-					Template.view = view;
-					Template.chunkReceived();
+				viewSource(function (response) {
+					view = response;
+					chunkReceived();
 				}, Theme.currentPath);
 				break;
 				
 			case 'object':
-				Template.view = viewSource;
-				Template.chunkReceived();
+				view = viewSource;
+				chunkReceived();
 				break;
 				
 			default:
 				console.log(Template.name + ': Error, unable to prozess view source. View source:', Template.viewSource);
-				Template.view = {};
-				Template.chunkReceived();
+				view = {};
+				chunkReceived();
 				
 		}
 	
@@ -125,10 +102,6 @@ var theme = new (function () {
 		Route.path = source.path;
 		Route.title = source.title;
 		
-		Route.loaded = undefined;
-		Route.body = undefined;
-		Route.views = undefined;
-		
 		if (source.before) Route.before = source.before;
 		if (source.done) Route.done = source.done;
 		if (source.templates) Route.templates = source.templates;
@@ -139,44 +112,20 @@ var theme = new (function () {
 	Route.prototype.done = function () {};
 	Route.prototype.templates = [];
 	
-	Route.prototype.reset = function () {
-		
-		var Route = this;
-		
-		Route.loaded = undefined;
-		Route.toLoad = undefined;
-		Route.body = undefined;
-		Route.views = undefined;
-		
-	};
-	
-	Route.prototype.templateLoaded = function () {
-		
-		var Route = this;
-		
-		Route.toLoad--;
-		
-		if (!Route.toLoad) {
-			
-			var body = stringifyArray(Route.body),
-				views = Route.views;
-			Route.loaded(body, views);
-			Route.reset();
-			
-		}
-		
-	};
-	
-	Route.prototype.load = function (callback) {
+	Route.prototype.load = function (loaded) {
 		
 		var Route = this;
 		
 		var templates = Route.templates;
 		
-		Route.loaded = callback;
-		Route.toLoad = templates.length;
-		Route.body = [];
-		Route.views = {};
+		var toLoad = templates.length,
+			body = [],
+			views = {};
+		
+		var templateLoaded = function () {
+			toLoad--;
+			if (!toLoad) loaded(stringifyArray(body), views);
+		};
 		
 		for (var i = templates.length; i--;) (function (i) {
 			
@@ -184,9 +133,9 @@ var theme = new (function () {
 			
 			template.load(function (output, view) {
 				
-				Route.body[i] = output;
-				Route.views[template.name] = view;
-				Route.templateLoaded();
+				body[i] = output;
+				views[template.name] = view;
+				templateLoaded();
 				
 			});
 			

@@ -6,6 +6,7 @@
 
 # Administration
 - html notifications
+- fix multiple login test request errors
 
 # Blog
 - RSS feed
