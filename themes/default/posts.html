@@ -1,9 +1,9 @@
-<ol id="posts">
+<ol class="posts">
 
 	{{#posts}}
 	<li class="post">
-		<a class="title" href="#/post/{{postID}}"><h2>{{title}}</h2></a>
-		<span class="content">{{content}}</span>
+		<h2 class="title"><a href="#/post/{{postID}}">{{title}}</a></h2>
+		<span class="content">{{{content}}}</span>
 	</li>
 	{{/posts}}
 
@@ -16,5 +16,5 @@
 
 </ol>
 
-{{#previousPage}}<a href="#/page/{{number}}"><button>← Previous</button></a>{{/previousPage}}
-{{#nextPage}}<a href="#/page/{{number}}"><button>Next →</button></a>{{/nextPage}}
+{{#previousPage}}<a href="#/page/{{number}}"><button class="page-nav previous-page grey">← Previous</button></a>{{/previousPage}}
+{{#nextPage}}<a href="#/page/{{number}}"><button class="page-nav next-page grey">Next →</button></a>{{/nextPage}}

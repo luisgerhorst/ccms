@@ -27,8 +27,6 @@ var PostDoc = function (documentID) {
 	
 	this.create = function (title, content, date, postID) {
 	
-		metaDoc.updateCopyrightYears();
-	
 		var doc = new Doc(title, content, date, postID);
 	
 		if (!doc.postID || !doc.title) alert('Please enter title and URL.');
@@ -57,8 +55,6 @@ var PostDoc = function (documentID) {
 	};
 	
 	this.update = function (title, content, date, postID) {
-	
-		metaDoc.updateCopyrightYears();
 	
 		var doc = new Doc(title, content, date, postID);
 	

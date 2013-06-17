@@ -1,0 +1,172 @@
+html {
+	background: #fff; /* dark blue */
+}
+
+body {
+	font-family: "Lucida Grande", "Helvetica Neue", sans-serif;
+	color: rgb(110,110,110);
+	font-size: 13px;
+	line-height: 16px;
+}
+
+* {
+	margin: 0;
+	padding: 0;
+	text-decoration: none;
+}
+
+p, h3 {
+	margin: 0 0 20px 0;
+}
+
+h3 {
+	font-weight: bold;
+	font-size: 13px;
+	line-height: 16px;
+}
+
+a {
+	color: rgb(110,110,110);
+	text-decoration: underline;
+}
+
+a:hover {
+	color: rgb(80,80,80);
+}
+
+a:active {
+	color: rgb(110,110,110);
+}
+
+code {
+	font-family: Menlo, Consolas, Monaco, "Lucida Console", monospace;
+}
+
+#wrapper {
+	width: 750px;
+	margin: 0 auto;
+}
+
+ol.posts {
+	list-style: none;
+}
+
+ol.posts a {
+	text-decoration: none;
+}
+
+ol.posts li {
+	padding: 20px 0 20px 0;
+	border-bottom: 1px rgb(240,240,240) solid;
+}
+
+ol.posts li:last-child {
+	border-bottom: none;
+	padding: 20px 0 0 0;
+}
+
+ol.posts li:first-child {
+	padding: 0 0 20px 0;
+}
+
+ol.posts li.post h2.title, article.post h2.title  {
+	font: bold 24px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	line-height: 24px;
+	margin-bottom: 20px;
+}
+
+ol.posts li.post .content p, article.post span.content p {
+	margin: 10px 0 10px 0;
+}
+
+ol.posts li.post span.content *:last-child, article.post span.content *:last-child {
+	margin: 10px 0 0 0;
+}
+
+ol.posts li, article.post {
+	font-size: 14px;
+	line-height: 24px;
+}
+
+button.page-nav {
+	margin: 20px 0 0 0;
+}
+
+button.next-page {
+	float: right;
+}
+
+button.previous-page {
+	float: left;
+}
+
+h1#title a {
+	font: bold 64px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	display: block;
+	text-align: center;
+	text-decoration: none;
+	margin: 40px 0 40px 0;
+}
+
+button, input[type="submit"], input[type="button"] {
+	border: none;
+	padding: 7px 9px;
+	font-size: 12px;
+	line-height: 12px;
+	font-family: Helvetica, sans-serif;
+	text-decoration: none;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+button, input[type="submit"] {
+	color: rgba(250,250,250,0.92);
+	text-shadow: 0 -1px rgb(58,138,223);
+	background: rgb(70,150,223);
+	background: linear-gradient(top, rgb(95,175,230) 0%, rgb(50,130,215) 100%);
+	background: -webkit-linear-gradient(top, rgb(95,175,230) 0%, rgb(50,130,215) 100%);
+	box-shadow: inset 0 0 0 1px rgba(35,105,190,0.6), inset 0 2px 0 0 rgb(102,182,237), inset 2px 0 0 0 rgba(105,185,240,0.1), inset -2px 0 0 0 rgba(105,185,240,0.1), inset 0 -2px 0 0 rgba(105,185,240,0.1), 0 1px 2px rgba(0,0,0,0.08);
+}
+
+button:hover, input[type="submit"]:hover {
+	color: rgba(255,255,255,0.92);
+	text-shadow: 0 -1px rgb(63,143,228);
+	background: rgb(75,155,228);
+	background: linear-gradient(top, rgb(95,175,230) 0%, rgb(50,130,215) 100%);
+	background: -webkit-linear-gradient(top, rgb(100,180,235) 0%, rgb(55,135,220) 100%);
+	box-shadow: inset 0 0 0 1px rgba(40,110,195,0.6), inset 0 2px 0 0 rgb(107,187,242), inset 2px 0 0 0 rgba(110,190,245,0.1), inset -2px 0 0 0 rgba(110,190,245,0.1), inset 0 -2px 0 0 rgba(110,190,245,0.1), 0 1px 2px rgba(0,0,0,0.08);
+}
+
+button:active, input[type="submit"]:active {
+	color: rgba(250,250,250,0.91);
+	text-shadow: 0 1px rgb(45,125,210);
+	background: rgb(60,140,213);
+	background: linear-gradient(top, rgb(60,140,215) 0%, rgb(80,160,220) 100%);
+	background: -webkit-linear-gradient(top, rgb(60,140,215) 0%, rgb(80,160,220) 100%);
+	box-shadow: inset 0 0 0 1px rgba(35,105,190,0.6), 0 1px 2px rgb(255,255,255), inset 0 0 rgba(35,105,190,0.4);
+}
+
+button.grey, input[type="button"] {
+	color: rgba(0,0,0,0.44);
+	text-shadow: 0 1px rgba(255,255,255,0.44);
+	background: rgb(246,246,246);
+	background: linear-gradient(top, rgb(246,246,246) 0%, rgb(224,224,224) 100%);
+	background: -webkit-linear-gradient(top, rgb(246,246,246) 0%, rgb(224,224,224) 100%);
+	box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2), inset 0 2px rgba(255,255,255,0.44), inset 2px 0 rgba(255,255,255,0.24), inset -2px 0 rgba(255,255,255,0.24), inset 0 -2px rgba(255,255,255,0.24), 0 1px 2px rgba(0,0,0,0.08);
+}
+
+button.grey:hover, input[type="button"]:hover {
+	color: rgba(0,0,0,0.44);
+	text-shadow: 0 1px rgba(255,255,255,0.44);
+	background: rgb(250,250,250);
+	background: linear-gradient(top, rgb(250,250,250) 0%, rgb(228,228,228) 100%);
+	background: -webkit-linear-gradient(top, rgb(250,250,250) 0%, rgb(228,228,228) 100%);
+	box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2), inset 0 2px rgba(255,255,255,0.5), inset 2px 0 rgba(255,255,255,0.24), inset -2px 0 rgba(255,255,255,0.24), inset 0 -2px rgba(255,255,255,0.24), 0 1px 2px rgba(0,0,0,0.08);
+}
+
+button.grey:active, input[type="button"]:active {
+	color: rgba(0,0,0,0.44);
+	text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+	background: rgb(242,242,242);
+	box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2), inset 0 0 0 2px rgba(255,255,255,0.1);
+}
