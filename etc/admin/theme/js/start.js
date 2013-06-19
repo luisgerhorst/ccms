@@ -1,15 +1,17 @@
 var getRedirectPath = function () {
 	
-	var path = document.URL;
-	path = /#.+$/.test(path) ? path.replace(/^.*#/, '') : '/';
+	var p = document.URL;
 	
-	path = path === '/login' ? '/' : path;
-	path = /^\/login\/.*/.test(path) ? '/' : path;
-	path = path === '/logout' ? '/' : path;
+	p = /#.+$/.test(p) ? p.replace(/^.*#/, '') : '/';
 	
-	path = path === '/' ? path : path.replace(/\/$/, '');
-	path = encodeURIComponent(path);
-	return path;
+	p = p === '/login' ? '/' : p;
+	p = /^\/login\/.*/.test(p) ? '/' : p;
+	p = p === '/logout' ? '/' : p;
+	
+	p = p === '/' ? p : p.replace(/\/$/, '');
+	p = encodeURIComponent(p);
+	
+	return p;
 	
 };
 

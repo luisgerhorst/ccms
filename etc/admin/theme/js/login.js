@@ -1,7 +1,7 @@
-
 var login = function (redirectPath, config) {
 	
 	var foundValid = function (c, d) {
+		console.log('login success');
 		window.location = '#' + redirectPath;
 		couchdb = c;
 		database = d;
@@ -43,6 +43,7 @@ var login = function (redirectPath, config) {
 		var d = new c.Database(config.database);
 	
 		d.save('test', { time: new Date().getTime() }, function (response, error) {
+			if (error && error.code != 403) console.log('Error occured while testing cookie authorization.', error);
 			if (!error) foundValid(c, d);
 		});
 	
@@ -58,9 +59,9 @@ var urlQuery = function () {
 	p = p.split('/'); // ['key=value', 'key2=value2']
 	var o = {};
 	for (var i = p.length; i--;) {
-		var s = p[i];
-		var k = s.replace(/=.*/, ''); // key
-		var v = decodeURIComponent(s.replace(/.*=/, '')); // value
+		var s = p[i],
+			k = s.replace(/=.*/, ''), // key
+			v = decodeURIComponent(s.replace(/.*=/, '')); // value
 		o[k] = v;
 	}
 	return o;
@@ -69,12 +70,12 @@ var urlQuery = function () {
 var redirectPath = urlQuery().redirect;
 	redirectPath = redirectPath ? redirectPath : '/';
 
+console.log('login');
+
 $.ajax({
 	url: 'config.json'
 }).done(function (config) {
-
 	login(redirectPath, config);
-
 });
 
 // Events

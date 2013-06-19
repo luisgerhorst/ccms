@@ -1,6 +1,6 @@
 var routes = [
 	{
-		path: ['/login', /^\/login\/.*/],
+		path: ['/login', /^\/login\/redirect=.+/],
 		templates: ['login.html'],
 		title: 'Login'
 	},
