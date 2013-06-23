@@ -1,7 +1,6 @@
 var login = function (redirectPath, config) {
 	
 	var foundValid = function (c, d) {
-		console.log('login success');
 		window.location = '#' + redirectPath;
 		couchdb = c;
 		database = d;
@@ -20,8 +19,8 @@ var login = function (redirectPath, config) {
 	
 			if (error && error.code == 401) alert('Your username/password seems to be incorrect.');
 			else if (error && error.code == 403) alert('Please enter username and password.');
-			else if (error) alert('Error ' + error.code + ' ' + error.message + ' occured while logging in.');
-			else {
+			else if (error && error.code != 409) alert('Error ' + error.code + ' ' + error.message + ' occured while logging in.'); // != 409 is a quickfix
+			else if (!error) {
 				c.remember();
 				foundValid(c, d);
 			}
@@ -69,8 +68,6 @@ var urlQuery = function () {
 
 var redirectPath = urlQuery().redirect;
 	redirectPath = redirectPath ? redirectPath : '/';
-
-console.log('login');
 
 $.ajax({
 	url: 'config.json'

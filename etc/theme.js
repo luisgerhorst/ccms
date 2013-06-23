@@ -14,7 +14,7 @@ var theme = new (function () {
 		return validatedObject;
 	};
 	
-	var currentPath = function () {
+	var getCurrentPath = function () {
 		var path = document.URL;
 		path = /#.+$/.test(path) ? path.replace(/^.*#/, '') : '/';
 		path = path === '/' ? path : path.replace(/\/$/, '');
@@ -43,7 +43,7 @@ var theme = new (function () {
 	Template.prototype.viewSource = {};
 	Template.prototype.fallbackTemplate = '';
 	
-	Template.prototype.load = function (loaded) {
+	Template.prototype.load = function (loaded, currentPath) {
 		
 		var Template = this;
 	
@@ -78,7 +78,7 @@ var theme = new (function () {
 				viewSource(function (response) {
 					view = response;
 					chunkReceived();
-				}, Theme.currentPath);
+				}, currentPath);
 				break;
 				
 			case 'object':
@@ -112,7 +112,7 @@ var theme = new (function () {
 	Route.prototype.done = function () {};
 	Route.prototype.templates = [];
 	
-	Route.prototype.load = function (loaded) {
+	Route.prototype.load = function (loaded, currentPath) {
 		
 		var Route = this;
 		
@@ -137,7 +137,7 @@ var theme = new (function () {
 				views[template.name] = view;
 				templateLoaded();
 				
-			});
+			}, currentPath);
 			
 		})(i);
 		
@@ -186,32 +186,30 @@ var theme = new (function () {
 	
 	var updateTheme = function () {
 		
-		Theme.currentPath = currentPath();
+		var currentPath = getCurrentPath();
 		
-		var route = searchRoute(Theme.currentPath);
+		var route = searchRoute(currentPath);
 		
 		if (!route) {
 			
-			console.log('No route was found.', 'Current path:', Theme.currentPath, 'Routes:', routes);
+			console.log('No route was found.', 'Current path:', currentPath, 'Routes:', routes);
 			document.title = 'Page not found';
 			$('body').html('404 Not Found');
 			
 		} else {
 			
-			route.before(Theme.currentPath);
+			route.before(currentPath);
 			
 			if (route.templates.length) route.load(function (body, views) {
 				
 				$('body').html(body);
 				document.title = Mustache.render(route.title, validateObjectKeys(views));
-				route.done(views, Theme.currentPath);
+				route.done(views, currentPath);
 				
-			});
-			
-			else {
+			}, currentPath); else {
 				
 				document.title = route.title;
-				route.done(null, Theme.currentPath);
+				route.done(null, currentPath);
 				
 			}
 			
@@ -257,32 +255,34 @@ var theme = new (function () {
 				
 			}
 			
-			/**
-			 * Get the head
-			 */
+			/** Get the head */
 			 
-			var head = new Template('head.html');
-			
-			head.load(function (headOutput) {
-				
-				$('head').html(headOutput);
-				
-				updateTheme();
-				
-				/** URL-change detection via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js */
-				
-				if ('onhashchange' in window) window.onhashchange = updateTheme;
-				else {
-					var hash = window.location.hash;
-					window.setInterval(function () {
-						if (window.location.hash !== hash) {
-							hash = window.location.hash;
-							updateTheme();
-						}
-					}, 100);
-				}
-				
+			new Template('head.html').load(function (output) {
+				$('head').html(output);
 			});
+			
+			updateTheme();
+			
+			/** URL-change detection via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js */
+			
+			if ('onhashchange' in window) window.onhashchange = updateTheme;
+			else {
+				var hash = window.location.hash;
+				window.setInterval(function () {
+					if (window.location.hash !== hash) {
+						hash = window.location.hash;
+						updateTheme();
+					}
+				}, 100);
+			}
+			
+			/**
+			 * Known error:
+			 * When a script included in the head changes the URL this stuff can be a problem.
+			 * The onhashchange event is fired as good as directly after the regular call of updateTheme.
+			 * Solution would be to load the body only when all scripts in the head are executed.
+			 * When fixed the quickfix in login.js of the admin theme can be removed (doesn't throw 409 Conflict errors).
+			 */
 			
 		}
 		

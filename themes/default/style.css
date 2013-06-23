@@ -60,13 +60,13 @@ ol.posts li {
 	border-bottom: 1px rgb(240,240,240) solid;
 }
 
-ol.posts li:last-child {
-	border-bottom: none;
-	padding: 20px 0 0 0;
+ol.posts li:first-child {
+	padding-top: 0;
 }
 
-ol.posts li:first-child {
-	padding: 0 0 20px 0;
+ol.posts li:last-child {
+	border-bottom: none;
+	padding-bottom: 0;
 }
 
 ol.posts li.post h2.title, article.post h2.title  {
@@ -77,6 +77,24 @@ ol.posts li.post h2.title, article.post h2.title  {
 
 ol.posts li.post .content p, article.post span.content p {
 	margin: 10px 0 10px 0;
+}
+
+ol.posts li.post .content a, article.post span.content a {
+	text-decoration: underline;
+}
+
+ol.posts li.post .content a:hover, article.post span.content a:hover {
+	color: rgb(110,110,255);
+}
+
+ol.posts li.post .content a:active, article.post span.content a:active {
+	color: rgb(80,80,225);
+}
+
+article.post time {
+	display: block;
+	margin: 20px 0 auto 0;
+	color: rgb(150,150,150);
 }
 
 ol.posts li.post span.content *:last-child, article.post span.content *:last-child {
