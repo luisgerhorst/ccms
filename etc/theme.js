@@ -258,31 +258,29 @@ var theme = new (function () {
 			/** Get the head */
 			 
 			new Template('head.html').load(function (output) {
+				
 				$('head').html(output);
-			});
-			
-			updateTheme();
-			
-			/** URL-change detection via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js */
-			
-			if ('onhashchange' in window) window.onhashchange = updateTheme;
-			else {
-				var hash = window.location.hash;
-				window.setInterval(function () {
-					if (window.location.hash !== hash) {
-						hash = window.location.hash;
-						updateTheme();
+				
+				updateTheme();
+				
+				setTimeout(function () { // quickfix, should wait until all scripts are executed
+					
+					/** URL-change detection via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js */
+					
+					if ('onhashchange' in window) window.onhashchange = updateTheme;
+					else {
+						var hash = window.location.hash;
+						window.setInterval(function () {
+							if (window.location.hash !== hash) {
+								hash = window.location.hash;
+								updateTheme();
+							}
+						}, 100);
 					}
+					
 				}, 100);
-			}
-			
-			/**
-			 * Known error:
-			 * When a script included in the head changes the URL this stuff can be a problem.
-			 * The onhashchange event is fired as good as directly after the regular call of updateTheme.
-			 * Solution would be to load the body only when all scripts in the head are executed.
-			 * When fixed the quickfix in login.js of the admin theme can be removed (doesn't throw 409 Conflict errors).
-			 */
+				
+			});
 			
 		}
 		

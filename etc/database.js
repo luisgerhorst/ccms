@@ -1,7 +1,7 @@
 
 /** @param {string} proxyURL Path to the CouchDB proxy. */
 
-function CouchDB(proxyURL) {
+var CouchDB = function (proxyURL) {
 	
 	var CouchDB = this;
 	

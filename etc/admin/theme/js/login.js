@@ -19,7 +19,7 @@ var login = function (redirectPath, config) {
 	
 			if (error && error.code == 401) alert('Your username/password seems to be incorrect.');
 			else if (error && error.code == 403) alert('Please enter username and password.');
-			else if (error && error.code != 409) alert('Error ' + error.code + ' ' + error.message + ' occured while logging in.'); // != 409 is a quickfix
+			else if (error) alert('Error ' + error.code + ' ' + error.message + ' occured while logging in.');
 			else if (!error) {
 				c.remember();
 				foundValid(c, d);
