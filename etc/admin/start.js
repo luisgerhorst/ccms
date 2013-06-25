@@ -114,11 +114,12 @@ $(document).ready(function () {
 		views['post.html'] = function (callback, path) {
 	
 			var postID = path.replace(/^\/post\//, '');
+			
+			console.log(path, postID);
 	
 			database.view('posts', 'byPostID?key="' + postID + '"', function (response, error) {
 	
 				if (error) console.log('Error.', error);
-	
 				callback(response.rows[0].value);
 	
 			});
