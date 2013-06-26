@@ -42,8 +42,12 @@ var login = function (redirectPath, config) {
 		var d = new c.Database(config.database);
 	
 		d.save('test', { time: new Date().getTime() }, function (response, error) {
+			
 			if (error && error.code != 403) console.log('Error occured while testing cookie authorization.', error);
-			if (!error) foundValid(c, d);
+			
+			if (error) $('#login').show();
+			else foundValid(c, d);
+			
 		});
 	
 	};

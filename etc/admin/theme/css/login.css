@@ -3,6 +3,7 @@
 	width: 250px;
 	border-radius: 3px;
 	text-align: right;
+	display: none;
 }
 
 #login-username, #login-password {

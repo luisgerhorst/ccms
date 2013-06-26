@@ -47,17 +47,31 @@ $(document).ready(function () {
 		views['header.html'] = function (callback) {
 	
 			database.read('meta', function (response, error) {
-				if (error) console.log('Error while getting view "' + func + '" of design document "posts".', error);
-				callback(response);
+				
+				if (error) callback(null, {
+					title: error.message,
+					heading: 'HTTP Error',
+					message: 'The error <code>' + error.code + ' ' + error.message + '</code> occured.'
+				});
+				
+				else callback(response);
+				
 			}); // loads the newest posts
 	
 		};
 	
 		views['footer.html'] = function (callback) {
-	
+			
 			database.read('meta', function (response, error) {
-				if (error) console.log('Error while getting view "' + func + '" of design document "posts".', error);
-				callback(response);
+				
+				if (error) callback(null, {
+					title: error.message,
+					heading: 'HTTP Error',
+					message: 'The error <code>' + error.code + ' ' + error.message + '</code> occured.'
+				});
+				
+				else callback(response);
+				
 			}); // loads the newest posts
 	
 		};
@@ -84,28 +98,36 @@ $(document).ready(function () {
 	
 			}
 	
-			var func = 'byDate?descending=true&skip=' + skip + '&limit=' + postsPerPage;
+			database.view('posts', 'byDate?descending=true&skip=' + skip + '&limit=' + postsPerPage, function (response, error) {
 	
-			database.view('posts', func, function (response, error) {
-	
-				if (error) console.log('Error while getting view "' + func + '" of design document "posts".', error);
-	
-				var posts = [];
-				var rows = response.rows;
-				for (var i = rows.length; i--;) posts[i] = rows[i].value;
-	
-				func = 'compactByDate?descending=true&skip=' + ( skip + postsPerPage ) + '&limit=1';
-	
-				database.view('posts', func, function (response, error) {
-	
-					if (error) console.log('Error while getting view "' + func + '" of design document "posts".', error);
-	
-					callback(new View(pageIndex, {
-						posts: posts,
-						hasNext: response.rows.length ? true : false
-					}));
-	
+				if (error) callback(null, {
+					title: error.message,
+					heading: 'HTTP Error',
+					message: 'The error <code>' + error.code + ' ' + error.message + '</code> occured while loading the posts.'
 				});
+				
+				else {
+	
+					var posts = [];
+					var rows = response.rows;
+					for (var i = rows.length; i--;) posts[i] = rows[i].value;
+		
+					database.view('posts', 'compactByDate?descending=true&skip=' + ( skip + postsPerPage ) + '&limit=1', function (response, error) {
+		
+						if (error) callback(null, {
+							title: error.message,
+							heading: 'HTTP Error',
+							message: 'The error <code>' + error.code + ' ' + error.message + '</code> occured.'
+						});
+						
+						else callback(new View(pageIndex, {
+							posts: posts,
+							hasNext: response.rows.length ? true : false
+						}));
+		
+					});
+					
+				}
 	
 			});
 	
@@ -114,13 +136,20 @@ $(document).ready(function () {
 		views['post.html'] = function (callback, path) {
 	
 			var postID = path.replace(/^\/post\//, '');
-			
-			console.log(path, postID);
 	
 			database.view('posts', 'byPostID?key="' + postID + '"', function (response, error) {
-	
-				if (error) console.log('Error.', error);
-				callback(response.rows[0].value);
+				
+				if (error) callback(null, {
+					title: error.message,
+					heading: 'HTTP Error',
+					message: 'The error <code>' + error.code + ' ' + error.message + '</code> occured while loading the post.'
+				});
+				else if (!response.rows.length) callback(null, {
+					title: 'Not Found',
+					heading: 'Post not found',
+					message: "The post you were looking for wasn't found."
+				});
+				else callback(response.rows[0].value);
 	
 			});
 	
@@ -129,8 +158,15 @@ $(document).ready(function () {
 		views['meta.html'] = function (callback) {
 	
 			database.read('meta', function (response, error) {
-				if (error) console.log('Error while getting view "' + func + '" of design document "posts".', error);
-				callback(response);
+				
+				if (error) callback(null, {
+					title: error.message,
+					heading: 'HTTP Error',
+					message: 'The error <code>' + error.code + ' ' + error.message + '</code> occured while loading meta.'
+				});
+				
+				else callback(response);
+				
 			});
 	
 		};

@@ -53,33 +53,45 @@ $(document).ready(function () {
 	
 			var fromDatabase = function (skip, postsPerPage, pageIndex) {
 	
-				var func = 'byDate?descending=true&skip=' + skip + '&limit=' + postsPerPage;
+				database.view('posts', 'byDate?descending=true&skip=' + skip + '&limit=' + postsPerPage, function (response, error) {
 	
-				database.view('posts', func, function (response, error) {
-	
-					if (error) console.log('Error while getting view "' + func + '" of design document "posts".', error);
-	
-					var loaded = [], rows = response.rows;
-	
-					var l = rows.length;
-					for (var i = 0; i < l; i++) loaded.push(rows[i].value);
-	
-					func = 'compactByDate?descending=true&skip=' + ( skip + postsPerPage ) + '&limit=1';
-	
-					database.view('posts', func, function (response, error) {
-	
-						if (error) console.log('Error while getting view "' + func + '" of design document "posts".', error);
-	
-						var page = {
-							posts: loaded,
-							hasNext: response.rows.length ? true : false
-						};
-	
-						cache.index[pageIndex] = page;
-	
-						callback(new View(pageIndex, page));
-	
+					if (error) callback(null, {
+						title: error.message,
+						heading: 'HTTP Error',
+						message: 'The error <code>' + error.code + ' ' + error.message + '</code> occured while loading the posts.'
 					});
+					
+					else {
+						
+						var loaded = [], rows = response.rows;
+						
+						var l = rows.length;
+						for (var i = 0; i < l; i++) loaded.push(rows[i].value);
+						
+						database.view('posts', 'compactByDate?descending=true&skip=' + ( skip + postsPerPage ) + '&limit=1', function (response, error) {
+						
+							if (error) callback(null, {
+								title: error.message,
+								heading: 'HTTP Error',
+								message: 'The error <code>' + error.code + ' ' + error.message + '</code> occured.'
+							});
+							
+							else {
+								
+								var page = {
+									posts: loaded,
+									hasNext: response.rows.length ? true : false
+								};
+								
+								cache.index[pageIndex] = page;
+								
+								callback(new View(pageIndex, page));
+								
+							}
+						
+						});
+						
+					}
 	
 				});
 	
@@ -121,12 +133,22 @@ $(document).ready(function () {
 			var fromDatabase = function (postID) {
 	
 				database.view('posts', 'byPostID?key="' + postID + '"', function (response, error) {
-	
-					if (error) console.log('Error.', error);
-	
-					var post = response.rows[0].value;
-					cache.post[postID] = post;
-					callback(post);
+					
+					if (error) callback(null, {
+						title: error.message,
+						heading: 'HTTP Error',
+						message: 'The error <code>' + error.code + ' ' + error.message + '</code> occured.'
+					});
+					else if (!response.rows.length) callback(null, {
+						title: 'Not Found',
+						heading: 'Post not found',
+						message: 'The post you were looking for wasn\'t found. Go back <a href="#/">home</a>.'
+					});
+					else {
+						var post = response.rows[0].value;
+						cache.post[postID] = post;
+						callback(post);
+					}
 	
 				});
 	

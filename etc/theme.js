@@ -75,9 +75,31 @@ var theme = new (function () {
 		switch (viewSource === null ? 'null' : typeof viewSource) {
 			
 			case 'function':
-				viewSource(function (response) {
-					view = response;
-					chunkReceived();
+				viewSource(function (response, error) {
+					
+					if (error) {
+						
+						var html = '<style>body{color: rgb(80,80,80);background: #fff;font: normal 16px "Lucida Grande", "Lucida Sans Unicode", Geneva, sans-serif;line-height: 24px;}a{text-decoration: underline;color: rgb(80,80,255);}a:hover{color: rgb(120,120,255);}p{margin: 20px;}h1{font: normal 32px "Helvetica Neue", Arial, Helvetica, sans-serif;line-height: 32px;margin: 20px;}body{padding: 64px;}code{font-family: Menlo, Consolas, Monaco, "Lucida Console", monospace;color: rgb(120,120, 120);}</style>';
+						
+						if (typeof error === 'string') html += '<h1>Error</h1><p>' + error + '</p>';
+						else if (typeof error === 'object') {
+							if (error.heading) html += '<h1>' + error.heading + '</h1>';
+							if (error.message) html += '<p>' + error.message + '</p>';
+						}
+						else html += '<h1>Error</h1><p>An error occured.</p>';
+						
+						var title = error.title || 'Error';
+						
+						console.log('View source returned error.', 'Error =', error, 'View source =', viewSource);
+						
+						document.title = title;
+						$('body').html(html);
+						
+					} else {
+						view = response;
+						chunkReceived();
+					}
+					
 				}, currentPath);
 				break;
 				
@@ -87,7 +109,7 @@ var theme = new (function () {
 				break;
 				
 			default:
-				console.log(Template.name + ': Error, unable to prozess view source. View source:', Template.viewSource);
+				console.log(Template.name + ': Error, unable to prozess view source. View source = ', viewSource);
 				view = {};
 				chunkReceived();
 				
@@ -184,9 +206,7 @@ var theme = new (function () {
 		
 	};
 	
-	var updateTheme = function () {
-		
-		var currentPath = getCurrentPath();
+	var updateTheme = function (currentPath) {
 		
 		var route = searchRoute(currentPath);
 		
@@ -194,7 +214,7 @@ var theme = new (function () {
 			
 			console.log('No route was found.', 'Current path:', currentPath, 'Routes:', routes);
 			document.title = '404 Not Found';
-			$('body').html('<style>body{color: rgb(80,80,80);background: #fff;font: normal 16px "Lucida Grande", "Lucida Sans Unicode", Geneva, sans-serif;line-height: 24px;}a{text-decoration: underline;color: rgb(80,80,255);}a:hover{color: rgb(120,120,255);}p{margin: 20px;}h1{font: normal 32px "Helvetica Neue", Arial, Helvetica, sans-serif;line-height: 32px;margin: 20px;}body{padding: 64px;}</style><h1>Page not found</h1><p>The page you were looking for doesn\'t exist.</p>');
+			$('body').html('<style>body{color: rgb(80,80,80);background: #fff;font: normal 16px "Lucida Grande", "Lucida Sans Unicode", Geneva, sans-serif;line-height: 24px;}a{text-decoration: underline;color: rgb(80,80,255);}a:hover{color: rgb(120,120,255);}p{margin: 20px;}h1{font: normal 32px "Helvetica Neue", Arial, Helvetica, sans-serif;line-height: 32px;margin: 20px;}body{padding: 64px;}code{font-family: Menlo, Consolas, Monaco, "Lucida Console", monospace;color: rgb(120,120, 120);}</style><h1>Page not found</h1><p>The page you were looking for doesn\'t exist.</p>');
 			
 		} else {
 			
@@ -261,24 +281,29 @@ var theme = new (function () {
 				
 				$('head').html(output);
 				
-				updateTheme();
+				updateTheme(getCurrentPath());
 				
-				setTimeout(function () { // quickfix, should wait until all scripts are executed
-					
-					/** URL-change detection via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js */
-					
-					if ('onhashchange' in window) window.onhashchange = updateTheme;
-					else {
-						var hash = window.location.hash;
-						window.setInterval(function () {
-							if (window.location.hash !== hash) {
-								hash = window.location.hash;
-								updateTheme();
-							}
-						}, 100);
-					}
-					
-				}, 100);
+				var path = getCurrentPath();
+				
+				/** URL-change detection via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js */
+				
+				if ('onhashchange' in window) {
+					window.onhashchange = function () {
+						var currentPath = getCurrentPath(); // using path, not hash!
+						if (currentPath !== path) {
+							path = currentPath;
+							updateTheme(path);
+						}
+					};
+				} else {
+					window.setInterval(function () {
+						var currentPath = getCurrentPath();
+						if (currentPath !== path) {
+							path = currentPath;
+							updateTheme(path);
+						}
+					}, 100);
+				}
 				
 			});
 			

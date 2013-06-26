@@ -17,7 +17,7 @@ a.create-post button {
 
 .posts ol a:last-child li {
 	border-bottom: none;
-	padding: 20px 0 0 0;
+	padding-bottom: 0;
 }
 
 .posts ol li h2 {
@@ -28,6 +28,14 @@ a.create-post button {
 .posts ol li {
 	font-size: 12px;
 	line-height: 24px;
+}
+
+.posts ol li.error {
+	padding: 20px 0 0 0;
+}
+
+.posts ol li.error p {
+	margin-bottom: 0;
 }
 
 .posts button.page-nav {
