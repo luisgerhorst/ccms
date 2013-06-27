@@ -29,13 +29,13 @@ var PostDoc = function (documentID) {
 	
 		var doc = new Doc(title, content, date, postID);
 	
-		if (!doc.postID || !doc.title) alert('Please enter title and URL.');
+		if (!doc.postID || !doc.title) notifications.alert('Please enter title and URL.');
 	
 		else {
 	
 			database.view('posts', 'byPostID?key="' + doc.postID + '"', function (res, err) { if (!err) {
 	
-				if (res.rows.length) alert('Post with URL /post/' + doc.postID + ' does already exist.');
+				if (res.rows.length) notifications.alert('Post with URL /post/' + doc.postID + ' does already exist.');
 	
 				else {
 	
@@ -62,7 +62,7 @@ var PostDoc = function (documentID) {
 	
 			database.view('posts', 'byPostID?key="' + doc.postID + '"', function (res, err) { if (!err) {
 	
-				if (res.rows.length && res.rows[0].value._id !== documentID) alert('Post with URL /post/' + doc.postID + ' does already exist.');
+				if (res.rows.length && res.rows[0].value._id !== documentID) notifications.alert('Post with URL /post/' + doc.postID + ' does already exist.');
 	
 				else {
 	
@@ -78,7 +78,7 @@ var PostDoc = function (documentID) {
 	
 		}
 	
-		else alert('Please enter title and URL.');
+		else notifications.alert('Please enter title and URL.');
 	
 	};
 	
@@ -86,15 +86,17 @@ var PostDoc = function (documentID) {
 		
 		if (!documentID) documentID = newDocumentID;
 	
-		var confirmed = confirm('Do you really want to delete this post?');
-	
-		if (confirmed) {
-	
-			database.remove(documentID, function (res, err) {
-				if (!err) window.location = '#/';
-			});
-	
-		}
+		notifications.confirm('Do you really want to delete this post?', 'Cancel', 'Delete', function (confirmed) {
+			
+			if (confirmed) {
+			
+				database.remove(documentID, function (res, err) {
+					if (!err) window.location = '#/';
+				});
+			
+			}
+			
+		});
 	
 	};
 	

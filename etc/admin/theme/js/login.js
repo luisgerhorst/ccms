@@ -16,16 +16,18 @@ var login = function (redirectPath, config) {
 		var d = new c.Database(config.database);
 	
 		d.save('test', { time: new Date().getTime() }, function (response, error) {
+			
+			var notificationClosed = function () {
+				$('#login p.help').show();
+			};
 	
-			if (error && error.code == 401) alert('Your username/password seems to be incorrect.');
-			else if (error && error.code == 403) alert('Please enter username and password.');
-			else if (error) alert('Error ' + error.code + ' ' + error.message + ' occured while logging in.');
+			if (error && error.code == 401) notifications.alert('Your username/password seems to be incorrect.', notificationClosed);
+			else if (error && error.code == 403) notifications.alert('Please enter username and password.', notificationClosed);
+			else if (error) notifications.alert('Error ' + error.code + ' ' + error.message + ' occured while logging in.', notificationClosed);
 			else if (!error) {
 				c.remember();
 				foundValid(c, d);
 			}
-			
-			if (error) $('#login p.help').show();
 	
 		});
 	

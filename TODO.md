@@ -6,7 +6,7 @@
 - add update.html
 
 # Administration
-- html notifications
+- ?
 
 # Blog
 - RSS feed

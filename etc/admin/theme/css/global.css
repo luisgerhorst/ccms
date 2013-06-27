@@ -3,9 +3,8 @@ html {
 }
 
 body {
-	font-family: "Lucida Grande", "Helvetica Neue", sans-serif;
+	font: normal 13px "Lucida Grande", "Lucida Sans Unicode", Geneva, sans-serif;
 	color: rgb(110,110,110);
-	font-size: 13px;
 	line-height: 16px;
 }
 
@@ -209,4 +208,97 @@ input::input-placeholder, input::-webkit-input-placeholder, textarea::input-plac
 	margin: 20px;
 	float: right;
 	border-radius: 4px;
+}
+
+@-webkit-keyframes fade-in {
+
+	0% {
+		opacity: 0;
+	} 100% {
+		opacity: 1;
+	}
+
+}
+
+@keyframes fade-in {
+
+	0% {
+		opacity: 0;
+	} 100% {
+		opacity: 1;
+	}
+
+}
+
+.notification {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	background: rgba(0,0,0,0.1);
+	-webkit-animation: fade-in;
+	-webkit-animation-duration: 0.4s;
+	-webkit-animation-iteration-count: 1;
+	animation: fade-in;
+	animation-duration: 0.4s;
+	animation-iteration-count: 1;
+}
+
+@-webkit-keyframes fall-in {
+
+	0% {
+		margin-top: 0;
+		opacity: 0;
+	} 100% {
+		margin-top: 150px;
+		opacity: 1;
+	}
+
+}
+
+@keyframes fall-in {
+
+	0% {
+		margin-top: 0;
+		opacity: 0;
+	} 100% {
+		margin-top: 150px;
+		opacity: 1;
+	}
+
+}
+
+.notification .box {
+	margin: 150px auto 0 auto;
+	width: 300px;
+	background: #fff;
+	padding: 13px;
+	border-radius: 4px;
+	box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+	border: 1px solid rgb(192,192,192);
+	-webkit-animation: fall-in;
+	-webkit-animation-duration: 0.4s;
+	-webkit-animation-iteration-count: 1;
+	animation: fall-in;
+	animation-duration: 0.4s;
+	animation-iteration-count: 1;
+}
+
+.notification .box p {
+	display: block;
+	margin-bottom: 13px;
+}
+
+.notification .box button.ok, .notification .box button.yes {
+	float: right;
+}
+
+.notification.alert .box {
+	padding-bottom: 39px; /* 13px + 26px for OK button */
+}
+
+.notification.alert .box button.ok {
+	padding-right: 14px;
+	padding-left: 14px;
 }
