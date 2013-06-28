@@ -176,7 +176,7 @@ $(document).ready(function () {
 	};
 	
 	$.ajax({
-		url: 'config.json'
+		url: 'etc/config.json'
 	}).done(function (config) {
 		
 		var database = new (new CouchDB(config.proxy)).Database(config.database);

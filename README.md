@@ -6,7 +6,7 @@ CCMS is currently in very, very early **ALPHA**. If you anyway want to try it ju
 
 # Installation
 
-You first have to add some special configurations to your server. Maybe I'll add a shell script that does all that for you, someday.
+You first have to add some special configurations to your server. This is for pro users, you have to know a lot about CouchDB and Apache.
 
 ## CouchDB
 
