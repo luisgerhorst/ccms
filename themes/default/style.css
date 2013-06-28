@@ -45,6 +45,7 @@ code {
 #wrapper {
 	width: 750px;
 	margin: 0 auto;
+	padding-bottom: 40px;
 }
 
 ol.posts {
@@ -107,7 +108,7 @@ ol.posts li, article.post {
 }
 
 button.page-nav {
-	margin: 20px 0 0 0;
+	margin: 20px 0 40px 0; /* because float, the padding of #wrapper is useless */
 }
 
 button.next-page {
