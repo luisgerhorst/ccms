@@ -5,13 +5,18 @@ $(document).ready(function () {
 		{
 			path: '/',
 			before: function () {
-				window.location = '#/setup-db'
+				window.location = '#/server';
 			}
 		},
 		{
-			path: '/setup-db',
-			templates: ['header.html', 'setupdb.html', 'footer.html'],
-			title: 'Install'
+			path: '/database',
+			templates: ['header.html', 'database.html', 'footer.html'],
+			title: 'Install - Database'
+		},
+		{
+			path: '/server',
+			templates: ['header.html', 'server.html', 'footer.html'],
+			title: 'Install - Server'
 		}
 		
 	];
@@ -20,7 +25,7 @@ $(document).ready(function () {
 	
 		var views = {};
 	
-		views['setupdb.html'] = config;
+		views['database.html'] = config;
 	
 		return views;
 	

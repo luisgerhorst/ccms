@@ -76,7 +76,7 @@ var redirectPath = urlQuery().redirect;
 	redirectPath = redirectPath ? redirectPath : '/';
 
 $.ajax({
-	url: 'config.json'
+	url: 'etc/config.json'
 }).done(function (config) {
 	login(redirectPath, config);
 });

@@ -3,10 +3,9 @@ html {
 }
 
 body {
-	font-family: "Lucida Grande", "Helvetica Neue", sans-serif;
+	font: normal 13px "Lucida Grande", "Lucida Sans Unicode", Geneva, sans-serif;
 	color: rgb(110,110,110);
-	font-size: 13px;
-	line-height: 16px;
+	line-height: 18px;
 }
 
 * {
@@ -56,6 +55,10 @@ code {
 	border-radius: 4px;
 }
 
+#wrapper form input:first-child {
+	margin-top: 0;
+}
+
 label {
 	display: block;
 	margin: 10px 0 0 0;
@@ -69,8 +72,24 @@ input[type="text"], input[type="password"] {
 	width: 100%;
 }
 
+button.back-to-server {
+	margin-top: 20px;
+}
+
 input[type="submit"] {
 	margin: 20px 0 0 0;
 	width: auto;
+	float: right;
+}
+
+pre {
+	font-family: Menlo, Consolas, Monaco, "Lucida Console", monospace;
+	color: rgb(110,110,110);
+	background: rgb(250,250,250);
+	padding: 10px;
+	margin: 0 0 20px 0;
+}
+
+button#server-ready {
 	float: right;
 }

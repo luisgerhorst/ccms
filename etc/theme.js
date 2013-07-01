@@ -281,16 +281,18 @@ var theme = new (function () {
 				
 				$('head').html(output);
 				
-				updateTheme(getCurrentPath());
-				
 				var path = getCurrentPath();
+				
+				updateTheme(path);
 				
 				/** URL-change detection via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js */
 				
 				if ('onhashchange' in window) {
 					window.onhashchange = function () {
+						console.log('hashchange');
 						var currentPath = getCurrentPath(); // using path, not hash!
-						if (currentPath !== path) {
+						if (currentPath != path) {
+							console.log('pathchange');
 							path = currentPath;
 							updateTheme(path);
 						}

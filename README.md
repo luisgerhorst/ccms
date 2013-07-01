@@ -2,15 +2,13 @@
 
 CCMS is a Content-Management-System for blogs, it doesn't require any custom backend (such as PHP, Ruby on Rails or node.js). This is possible by using [CouchDB](http://couchdb.apache.org)'s HTTP API. Another important feature is that the site dynamically loads required contents from the database using JavaScript. This means there's no reload while navigating on the blog.
 	
-CCMS is currently in very, very early **ALPHA**. If you anyway want to try it just [send me a mail](mailto:luis@luisgerhorst.de) and I'll help you with the installation. Thanks!
+CCMS is currently in early **ALPHA**. If you anyway want to try it just [send me a mail](mailto:luis@luisgerhorst.de) and I'll help you with the installation. Thanks!
 
 # Installation
 
 You first have to add some special configurations to your server. This is for pro users, you have to know a lot about CouchDB and Apache.
 
 ## CouchDB
-
-Install CouchDB on [Mac, Windows, download the Source](http://couchdb.apache.org/#download) or on [Ubuntu, FreeBSD, etc.](http://wiki.apache.org/couchdb/Installation)
 
 First you have to create a admin account for CCMS. For the beginning, create an account named `ccms/admin`.
 
@@ -53,6 +51,6 @@ This file contains some basic information about the configuration of your backen
 
 ## Database
 
-Open `/install.html` and set up CCMS! You have to enter the credentials of the CouchDB account for CCMS (if the user is named `ccms/admin`, enter `admin` as username).
+Open `/install.html` and click "Server is ready". You have to enter the credentials of the CouchDB account for CCMS (if the user is named `ccms/admin`, enter `admin` as username).
 
 After being redirected to `/admin.html` you can start blogging.
