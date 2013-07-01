@@ -6,7 +6,11 @@ CCMS is currently in early **ALPHA**. If you anyway want to try it just [send me
 
 # Installation
 
-You first have to add some special configurations to your server. This is for pro users, you have to know a lot about CouchDB and Apache.
+Just open `/install.html` in your browser and follow the instructions.
+
+# Configure Server Manually
+
+This is for pro users who don't want to use `install.sh` to configure their server. You need good knowledge about Apache and CouchDB.
 
 ## CouchDB
 
@@ -16,13 +20,13 @@ Create a database named `ccms`. Add the user `ccms/admin` to the  database's adm
 
 ## Apache
 
-Because of the browser's [Same-Origin-Policy](http://de.wikipedia.org/wiki/Same-Origin-Policy), the JavaScript running at the client can't diretly access the [CouchDB HTTP API](http://wiki.apache.org/couchdb/HTTP_Document_API). This is a tutorial how to set up a proxy to redirect the requests to a specified path of domain you're running CCMS on to your CouchDB using Apache.
+Because of the browser's [Same-Origin-Policy](http://de.wikipedia.org/wiki/Same-Origin-Policy), the JavaScript running at the client can't diretly access the [CouchDB HTTP API](http://wiki.apache.org/couchdb/HTTP_Document_API). This is a tutorial how to set up a proxy to redirect the requests to a specified path to your CouchDB using Apache.
 
-Open your Apache's `httpd.conf` file with a text editor. If you're for example using LAMPP, it's located at `/opt/lampp/etc/httpd.conf`.
+Open your Apache's `httpd.conf` file with a text editor.
 
-Make shure the line `LoadModule proxy_module modules/mod_proxy.so` isn't commented out with a `#` (if so, remove the `#`).
+Make shure the line `LoadModule proxy_module modules/mod_proxy.so` isn't commented out with a `#`.
 
-Now, let's configure the proxy by adding this to the file.
+Add this to the file.
 
 ```
 # Turns on the proxy module
@@ -35,13 +39,13 @@ ProxyPass /couchdb/_session http://127.0.0.1:5984/_session
 
 Save the file and restart Apache.
 
-**Tests:**
+**Test:**
 
-Open `http://yourdomain.com/couchdb/ccms`. You should see some basic info about the database (in JSON format).
+Open `http://yourdomain.com/couchdb/ccms` in your browser. You should see some basic information about the database (in JSON format).
 
 ## config.json
 
-This file contains some basic information about the configuration of your backend. If you haven't change the values used in this tutorial you can skip this chapter.
+This file contains some basic information about the configuration of your server. If you haven't change the values used in this tutorial you can skip this chapter.
 
 `proxy`: The first part of the path you used for Apache's CouchDB proxy, default is `/couchdb`.
 
@@ -49,8 +53,6 @@ This file contains some basic information about the configuration of your backen
 
 `database`: Name of the CouchDB database you created for CCMS, default is `ccms`.
 
-## Database
+# Done
 
-Open `/install.html` and click "Server is ready". You have to enter the credentials of the CouchDB account for CCMS (if the user is named `ccms/admin`, enter `admin` as username).
-
-After being redirected to `/admin.html` you can start blogging.
+Your server is ready now, you can go back /install.html and click "Server is ready".

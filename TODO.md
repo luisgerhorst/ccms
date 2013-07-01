@@ -1,7 +1,5 @@
 # Installation
-- add install instructions to install.html
-- shell script that configures CouchDB and Apache
-- fix redirect bug from #/ to #/setup-db
+- finish shell script that configures CouchDB and Apache
 
 # Update
 - add update.html
