@@ -45,7 +45,7 @@ Open `http://yourdomain.com/couchdb/ccms` in your browser. You should see some b
 
 ## config.json
 
-This file contains some basic information about the configuration of your server. If you haven't change the values used in this tutorial you can skip this chapter.
+This file contains some basic information about the configuration of your server. If you haven't changed the values used in this tutorial you can skip this chapter.
 
 `proxy`: The first part of the path you used for Apache's CouchDB proxy, default is `/couchdb`.
 
@@ -55,4 +55,4 @@ This file contains some basic information about the configuration of your server
 
 # Done
 
-Your server is ready now, you can go back /install.html and click "Server is ready".
+Your server is ready now, you can go back `/install.html` and click "Server is ready".
