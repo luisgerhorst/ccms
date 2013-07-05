@@ -1,11 +1,8 @@
 # Installation
-- finish shell script that configures CouchDB and Apache
+- finish :D
 
 # Update
 - add update.html
-
-# Administration
-- ?
 
 # Blog
 - RSS feed

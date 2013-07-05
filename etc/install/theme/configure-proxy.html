@@ -8,4 +8,61 @@ ProxyPass /couchdb/ http://127.0.0.1:5984/
 <p>Then restart Apache.</p>
 
 <p><a href="#/"><button class="previous grey">Previous</button></a></p>
-<p><a href="#/create-database"><button class="next">Did it</button></a></p>
+<p><a href="#/create-user"><button class="next">Did it</button></a></p>
+<button class="test-proxy-configuration grey">Test</button></a>
+
+<div class="test-result">
+	<p class="success">Proxy is configured! You can click "Did it".</p>
+</div>
+
+
+<script type="text/javascript">
+	
+	function testProxy(result) {
+		
+		$.ajax({
+			url: 'etc/config.json',
+			success: function (config, textStatus, jqXHR) {
+				
+				$.ajax({
+					url: config.proxy,
+					complete: function (jqXHR, textStatus) {
+						if (textStatus == 'success') result(true);
+					}
+				});
+				
+			}
+		});
+		
+	}
+	
+	$('button.test-proxy-configuration').click(function () {
+		
+		testProxy(function (result) {
+			
+			if (result === true) {
+				$('.test-result p').hide();
+				$('.test-result .success').show();
+			}
+			
+		});
+		
+	});
+	
+</script>
+
+<style>
+
+	button.test-proxy-configuration {
+		float: right;
+		margin-right: 10px;
+	}
+	
+	.test-result p {
+		display: none;
+		width: 100%;
+		margin-top: 66px;
+		text-align: left;
+	}
+
+</style>

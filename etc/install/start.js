@@ -11,6 +11,11 @@ $(document).ready(function () {
 			path: '/configure-proxy',
 			templates: ['header.html', 'configure-proxy.html', 'footer.html'],
 			title: 'Install - Configure Proxy'
+		},
+		{
+			path: '/create-user',
+			templates: ['header.html', 'create-user.html', 'footer.html'],
+			title: 'Install - Create User'
 		}
 		
 	];
