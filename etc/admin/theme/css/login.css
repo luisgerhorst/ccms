@@ -4,6 +4,7 @@
 	border-radius: 3px;
 	text-align: right;
 	display: none;
+	position: relative;
 }
 
 #login-username, #login-password {
@@ -28,6 +29,17 @@
 	line-height: 14px;
 	color: rgb(140,140,142);
 	text-shadow: 0 1px 0 #fff;
+}
+
+#login-account-prefix {
+	display: none;
+	position: absolute;
+	left: -255px;
+	top: 0;
+	width: 100%;
+	line-height: 26px;
+	text-align: right;
+	color: rgb(160,160,160);
 }
 
 #login-username {

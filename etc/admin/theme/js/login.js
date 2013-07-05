@@ -18,7 +18,7 @@ var login = function (redirectPath, config) {
 		d.save('test', { time: new Date().getTime() }, function (response, error) {
 			
 			var notificationClosed = function () {
-				$('#login p.help').show();
+				$('#login p.help, #login-account-prefix').show();
 			};
 	
 			if (error && error.code == 401) notifications.alert('Your username/password seems to be incorrect.', notificationClosed);
@@ -84,5 +84,5 @@ $.ajax({
 // Events
 
 $('#login p.show-help').click(function () {
-	$('#login p.help').toggle();
+	$('#login p.help, #login-account-prefix').toggle();
 });

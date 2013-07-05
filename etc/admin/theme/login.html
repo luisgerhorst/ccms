@@ -1,13 +1,13 @@
 <form id="login" action="javascript:void(0);">
 	
-	<input type="text" id="login-username" name="username" placeholder="Username">
+	<code id="login-account-prefix">{{accountPrefix}}</code><input type="text" id="login-username" name="username" placeholder="Username">
 	
 	<input type="password" id="login-password" name="password" placeholder="Password">
 	
 	<input id="login-submit" type="submit" value="Login">
 	<p class="show-help">Help</p>
 	
-	<p class="help">Enter the credetials of the CouchDB account you created for CCMS, make sure you omit the CCMS account prefix <code>{{accountPrefix}}</code>.</p>
+	<p class="help">Enter the credetials of the CouchDB account you created for CCMS, make sure you omit the CCMS username	 prefix for CouchDB accounts <code>{{accountPrefix}}</code>.</p>
 	
 </form>
 

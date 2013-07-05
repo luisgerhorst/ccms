@@ -33,9 +33,6 @@ var saveDocs = function (database, ccms) {
 			content: {
 				ccms: ccms,
 				copyright: title,
-				copyrightYears: year + '',
-				copyrightYearsEnd: year,
-				copyrightYearsStart: year,
 				description: '',
 				postsPerPage: 10,
 				title: title,
@@ -77,7 +74,7 @@ var saveDocs = function (database, ccms) {
 var setupDB = function () { // on save
 	
 	$.ajax({
-		url: 'config.json'
+		url: 'etc/config.json'
 	}).done(function (config) {
 		
 		var couchdb = new CouchDB(config.proxy).forget().authorize({
