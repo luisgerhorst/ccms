@@ -43,7 +43,7 @@ code {
 }
 
 #wrapper {
-	width: 300px;
+	width: 400px;
 	margin: 150px auto 0 auto;
 }
 
@@ -72,10 +72,6 @@ input[type="text"], input[type="password"] {
 	width: 100%;
 }
 
-button.back-to-server {
-	margin-top: 20px;
-}
-
 input[type="submit"] {
 	margin: 20px 0 0 0;
 	width: auto;
@@ -90,6 +86,10 @@ pre {
 	margin: 0 0 20px 0;
 }
 
-button#server-ready {
+button.previous {
+	float: left;
+}
+
+button.next {
 	float: right;
 }

@@ -4,19 +4,13 @@ $(document).ready(function () {
 	
 		{
 			path: '/',
-			before: function () {
-				window.location = '#/server';
-			}
+			templates: ['header.html', 'start.html', 'footer.html'],
+			title: 'Install'
 		},
 		{
-			path: '/database',
-			templates: ['header.html', 'database.html', 'footer.html'],
-			title: 'Install - Database'
-		},
-		{
-			path: '/server',
-			templates: ['header.html', 'server.html', 'footer.html'],
-			title: 'Install - Server'
+			path: '/configure-proxy',
+			templates: ['header.html', 'configure-proxy.html', 'footer.html'],
+			title: 'Install - Configure Proxy'
 		}
 		
 	];
