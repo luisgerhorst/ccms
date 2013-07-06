@@ -9,12 +9,12 @@ ProxyPass /couchdb/ http://127.0.0.1:5984/
 <p>Then restart Apache and make sure CouchDB is running.</p>
 
 <p><a href="#/"><button class="previous grey">Previous</button></a></p>
-<p><a href="#/create-user"><button class="next">Did it</button></a></p>
-<button class="test-proxy-configuration grey">Test</button></a>
+<p><button class="next">Did it</button></p>
+<button class="test-proxy-configuration grey">Test</button>
 
 <div class="test-result">
 	<p class="success">Proxy is configured and CouchDB is running! You can click "Did it".</p>
-	<p class="error">Error <code class="text-status"></code> occured. <span class="help"></span></p>
+	<p class="error">Error <code class="text-status"></code> occured while testing the connection to CouchDB. <span class="help"></span></p>
 </div>
 
 
@@ -43,30 +43,34 @@ ProxyPass /couchdb/ http://127.0.0.1:5984/
 		
 	}
 	
-	$('button.test-proxy-configuration').click(function () {
+	function throwError(message) {
 		
+		$('.test-result p').hide();
+		$('.test-result .error .text-status').text(message);
+		$('.test-result .error').show();
+		
+		var help = $('.test-result .error .help');
+		
+		if (message == 'Service Temporarily Unavailable') help.html('Make sure CouchDB is installed and running. Restarting Apache may also help.');
+		else if (message == 'Not Found') help.html("Make sure you've added the lines above to your Apache's <code>httpd.conf</code> file and restarted Apache.");
+		
+	}
+	
+	$('button.next').click(function () {
 		testProxy(function (error) {
-			
 			if (error === false) {
-				
+				window.location = '#/create-user';
+			} else throwError(error);
+		});
+	});
+	
+	$('button.test-proxy-configuration').click(function () {
+		testProxy(function (error) {
+			if (error === false) {
 				$('.test-result p').hide();
 				$('.test-result .success').show();
-				
-			} else {
-				
-				$('.test-result p').hide();
-				$('.test-result .error .text-status').text(error);
-				$('.test-result .error').show();
-				
-				var help = $('.test-result .error .help');
-				
-				if (error == 'Service Temporarily Unavailable') help.html('Make sure CouchDB is installed and running. Restarting Apache may also help.');
-				else if (error == 'Not Found') help.html("Make sure you've added the lines above to your Apache's <code>httpd.conf</code> file and restarted Apache.");
-				
-			}
-			
+			} else throwError(error);
 		});
-		
 	});
 	
 </script>
@@ -80,9 +84,17 @@ ProxyPass /couchdb/ http://127.0.0.1:5984/
 	
 	.test-result p {
 		display: none;
-		width: 100%;
 		margin-top: 66px;
 		text-align: left;
+		padding: 10px;
+	}
+	
+	.test-result p.success {
+		background: rgb(250,255,250);
+	}
+	
+	.test-result p.error {
+		background: rgb(255,250,250);
 	}
 
 </style>

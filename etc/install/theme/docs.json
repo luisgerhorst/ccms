@@ -1,0 +1,37 @@
+{
+	"_design/auth": {
+		"language": "javascript",
+		"validate_doc_update": "function (newDoc, oldDoc, userCtx) {
+			if (userCtx.roles.indexOf('_admin') >= 0 || userCtx.roles.indexOf('ccms') >= 0) {
+				return;
+			} else {
+				throw({forbidden: 'Only admins may edit the database.'}); 
+			}
+		}"
+	},
+	"_design/posts": {
+		"language": "javascript",
+		"views": {
+			"byDate": {
+				"map": "function (doc) { if (doc.type === 'post') emit([doc.date, doc.postID], doc); }"
+			},
+			"compactByDate": {
+				"map": "function (doc) { if (doc.type === 'post') emit([doc.date, doc.postID]); }"
+			},
+			"byPostID": {
+				"map": "function (doc) { if (doc.type === 'post') emit(doc.postID, doc); }"
+			}
+		}
+	},
+	"meta": {
+		"system": null,
+		"copyright": null,
+		"description": "",
+		"postsPerPage": 10,
+		"theme": "default",
+		"title": null
+	}
+	"test": {
+		"time": 0
+	}
+}

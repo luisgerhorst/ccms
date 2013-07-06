@@ -10,7 +10,7 @@ var login = function (redirectPath, config) {
 	
 		var c = new CouchDB(config.proxy);
 		c.authorize({
-			username: config.accountPrefix + $('#login-username').val(),
+			username: $('#login-username').val(),
 			password: $('#login-password').val()
 		});
 		var d = new c.Database(config.database);
@@ -18,11 +18,10 @@ var login = function (redirectPath, config) {
 		d.save('test', { time: new Date().getTime() }, function (response, error) {
 			
 			var notificationClosed = function () {
-				$('#login p.help, #login-account-prefix').show();
+				$('#login p.help').show();
 			};
 	
-			if (error && error.code == 401) notifications.alert('Your username/password seems to be incorrect.', notificationClosed);
-			else if (error && error.code == 403) notifications.alert('Please enter username and password.', notificationClosed);
+			if (error && error.code == 401 || error && error.code == 403) notifications.alert('Your username/password seems to be incorrect.', notificationClosed);
 			else if (error) notifications.alert('Error ' + error.code + ' ' + error.message + ' occured while logging in.', notificationClosed);
 			else if (!error) {
 				c.remember();
@@ -84,5 +83,5 @@ $.ajax({
 // Events
 
 $('#login p.show-help').click(function () {
-	$('#login p.help, #login-account-prefix').toggle();
+	$('#login p.help').toggle();
 });

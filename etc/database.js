@@ -60,7 +60,7 @@ var CouchDB = function (proxyURL) {
 		if (credentials.username && credentials.password) {
 			
 			var options = {
-				url: proxyURL + '_session',
+				url: proxyURL + '_session/',
 				type: 'POST',
 				data: 'name=' +  encodeURIComponent(credentials.username) + '&password=' +  encodeURIComponent(credentials.password),
 				contentType: 'application/x-www-form-urlencoded'
@@ -81,7 +81,7 @@ var CouchDB = function (proxyURL) {
 	CouchDB.forget = function () {
 		
 		var options = {
-			url: proxyURL + '_session',
+			url: proxyURL + '_session/',
 			type: 'DELETE'
 		};
 		
