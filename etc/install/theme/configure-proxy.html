@@ -1,33 +1,40 @@
 <p>Fist you have to add these lines to your Apache's <code>httpd.conf</code> file.</p>
 
 <pre>
+LoadModule proxy_module modules/mod_proxy.so
 ProxyRequests On
 ProxyPass /couchdb/ http://127.0.0.1:5984/
 </pre>
 
-<p>Then restart Apache.</p>
+<p>Then restart Apache and make sure CouchDB is running.</p>
 
 <p><a href="#/"><button class="previous grey">Previous</button></a></p>
 <p><a href="#/create-user"><button class="next">Did it</button></a></p>
 <button class="test-proxy-configuration grey">Test</button></a>
 
 <div class="test-result">
-	<p class="success">Proxy is configured! You can click "Did it".</p>
+	<p class="success">Proxy is configured and CouchDB is running! You can click "Did it".</p>
+	<p class="error">Error <code class="text-status"></code> occured. <span class="help"></span></p>
 </div>
 
 
 <script type="text/javascript">
 	
-	function testProxy(result) {
+	function testProxy(error) {
 		
 		$.ajax({
 			url: 'etc/config.json',
+			cache: false,
 			success: function (config, textStatus, jqXHR) {
 				
 				$.ajax({
 					url: config.proxy,
-					complete: function (jqXHR, textStatus) {
-						if (textStatus == 'success') result(true);
+					cache: false,
+					success: function (data, textStatus, jqXHR) {
+						error(false);
+					},
+					error: function (jqXHR, textStatus, errorThrown) {
+						error(errorThrown);
 					}
 				});
 				
@@ -38,11 +45,24 @@ ProxyPass /couchdb/ http://127.0.0.1:5984/
 	
 	$('button.test-proxy-configuration').click(function () {
 		
-		testProxy(function (result) {
+		testProxy(function (error) {
 			
-			if (result === true) {
+			if (error === false) {
+				
 				$('.test-result p').hide();
 				$('.test-result .success').show();
+				
+			} else {
+				
+				$('.test-result p').hide();
+				$('.test-result .error .text-status').text(error);
+				$('.test-result .error').show();
+				
+				var help = $('.test-result .error .help');
+				
+				if (error == 'Service Temporarily Unavailable') help.html('Make sure CouchDB is installed and running. Restarting Apache may also help.');
+				else if (error == 'Not Found') help.html("Make sure you've added the lines above to your Apache's <code>httpd.conf</code> file and restarted Apache.");
+				
 			}
 			
 		});
