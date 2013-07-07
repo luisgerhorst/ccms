@@ -3,6 +3,7 @@
 <pre>
 LoadModule proxy_module modules/mod_proxy.so
 ProxyRequests On
+ProxyPass {{proxy}}/_session/ http://127.0.0.1:5984/_session/
 ProxyPass {{proxy}}/_users/ http://127.0.0.1:5984/_users/
 ProxyPass {{proxy}}/_config/admins/ http://127.0.0.1:5984/_config/admins/
 ProxyPass {{proxy}}/{{database}}/ http://127.0.0.1:5984/{{database}}/
@@ -11,4 +12,4 @@ ProxyPass {{proxy}}/{{database}}/ http://127.0.0.1:5984/{{database}}/
 <p>Then restart Apache and make sure CouchDB is running.</p>
 
 <p><a href="#/"><button class="previous grey">Previous</button></a></p>
-<p><a href="#/create-user"><button class="next">Did it</button></a></p>
+<p><a href="#/create-admin"><button class="next">Did it</button></a></p>

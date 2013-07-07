@@ -55,6 +55,18 @@ var CouchDB = function (proxyURL) {
 		
 	};
 	
+	CouchDB.createUser = function (name, password, roles) {
+			
+		// create user or admin (if _admin in roles)
+		
+	};
+	
+	CouchDB.deleteUser = function (name) {
+			
+		// delete user or admin
+		
+	};
+	
 	CouchDB.remember = function () {
 			
 		if (credentials.username && credentials.password) {

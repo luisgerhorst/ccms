@@ -13,9 +13,14 @@ $(document).ready(function () {
 			title: 'Install - Configure Proxy'
 		},
 		{
-			path: '/create-user',
-			templates: ['header.html', 'create-user.html', 'footer.html'],
-			title: 'Install - Create User'
+			path: '/create-admin',
+			templates: ['header.html', 'create-admin.html', 'footer.html'],
+			title: 'Install - Create Admin'
+		},
+		{
+			path: '/set-up-database',
+			templates: ['header.html', 'set-up-database.html', 'footer.html'],
+			title: 'Install - Set Up Database'
 		}
 		
 	];
