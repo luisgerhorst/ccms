@@ -1,5 +1,3 @@
-# Installation
-
 # Update
 - add update.html
 

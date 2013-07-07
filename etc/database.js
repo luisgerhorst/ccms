@@ -249,66 +249,122 @@ var CouchDB = function (proxy) {
 		
 	};
 	
-	var users = new CouchDB.Database('_users');
-
-	CouchDB.createUser = function (name, password, roles, callback) {
+	CouchDB.createDatabase = function (name, callback) {
 		
-		if (roles.indexOf('_admin') > -1) {
-			
-			roles.splice(roles.indexOf('_admin'), 1);
-			
-			// add to admins
-			
-			var options = {
-				url: proxy + '/_config/admins/' + name,
-				type: 'PUT',
-				data: '"' + password + '"',
-				error: function (jqXHR, textStatus, errorThrown) {
-					console.log('Error "' + textStatus + '" occured while ' + this.type + ' request to ' + this.url, jqXHR);
-					callback(parseError(jqXHR));
-				},
-				success: function (data, textStatus, jqXHR) {
-					
-					// add to users
-					
-					users.save('org.couchdb.user:' + name, {
-						name: name,
-						password: null,
-						roles: roles,
-						type: 'user'
-					}, function (data, error) {
-						if (error) callback(error);
-						else callback(false);
-					});
-					
-				}
-			};
-			
-			if (!credentials.cookie && credentials.username && credentials.password) options.headers = { // important: only use if no cookie is set
-				Authorization: 'Basic ' + btoa(credentials.username + ':' + credentials.password)
-			};
-			
-			$.ajax(options);
-			
-		} else {
-			
-			users.save('org.couchdb.user:' + name, {
-				name: name,
-				password: password,
-				roles: roles,
-				type: 'user'
-			}, function (data, error) {
-				if (error) callback(error);
-				else callback(false);
-			});
-			
-		}
+		var options = {
+			url: proxy + '/' + name + '/',
+			type: 'PUT',
+			error: function (jqXHR, textStatus, errorThrown) {
+				callback(null, parseError(jqXHR));
+			},
+			success: function (data, textStatus, jqXHR) {
+				callback(new CouchDB.Database(name), false);
+			}
+		};
+		
+		if (!credentials.cookie && credentials.username && credentials.password) options.headers = { // important: only use if no cookie is set
+			Authorization: 'Basic ' + btoa(credentials.username + ':' + credentials.password)
+		};
+		
+		$.ajax(options);
+		
+		return CouchDB;
+		
+	};
+	
+	CouchDB.deleteDatabase = function (name, callback) {
+		
+		var options = {
+			url: proxy + '/' + name + '/',
+			type: 'DELETE',
+			error: function (jqXHR, textStatus, errorThrown) {
+				console.log('Error "' + textStatus + '" occured while ' + this.type + ' request to ' + this.url, jqXHR);
+				callback(parseError(jqXHR));
+			},
+			success: function (data, textStatus, jqXHR) {
+				callback(false);
+			}
+		};
+		
+		if (!credentials.cookie && credentials.username && credentials.password) options.headers = { // important: only use if no cookie is set
+			Authorization: 'Basic ' + btoa(credentials.username + ':' + credentials.password)
+		};
+		
+		$.ajax(options);
+		
+		return CouchDB;
+		
+	};
+	
+	CouchDB.getAdmins = function (callback) {
+		
+		var options = {
+			url: proxy + '/_config/admins/',
+			type: 'GET',
+			error: function (jqXHR, textStatus, errorThrown) {
+				callback(null, parseError(jqXHR));
+			},
+			success: function (data, textStatus, jqXHR) {
+				callback(data, false);
+			}
+		};
+		
+		if (!credentials.cookie && credentials.username && credentials.password) options.headers = { // important: only use if no cookie is set
+			Authorization: 'Basic ' + btoa(credentials.username + ':' + credentials.password)
+		};
+		
+		$.ajax(options);
+		
+		return CouchDB;
+	
+	};
+
+	CouchDB.createAdmin = function (name, password, callback) {
+		
+		var options = {
+			url: proxy + '/_config/admins/' + name,
+			type: 'PUT',
+			data: '"' + password + '"',
+			error: function (jqXHR, textStatus, errorThrown) {
+				console.log('Error "' + textStatus + '" occured while ' + this.type + ' request to ' + this.url, jqXHR);
+				callback(parseError(jqXHR));
+			},
+			success: function (data, textStatus, jqXHR) {
+				callback(false);
+			}
+		};
+		
+		if (!credentials.cookie && credentials.username && credentials.password) options.headers = { // important: only use if no cookie is set
+			Authorization: 'Basic ' + btoa(credentials.username + ':' + credentials.password)
+		};
+		
+		$.ajax(options);
+		
+		return CouchDB;
 
 	};
 
-	CouchDB.deleteUser = function (name) {
+	CouchDB.deleteAdmin = function (name, callback) {
 
-		// delete user or admin
+		var options = {
+			url: proxy + '/_config/admins/' + name,
+			type: 'DELETE',
+			error: function (jqXHR, textStatus, errorThrown) {
+				console.log('Error "' + textStatus + '" occured while ' + this.type + ' request to ' + this.url, jqXHR);
+				callback(parseError(jqXHR));
+			},
+			success: function (data, textStatus, jqXHR) {
+				callback(false);
+			}
+		};
+		
+		if (!credentials.cookie && credentials.username && credentials.password) options.headers = { // important: only use if no cookie is set
+			Authorization: 'Basic ' + btoa(credentials.username + ':' + credentials.password)
+		};
+		
+		$.ajax(options);
+		
+		return CouchDB;
 
 	};
 	

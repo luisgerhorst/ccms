@@ -8,19 +8,19 @@ $(document).ready(function () {
 			title: 'Install'
 		},
 		{
-			path: '/configure-proxy',
-			templates: ['header.html', 'configure-proxy.html', 'footer.html'],
-			title: 'Install - Configure Proxy'
+			path: '/proxy',
+			templates: ['header.html', 'proxy.html', 'footer.html'],
+			title: 'Install - Proxy'
 		},
 		{
-			path: '/create-admin',
-			templates: ['header.html', 'create-admin.html', 'footer.html'],
-			title: 'Install - Create Admin'
+			path: '/couchdb',
+			templates: ['header.html', 'couchdb.html', 'footer.html'],
+			title: 'Install - CouchDB'
 		},
 		{
-			path: '/set-up-database',
-			templates: ['header.html', 'set-up-database.html', 'footer.html'],
-			title: 'Install - Set Up Database'
+			path: '/finished',
+			templates: ['header.html', 'finished.html', 'footer.html'],
+			title: 'Install - Finished'
 		}
 		
 	];
@@ -29,7 +29,7 @@ $(document).ready(function () {
 	
 		var views = {};
 	
-		views['configure-proxy.html'] = config;
+		views['proxy.html'] = config;
 	
 		return views;
 	

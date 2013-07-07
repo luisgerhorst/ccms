@@ -1,0 +1,79 @@
+<p><input type="text" name="title" placeholder="Blog Title"></p>
+
+<div id="login">
+
+	<p class="help">Enter the credentials of your CouchDB admin account. You will also need them to access the CCMS admin panel later.</p>
+	
+	<form action="javascript:void(0);">
+	
+		<p><input type="text" name="username" placeholder="Username"></p>
+	
+		<p><input type="password" name="password" placeholder="Password"></p>
+	
+		<p><input type="submit" value="Login and create database"></p>
+	
+	</form>
+
+</div>
+
+<div id="signup">
+
+	<p class="help">There doesn't exist any CouchDB admin account yet, you have to create one. Remember the username and password to access the CCMS admin panel later.</p>
+
+	<form action="javascript:void(0);">
+
+		<p><input type="text" name="username" placeholder="Username"></p>
+
+		<p><input type="password" name="password-0" placeholder="Password"></p>
+		<p><input type="password" name="password-1" placeholder="Password"></p>
+
+		<p><input type="submit" value="Sign up and create database"></p>
+
+	</form>
+
+</div>
+
+<p><a href="#/proxy"><button class="previous grey">Previous</button></a></p>
+
+<script src="{{themePath}}/documents.js"></script>
+<script src="{{themePath}}/database.js"></script>
+<script src="{{themePath}}/admin.js"></script>
+
+<style>
+	
+	#wrapper {
+		width: 350px;
+	}
+
+	#login, #signup {
+		display: none;
+	}
+	
+	form {
+		width: 100%;
+	}
+	
+	form p.help {
+		text-align: left;
+		display: inline;
+	}
+	
+	form p {
+		display: block;
+		text-align: center;
+	}
+	
+	form input[name="username"], form input[type="password"], input[name="title"] {
+		width: 100%;
+		margin: 0 auto;
+		display: inline;
+		box-sizing: border-box;
+	}
+	
+	form input[type="submit"] {
+		float: right;
+		margin: 0;
+	}
+
+</style>
+

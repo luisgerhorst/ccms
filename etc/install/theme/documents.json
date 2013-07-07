@@ -1,13 +1,7 @@
 {
 	"_design/auth": {
 		"language": "javascript",
-		"validate_doc_update": "function (newDoc, oldDoc, userCtx) {
-			if (userCtx.roles.indexOf('_admin') >= 0 || userCtx.roles.indexOf('ccms-admin') >= 0) {
-				return;
-			} else {
-				throw({ unauthorized : 'You need to be CCMS or server admin to edit this database.' });
-			}
-		}"
+		"validate_doc_update": "function(newDoc,oldDoc,userCtx){if(userCtx.roles.indexOf('_admin')>-1){return}else{throw({unauthorized:'You have to be server admin to edit this database.'})}}"
 	},
 	"_design/posts": {
 		"language": "javascript",

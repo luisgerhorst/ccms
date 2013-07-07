@@ -8,8 +8,18 @@ CCMS is currently in early **ALPHA**. If you anyway want to try it just [send me
 
 Just open `/install.html` in your browser and follow the instructions.
 
-## Install Help
+## Help
 
 If you have a problem with one step of the install guide this may help.
 
-*coming soon ...*
+### How to change the database used by CCMS?
+
+If you already have a CouchDB database named `ccms`, change the `database` field in `etc/config.json`.
+
+You also have to change your proxy configuration. If you open `/install.html#/proxy`, after having changed `etc/config.json`, you'll see an updated version of the code you have to add to your Apache's `httpd.conf`. Replace the old lines by the new ones. Don't forget to restart Apache.
+
+### How to change the proxy path?
+
+If you're already running something under `/couchdb`, it's recommended to change the `proxy` field in `etc/config.json`.
+
+Afterwards you have to change your proxy configuration. If you open `/install.html#/proxy`, after having changed `etc/config.json`, you'll see an updated version of the code you have to add to your Apache's `httpd.conf`. Replace the old lines by the new ones. Don't forget to restart Apache.

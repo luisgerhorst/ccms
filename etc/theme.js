@@ -251,6 +251,7 @@ var theme = new (function () {
 			if (options && options.log) log = options.log;
 			
 			themePath = themePathParam;
+			Theme.path = themePath;
 			
 			for (var name in viewSources) templates[name] = new Template(name, {
 				viewSource: viewSources[name]
