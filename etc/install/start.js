@@ -24,7 +24,7 @@ $(document).ready(function () {
 	
 		var views = {};
 	
-		views['database.html'] = config;
+		views['configure-proxy.html'] = config;
 	
 		return views;
 	
