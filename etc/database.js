@@ -1,7 +1,7 @@
 
-/** @param {string} proxyURL Path to the CouchDB proxy. */
+/** @param {string} proxy Path to the CouchDB proxy. */
 
-var CouchDB = function (proxyURL) {
+var CouchDB = function (proxy) {
 	
 	var CouchDB = this;
 	
@@ -9,8 +9,7 @@ var CouchDB = function (proxyURL) {
 	
 	var Credentials = function (credentials) {
 	
-		/** @type {!Object} */
-		credentials = credentials ? credentials : {};
+		credentials = credentials ? credentials : {}; // if called with null
 		
 		this.cookie = credentials.cookie ? true : false;
 		this.username = typeof credentials.username === 'string' ? credentials.username : false;
@@ -28,7 +27,7 @@ var CouchDB = function (proxyURL) {
 		
 		var code = jqXHR.status;
 		
-		if (code !== 200 && code !== 201) return {
+		if (code != 200 && code != 201) return {
 			code: code,
 			message: jqXHR.statusText,
 			jqXHR: jqXHR
@@ -55,24 +54,12 @@ var CouchDB = function (proxyURL) {
 		
 	};
 	
-	CouchDB.createUser = function (name, password, roles) {
-			
-		// create user or admin (if _admin in roles)
-		
-	};
-	
-	CouchDB.deleteUser = function (name) {
-			
-		// delete user or admin
-		
-	};
-	
-	CouchDB.remember = function () {
+	CouchDB.remember = function (callback) {
 			
 		if (credentials.username && credentials.password) {
 			
 			var options = {
-				url: proxyURL + '_session/',
+				url: proxy + '/_session/',
 				type: 'POST',
 				data: 'name=' +  encodeURIComponent(credentials.username) + '&password=' +  encodeURIComponent(credentials.password),
 				contentType: 'application/x-www-form-urlencoded'
@@ -80,8 +67,10 @@ var CouchDB = function (proxyURL) {
 			
 			$.ajax(options).fail(function (jqXHR, textStatus) {
 				console.log('Error "' + textStatus + '" occured while ' + options.type + ' request to ' + options.url, jqXHR);
+				if (callback) callback(parseError(jqXHR));
 			}).done(function () {
 				credentials.cookie = true;
+				if (callback) callback(false);
 			});
 	
 		}
@@ -90,17 +79,19 @@ var CouchDB = function (proxyURL) {
 			
 	};
 	
-	CouchDB.forget = function () {
+	CouchDB.forget = function (callback) {
 		
 		var options = {
-			url: proxyURL + '_session/',
+			url: proxy + '/_session/',
 			type: 'DELETE'
 		};
 		
 		$.ajax(options).fail(function (jqXHR, textStatus) {
 			console.log('Error "' + textStatus + '" occured while ' + options.type + ' request to ' + options.url, jqXHR);
+			if (callback) callback(parseError(jqXHR));
 		}).done(function () {
 			credentials.cookie = false;
+			if (callback) callback(false);
 		});
 		
 		return CouchDB;
@@ -113,10 +104,10 @@ var CouchDB = function (proxyURL) {
 		
 		var AjaxOptions = function (options, complete) {
 			
-			var documentPath = options.document ? '/' + options.document : '';
+			var documentPath = options.document ? options.document : '';
 			
 			this.type = options.type || 'GET';
-			this.url = proxyURL + databaseName + documentPath;
+			this.url = proxy + '/' + databaseName + '/' + documentPath;
 			this.data = JSON.stringify(options.data) || undefined;
 			this.contentType = this.data ? 'application/json' : undefined;
 			this.timeout = 1000;
@@ -132,8 +123,6 @@ var CouchDB = function (proxyURL) {
 			this.error = function (jqXHR, textStatus, errorThrown) {
 				complete(null, jqXHR);
 			};
-			
-			// this.complete = function (jqXHR, textStatus) {};
 			
 		};
 		
@@ -194,9 +183,9 @@ var CouchDB = function (proxyURL) {
 					
 					var status = jqXHR.status;
 					
-					data._rev = status === 200 ? jqXHR.getResponseHeader('Etag').replace(/"/g, '') : undefined;
+					data._rev = status == 200 ? jqXHR.getResponseHeader('Etag').replace(/"/g, '') : undefined;
 					
-					if (status === 404 || status === 200) {
+					if (status == 404 || status == 200) {
 						
 						request({
 							document: document,
@@ -241,7 +230,7 @@ var CouchDB = function (proxyURL) {
 				type: 'HEAD',
 			}, function (data, jqXHR) {
 				
-				if (jqXHR.status === 200) {
+				if (jqXHR.status == 200) {
 					request({
 						document: document + '?rev=' + jqXHR.getResponseHeader('Etag').replace(/"/g, ''),
 						type: 'DELETE'
@@ -258,6 +247,69 @@ var CouchDB = function (proxyURL) {
 		
 		};
 		
+	};
+	
+	var users = new CouchDB.Database('_users');
+
+	CouchDB.createUser = function (name, password, roles, callback) {
+		
+		if (roles.indexOf('_admin') > -1) {
+			
+			roles.splice(roles.indexOf('_admin'), 1);
+			
+			// add to admins
+			
+			var options = {
+				url: proxy + '/_config/admins/' + name,
+				type: 'PUT',
+				data: '"' + password + '"',
+				error: function (jqXHR, textStatus, errorThrown) {
+					console.log('Error "' + textStatus + '" occured while ' + this.type + ' request to ' + this.url, jqXHR);
+					callback(parseError(jqXHR));
+				},
+				success: function (data, textStatus, jqXHR) {
+					
+					// add to users
+					
+					users.save('org.couchdb.user:' + name, {
+						name: name,
+						password: null,
+						roles: roles,
+						type: 'user'
+					}, function (data, error) {
+						if (error) callback(error);
+						else callback(false);
+					});
+					
+				}
+			};
+			
+			if (!credentials.cookie && credentials.username && credentials.password) options.headers = { // important: only use if no cookie is set
+				Authorization: 'Basic ' + btoa(credentials.username + ':' + credentials.password)
+			};
+			
+			$.ajax(options);
+			
+		} else {
+			
+			users.save('org.couchdb.user:' + name, {
+				name: name,
+				password: password,
+				roles: roles,
+				type: 'user'
+			}, function (data, error) {
+				if (error) callback(error);
+				else callback(false);
+			});
+			
+		}
+
+	};
+
+	CouchDB.deleteUser = function (name) {
+
+		// delete user or admin
+
 	};
 	
 }
