@@ -15,11 +15,22 @@ $.ajax({
 			var couchdb = new CouchDB(config.proxy);
 			
 			couchdb.createAdmin(username, password, function (error) {
-				if (error) notifications.alert('Error ' + error.code + ' ' + error.message + ' occured while creating admin account.');
-				else {
+				
+				if (!error) {
 					couchdb.authorize({ username: username, password: password });
 					createDatabase(couchdb, config.database);
 				}
+				else if (error.code == 401) {
+					notifications.alert('There already seems to exist an admin account, trying to login with credentials you entered for sign up.');
+					couchdb.authorize({ username: username, password: password });
+					couchdb.getAdmins(function (admins, error) {
+						if (error.code == 401) notifications.alert("The username you entered for sign up doesn't match with any existing CouchDB admin account.");
+						else if (error) notifications.alert('Error ' + error.code + ' ' + error.message + ' occured while trying to log in with sign up credentials.');
+						else createDatabase(couchdb, config.database);
+					});
+				}
+				else notifications.alert('Error ' + error.code + ' ' + error.message + ' occured while creating admin account.');
+				
 			});
 			
 		}
