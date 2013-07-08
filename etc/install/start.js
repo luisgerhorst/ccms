@@ -36,7 +36,8 @@ $(document).ready(function () {
 	}
 	
 	$.ajax({
-		url: 'etc/config.json'
+		url: 'etc/config.json',
+		dataType: 'json'
 	}).done(function (config) {
 		
 		theme.setup('etc/install/theme', routes, views(config));

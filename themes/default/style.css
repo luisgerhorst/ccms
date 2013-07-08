@@ -48,6 +48,10 @@ code {
 	padding-bottom: 40px;
 }
 
+#content.-ccms-changing {
+	opacity: 0.5;
+}
+
 ol.posts {
 	list-style: none;
 }

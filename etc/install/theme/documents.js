@@ -2,10 +2,12 @@ function saveDocuments(database) {
 	
 	$.ajax({
 		url: theme.path + '/documents.json',
+		dataType: 'json',
 		success: function (docs, textStatus, jqXHR) {
 			
 			$.ajax({
 				url: 'etc/system.json',
+				dataType: 'json',
 				success: function (system, textStatus, jqXHR) {
 					
 					var blogTitle = $('input[name="title"]').val();

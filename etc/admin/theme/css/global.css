@@ -162,13 +162,13 @@ input:focus, textarea:focus {
 	outline: none;
 }
 
-input[type="text"][readonly], input[type="number"][readonly], input[type="password"][readonly], input[type="datetime"][readonly], textarea[readonly], input[readonly]:focus {
+input[type="text"][readonly], input[type="number"][readonly], input[type="password"][readonly], input[type="datetime"][readonly], input[type="datetime-local"][readonly], textarea[readonly], input[readonly]:focus {
 	color: rgb(110,110,110);
 	border: 1px solid rgb(212,212,212);
 	box-shadow: none;
 }
 
-input[type="text"], input[type="number"], input[type="password"], input[type="datetime"], textarea {
+input[type="text"], input[type="number"], input[type="password"], input[type="datetime"], input[type="datetime-local"], textarea {
 	padding: 4px 6px;
 	font-size: 13px;
 	line-height: 16px;
@@ -180,7 +180,7 @@ input[type="text"], input[type="number"], input[type="password"], input[type="da
 	-webkit-appearance: none;
 }
 
-input[type="text"], input[type="number"], input[type="password"], input[type="datetime"] { /* all text input fields */
+input[type="text"], input[type="number"], input[type="password"], input[type="datetime"], input[type="datetime-local"] { /* all text input fields */
 	width: 160px;
 }
 
@@ -208,4 +208,8 @@ input::input-placeholder, input::-webkit-input-placeholder, textarea::input-plac
 	margin: 20px;
 	float: right;
 	border-radius: 4px;
+}
+
+#content.-ccms-changing {
+	opacity: 0.5;
 }

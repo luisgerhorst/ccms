@@ -1,5 +1,6 @@
 $.ajax({
-	url: 'etc/config.json'
+	url: 'etc/config.json',
+	dataType: 'json'
 }).done(function (config) {
 
 	$('#signup').submit(function () {

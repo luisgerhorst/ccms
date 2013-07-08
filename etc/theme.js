@@ -208,6 +208,8 @@ var theme = new (function () {
 	
 	var updateTheme = function (currentPath) {
 		
+		$('body *').addClass('-ccms-changing');
+		
 		var route = searchRoute(currentPath);
 		
 		if (!route) {
@@ -290,10 +292,8 @@ var theme = new (function () {
 				
 				if ('onhashchange' in window) {
 					window.onhashchange = function () {
-						console.log('hashchange');
 						var currentPath = getCurrentPath(); // using path, not hash!
 						if (currentPath != path) {
-							console.log('pathchange');
 							path = currentPath;
 							updateTheme(path);
 						}
