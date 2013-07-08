@@ -208,7 +208,7 @@ var theme = new (function () {
 	
 	var updateTheme = function (currentPath) {
 		
-		$('body *').addClass('-ccms-changing');
+		$('body *').addClass('-theme-update');
 		
 		var route = searchRoute(currentPath);
 		

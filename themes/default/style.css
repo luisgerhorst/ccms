@@ -48,7 +48,7 @@ code {
 	padding-bottom: 40px;
 }
 
-#content.-ccms-changing {
+#content.-theme-update { /* the class -theme-update is added to all body elements when the path changes and before the new body is being loaded */
 	opacity: 0.5;
 }
 

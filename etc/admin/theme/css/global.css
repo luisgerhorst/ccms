@@ -210,6 +210,6 @@ input::input-placeholder, input::-webkit-input-placeholder, textarea::input-plac
 	border-radius: 4px;
 }
 
-#content.-ccms-changing {
+#content.-theme-update {
 	opacity: 0.5;
 }
