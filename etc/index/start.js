@@ -189,7 +189,11 @@ $(document).ready(function () {
 			if (error) console.log('Error while loading document "meta".', error);
 			else {
 				
-				theme.setup('themes/' + meta.theme, routes, views(database, meta));
+				theme.setup({
+					path: 'themes/' + meta.theme,
+					routes: routes,
+					views: views(database, meta)
+				});
 				
 			}
 			

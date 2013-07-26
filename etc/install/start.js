@@ -40,7 +40,11 @@ $(document).ready(function () {
 		dataType: 'json'
 	}).done(function (config) {
 		
-		theme.setup('etc/install/theme', routes, views(config));
+		theme.setup({
+			path: 'etc/install/theme',
+			routes: routes,
+			views: views(config)
+		});
 		
 	});
 

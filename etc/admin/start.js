@@ -182,7 +182,12 @@ $(document).ready(function () {
 		
 		var database = new (new CouchDB(config.proxy)).Database(config.database);
 		
-		theme.setup('etc/admin/theme', routes, views(database, config), { log: true });
+		theme.setup({
+			path: 'etc/admin/theme', 
+			routes: routes, 
+			views: views(database, config),
+			log: ['error', 'performance', 'info']
+		});
 		
 	});
 

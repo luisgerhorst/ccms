@@ -2,11 +2,26 @@ var theme = new (function () {
 	
 	var Theme = this;
 	
-	var /** @type {Object.<string, {({Object}|function(string, boolean))}>} */
-		templates = {},
-		/** @type {Array.<{path, templates, done, before, title}>} */
-		routes = [],
-		themePath = '';
+	/** attributes */
+	
+	Theme.templates = {};
+	Theme.routes = [];
+	Theme.path = '';
+	
+	/** logging */
+	
+	var consoleImitation = new (function () {
+		var func = function () {};
+		for (var method in console) this[method] = func;
+	})();
+	
+	var consol = {
+		info: consoleImitation,
+		error: console,
+		performance: consoleImitation
+	};
+	
+	/** utilities */
 	
 	var validateObjectKeys = function (object) {
 		var validatedObject = {};
@@ -27,23 +42,23 @@ var theme = new (function () {
 		return string;
 	};
 	
-	var Template = function (name, options) {
+	/** Template */
+	
+	var Template = function (name, viewSource, fallbackTemplate) {
 		
 		var Template = this;
 		
 		Template.name = name;
 		
-		if (options) {
-			if (options.viewSource) Template.viewSource = options.viewSource;
-			if (options.fallbackTemplate) Template.fallbackTemplate = options.fallbackTemplate;
-		}
+		if (viewSource) Template.viewSource = viewSource;
+		if (fallbackTemplate) Template.fallbackTemplate = fallbackTemplate;
 		
 	};
 	
 	Template.prototype.viewSource = {};
 	Template.prototype.fallbackTemplate = '';
 	
-	Template.prototype.load = function (loaded, currentPath) {
+	Template.prototype.load = function (loaded, path) {
 		
 		var Template = this;
 	
@@ -54,18 +69,18 @@ var theme = new (function () {
 		var chunkReceived = function () {
 			toLoad--;
 			if (!toLoad) {
-				view.themePath = themePath;
+				view.themePath = Theme.path;
 				loaded(Mustache.render(template, view), view);
 			}
 		};
 	
 		$.ajax({
-			url: themePath + '/' + Template.name,
+			url: Theme.path + '/' + Template.name,
 		}).done(function (response) {
 			template = response;
 			chunkReceived();
 		}).fail(function () {
-			console.log(Template.name + ': Error, unable to load template.');
+			consol.error.log(Template.name + ': Error, unable to load template.');
 			template = Template.fallbackTemplate;
 			chunkReceived();
 		});
@@ -90,7 +105,7 @@ var theme = new (function () {
 						
 						var title = error.title || 'Error';
 						
-						console.log('View source returned error.', 'Error =', error, 'View source =', viewSource);
+						consol.error.log('View source returned error.', 'Error =', error, 'View source =', viewSource);
 						
 						document.title = title;
 						$('body').html(html);
@@ -100,7 +115,7 @@ var theme = new (function () {
 						chunkReceived();
 					}
 					
-				}, currentPath);
+				}, path);
 				break;
 				
 			case 'object':
@@ -109,7 +124,7 @@ var theme = new (function () {
 				break;
 				
 			default:
-				console.log(Template.name + ': Error, unable to prozess view source. View source = ', viewSource);
+				consol.error.log(Template.name + ': Error, unable to prozess view source. View source = ', viewSource);
 				view = {};
 				chunkReceived();
 				
@@ -117,16 +132,18 @@ var theme = new (function () {
 	
 	};
 	
-	var Route = function (source) {
+	/** Route */
+	
+	var Route = function (options) {
 		
 		var Route = this;
 		
-		Route.path = source.path;
-		Route.title = source.title;
+		Route.path = options.path;
+		Route.title = options.title;
 		
-		if (source.before) Route.before = source.before;
-		if (source.done) Route.done = source.done;
-		if (source.templates) Route.templates = source.templates;
+		if (options.before) Route.before = options.before;
+		if (options.done) Route.done = options.done;
+		if (options.templates) Route.templates = options.templates;
 		
 	};
 	
@@ -134,7 +151,7 @@ var theme = new (function () {
 	Route.prototype.done = function () {};
 	Route.prototype.templates = [];
 	
-	Route.prototype.load = function (loaded, currentPath) {
+	Route.prototype.load = function (loaded, path) {
 		
 		var Route = this;
 		
@@ -159,7 +176,7 @@ var theme = new (function () {
 				views[template.name] = view;
 				templateLoaded();
 				
-			}, currentPath);
+			}, path);
 			
 		})(i);
 		
@@ -169,11 +186,9 @@ var theme = new (function () {
 	
 	var searchRoute = function (path) {
 		
-		var i = routes.length;
-		
-		for (i; i--;) { // new routes overwrite old routes
+		for (i = Theme.routes.length; i--;) {
 			
-			var route = routes[i];
+			var route = Theme.routes[i];
 			
 			switch (route.path instanceof RegExp ? 'regexp' : route.path instanceof Array ? 'array' : typeof route.path) {
 				
@@ -206,32 +221,35 @@ var theme = new (function () {
 		
 	};
 	
-	var updateTheme = function (currentPath) {
+	var updateTheme = function (path) {
 		
-		$('body *').addClass('-theme-update');
+		consol.info.log('Updating theme ...');
 		
-		var route = searchRoute(currentPath);
+		$('body *').addClass('-before-disappear');
+		
+		var route = searchRoute(path);
 		
 		if (!route) {
 			
-			console.log('No route was found.', 'Current path:', currentPath, 'Routes:', routes);
+			consol.error.log('No route was found.', 'Current path:', path, 'Routes:', routes);
 			document.title = '404 Not Found';
 			$('body').html('<style>body{color: rgb(80,80,80);background: #fff;font: normal 16px "Lucida Grande", "Lucida Sans Unicode", Geneva, sans-serif;line-height: 24px;}a{text-decoration: underline;color: rgb(80,80,255);}a:hover{color: rgb(120,120,255);}p{margin: 20px;}h1{font: normal 32px "Helvetica Neue", Arial, Helvetica, sans-serif;line-height: 32px;margin: 20px;}body{padding: 64px;}code{font-family: Menlo, Consolas, Monaco, "Lucida Console", monospace;color: rgb(120,120, 120);}</style><h1>Page not found</h1><p>The page you were looking for doesn\'t exist.</p>');
 			
 		} else {
 			
-			route.before(currentPath);
+			route.before(path);
 			
 			if (route.templates.length) route.load(function (body, views) {
 				
 				$('body').html(body);
 				document.title = Mustache.render(route.title, validateObjectKeys(views));
-				route.done(views, currentPath);
 				
-			}, currentPath); else {
+				route.done(views, path);
+				
+			}, path); else {
 				
 				document.title = route.title;
-				route.done(null, currentPath);
+				route.done(null, path);
 				
 			}
 			
@@ -239,85 +257,71 @@ var theme = new (function () {
 		
 	};
 	
-	Theme.setup = function (themePathParam, routeSources, viewSources, options) {
+	Theme.setup = function (options) {
 
-		var valid = {
-			path: typeof themePathParam === 'string',
-			routes: routeSources instanceof Array,
-			views: viewSources !== null && typeof viewSources === 'object' || viewSources === undefined,
-			options: options !== null && typeof options === 'object' || options === undefined
-		};
+		if (options.log) {
+			
+			if (options.log.indexOf('info') > -1) consol.info = console;
+			if (options.log.indexOf('error') > -1) consol.error = console;
+			if (options.log.indexOf('performance') > -1) consol.performance = console;
+			
+		}
 		
-		if (valid.path && valid.routes && valid.views && valid.options) {
+		Theme.path = options.path;
+		
+		for (var name in options.views) Theme.templates[name] = new Template(name, options.views[name]);
+		
+		for (var i = options.routes.length; i--;) {
 			
-			if (options && options.log) log = options.log;
+			var route = options.routes[i],
+				templateNames = route.templates || [];
 			
-			themePath = themePathParam;
-			Theme.path = themePath;
-			
-			for (var name in viewSources) templates[name] = new Template(name, {
-				viewSource: viewSources[name]
-			});
-			
-			for (var i = routeSources.length; i--;) {
+			for (var j = templateNames.length; j--;) {
 				
-				var routeSource = routeSources[i],
-					routeTemplates = routeSource.templates || [];
+				var name = templateNames[j];
 				
-				for (var j = routeTemplates.length; j--;) {
-					
-					var n = routeTemplates[j];
-					
-					if (templates[n]) routeTemplates[j] = templates[n];
-					
-					else routeTemplates[j] = templates[n] = new Template(n);
-					
-				}
-				
-				var route = routes[i] = new Route(routeSource);
+				if (Theme.templates[name]) route.templates[j] = Theme.templates[name];
+				else route.templates[j] = Theme.templates[name] = new Template(name);
 				
 			}
 			
-			/** Get the head */
-			 
-			new Template('head.html').load(function (output) {
-				
-				$('head').html(output);
-				
-				var path = getCurrentPath();
-				
-				updateTheme(path);
-				
-				/** URL-change detection via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js */
-				
-				if ('onhashchange' in window) {
-					window.onhashchange = function () {
-						var currentPath = getCurrentPath(); // using path, not hash!
-						if (currentPath != path) {
-							path = currentPath;
-							updateTheme(path);
-						}
-					};
-				} else {
-					window.setInterval(function () {
-						var currentPath = getCurrentPath();
-						if (currentPath !== path) {
-							path = currentPath;
-							updateTheme(path);
-						}
-					}, 100);
-				}
-				
-			});
+			Theme.routes[i] = new Route(route);
 			
 		}
 		
-		else {
+		/** Get the head */
+		 
+		new Template('head.html').load(function (output) {
 			
-			console.log('Invalid setup parameters.', valid, themePathParam, routeSources, viewSources, options);
-			return false;
+			$('head').html(output);
 			
-		}
+			/** Set up path change detection */
+			
+			var path = getCurrentPath();
+			
+			updateTheme(path);
+			
+			/** URL-change detection via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js */
+			
+			if ('onhashchange' in window) {
+				window.onhashchange = function () {
+					var currentPath = getCurrentPath(); // using path, not hash!
+					if (currentPath != path) {
+						path = currentPath;
+						updateTheme(path);
+					}
+				};
+			} else {
+				window.setInterval(function () {
+					var currentPath = getCurrentPath();
+					if (currentPath != path) {
+						path = currentPath;
+						updateTheme(path);
+					}
+				}, 100);
+			}
+			
+		});
 		
 	};
 	
