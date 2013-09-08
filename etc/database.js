@@ -3,6 +3,10 @@
 
 var CouchDB = function (proxy) {
 	
+	$.ajaxSetup({
+		timeout: 15000
+	});
+	
 	var CouchDB = this;
 	
 	// Data Constructors
@@ -62,7 +66,7 @@ var CouchDB = function (proxy) {
 				url: proxy + '/_session/',
 				type: 'POST',
 				data: 'name=' +  encodeURIComponent(credentials.username) + '&password=' +  encodeURIComponent(credentials.password),
-				contentType: 'application/x-www-form-urlencoded'
+				contentType: 'application/x-www-form-urlencoded',
 			};
 			
 			$.ajax(options).fail(function (jqXHR, textStatus) {
@@ -110,7 +114,6 @@ var CouchDB = function (proxy) {
 			this.url = proxy + '/' + databaseName + '/' + documentPath;
 			this.data = JSON.stringify(options.data) || undefined;
 			this.contentType = this.data ? 'application/json' : undefined;
-			this.timeout = 1000;
 			
 			if (!credentials.cookie && credentials.username && credentials.password && this.type !== 'HEAD' && this.type !== 'GET') this.headers = { // important: only use if no cookie is set
 				Authorization: 'Basic ' + btoa(credentials.username + ':' + credentials.password)

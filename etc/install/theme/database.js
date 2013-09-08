@@ -12,7 +12,7 @@ function createDatabase(couchdb, name) {
 					else {
 						
 						couchdb.deleteDatabase('ccms', function (error) {
-							if (error) notifications.alert('Error occured while deleting the database.');
+							if (error) notifications.alert('Error ' + error.code + ' ' + error.message + ' occured while deleting the database.');
 							else couchdb.createDatabase('ccms', function (database, error) {
 								if (!error) saveDocuments(database);
 								else notifications.alert('Error ' + error.code + ' ' + error.message + ' occured while creating the database.');

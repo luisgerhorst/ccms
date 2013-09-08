@@ -3,11 +3,18 @@ function saveDocuments(database) {
 	$.ajax({
 		url: theme.path + '/documents.json',
 		dataType: 'json',
+		error: function (jqXHR, textStatus, errorThrown) {
+			console.log(jqXHR);
+			notifications.alert('Error <code>' + textStatus + ' ' + errorThrown + '</code> occured while loading <code>' + this.url + '</code>');
+		},
 		success: function (docs, textStatus, jqXHR) {
 			
 			$.ajax({
 				url: 'etc/system.json',
 				dataType: 'json',
+				error: function (jqXHR, textStatus, errorThrown) {
+					notifications.alert('Error ' + textStatus + ' ' + errorThrown + ' occured while loading ' + this.url);
+				},
 				success: function (system, textStatus, jqXHR) {
 					
 					var blogTitle = $('input[name="title"]').val();
@@ -28,7 +35,7 @@ function saveDocuments(database) {
 						database.save(id, doc, function (response, error) {
 					
 							if (!errorThrown && error) {
-								notifications.alert('Error ' + error.code + ' ' + error.message + ' occured while saving a document.');
+								notifications.alert('Error ' + error.code + ' ' + error.message + ' occured while saving a document (' + id + ').');
 								errorThrown = true;
 							} else if (!error) {
 								console.log('Successfully saved document.', doc.id);

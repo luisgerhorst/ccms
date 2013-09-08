@@ -178,7 +178,10 @@ $(document).ready(function () {
 
 	$.ajax({
 		url: 'etc/config.json',
-		dataType: 'json'
+		dataType: 'json',
+		error: function (jqXHR, textStatus, errorThrown) {
+			notifications.alert('Error ' + textStatus + ' ' + errorThrown + ' occured while loading ' + this.url);
+		}
 	}).done(function (config) {
 
 		couchdb = new CouchDB(config.proxy);
