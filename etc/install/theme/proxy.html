@@ -1,14 +1,28 @@
-<p>Fist you have to add these lines to XAMPP's <code>httpd.conf</code> file.</p>
+<p><b>Apache 2</b></p>
+
+<p>Add this code to Apache 2's <code>apache2.conf</code>.</p>
 
 <pre>
-LoadModule proxy_module modules/mod_proxy.so
+LoadModule proxy_module /usr/lib/apache2/modules/mod_proxy.so
+LoadModule proxy_http_module /usr/lib/apache2/modules/mod_proxy_http.so
 ProxyRequests On
 ProxyPass {{proxy}}/_session/ http://127.0.0.1:5984/_session/
 ProxyPass {{proxy}}/_config/admins/ http://127.0.0.1:5984/_config/admins/
 ProxyPass {{proxy}}/{{database}}/ http://127.0.0.1:5984/{{database}}/
 </pre>
 
-<p>Then make sure CouchDB is running and restart XAMPP.</p>
+<p><b>XAMPP</b></p>
+
+<p>Add this code to XAMPP's <code>httpd.conf</code>.</p>
+
+<pre>
+ProxyRequests On
+ProxyPass {{proxy}}/_session/ http://127.0.0.1:5984/_session/
+ProxyPass {{proxy}}/_config/admins/ http://127.0.0.1:5984/_config/admins/
+ProxyPass {{proxy}}/{{database}}/ http://127.0.0.1:5984/{{database}}/
+</pre>
+
+<p>Make sure CouchDB is running and restart your web server.</p>
 
 <p><a href="#/"><button class="previous grey">Previous</button></a></p>
 <p><a href="#/couchdb"><button class="next">Did it</button></a></p>

@@ -1,5 +1,4 @@
-update database
-rss feed
-user management
-improve loading speed
-fix timeout errors while loading older posts
+- No more fragments with `history.pushState()`
+- RSS Feed
+- User management
+- Fix timeout errors while loading older posts
