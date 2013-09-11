@@ -180,7 +180,9 @@ $(document).ready(function () {
 		url: 'etc/config.json',
 		dataType: 'json',
 		error: function (jqXHR, textStatus, errorThrown) {
-			notifications.alert('Error ' + textStatus + ' ' + errorThrown + ' occured while loading ' + this.url);
+			
+			fatalError('Ajax Error', 'Error <code>' + textStatus + ' ' + errorThrown + '</code> occured while loading <code>' + this.url + '</code>.');
+			
 		}
 	}).done(function (config) {
 
@@ -189,8 +191,11 @@ $(document).ready(function () {
 
 		database.read('meta', function (meta, error) {
 			
-			if (error) console.log('Error while loading document "meta".', error);
-			else {
+			if (error) {
+				
+				fatalError('CouchDB Error', 'Error <code>' + error.code + ' ' + error.message + '</code> occured while loading loading document <code>meta</code>.');
+				
+			} else {
 				
 				theme.setup({
 					path: 'themes/' + meta.theme,

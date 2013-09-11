@@ -179,7 +179,9 @@ $(document).ready(function () {
 		url: 'etc/config.json',
 		dataType: 'json',
 		error: function (jqXHR, textStatus, errorThrown) {
-			notifications.alert('Error ' + textStatus + ' ' + errorThrown + ' occured while loading ' + this.url);
+			
+			fatalError('Ajax Error', 'Error <code>' + textStatus + ' ' + errorThrown + '</code> occured while loading <code>' + this.url + '</code>.');
+			
 		}
 	}).done(function (config) {
 		

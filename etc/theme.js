@@ -232,8 +232,7 @@ var theme = new (function () {
 		if (!route) {
 			
 			consol.error.log('No route was found.', 'Current path:', path, 'Routes:', routes);
-			document.title = '404 Not Found';
-			$('body').html('<style>body{color: rgb(80,80,80);background: #fff;font: normal 16px "Lucida Grande", "Lucida Sans Unicode", Geneva, sans-serif;line-height: 24px;}a{text-decoration: underline;color: rgb(80,80,255);}a:hover{color: rgb(120,120,255);}p{margin: 20px;}h1{font: normal 32px "Helvetica Neue", Arial, Helvetica, sans-serif;line-height: 32px;margin: 20px;}body{padding: 64px;}code{font-family: Menlo, Consolas, Monaco, "Lucida Console", monospace;color: rgb(120,120, 120);}</style><h1>Page not found</h1><p>The page you were looking for doesn\'t exist.</p>');
+			fatalError('Page not found', 'The page you were looking for doesn\'t exist.');
 			
 		} else {
 			

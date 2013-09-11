@@ -1,7 +1,7 @@
 $.ajax({
 	url: 'etc/config.json',
 	dataType: 'json',
-	cache: false, // because people may change db/proxy name
+	cache: false, // because people may change database or proxy
 	error: function (jqXHR, textStatus, errorThrown) {
 		notifications.alert('Error ' + textStatus + ' ' + errorThrown + ' occured while loading ' + this.url);
 	}
