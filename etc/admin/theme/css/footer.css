@@ -10,13 +10,13 @@ footer p {
 }
 
 footer p span.left {
-	text-align: left;
 	float: left;
+	text-align: left;
 }
 
 footer p span.right {
-	text-align: right;
 	float: right;
+	text-align: right;
 }
 
 footer p a {

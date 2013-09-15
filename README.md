@@ -12,7 +12,7 @@ Just open `/install.html` in your browser and follow the instructions. If you've
 
 If you have a problem with one step of the install guide this may help.
 
-### How to change the database used by CCMS?
+### (How to change the database used by CCMS?)(#change-database)
 
 If you already have a CouchDB database named `ccms`, change the `database` field in `etc/config.json`. Otherwise CCMS will offer you to overwrite and **delete** all documents in the existing database.
 
