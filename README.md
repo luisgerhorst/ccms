@@ -16,10 +16,10 @@ If you have a problem with one step of the install guide this may help.
 
 If you already have a CouchDB database named `ccms`, change the `database` field in `etc/config.json`. Otherwise CCMS will offer you to overwrite and **delete** all documents in the existing database.
 
-You also have to change your proxy configuration. If you open `/install.html#/proxy`, after having changed `etc/config.json`, you'll see an updated version of the code you have to add to XAMPP's `httpd.conf`. Replace the old lines by the new ones. Don't forget to restart XAMPP.
+You also have to change your proxy configuration. If you open `/install.html#/proxy`, after having changed `etc/config.json`, you'll see an updated version of the code you have to add to your web server's configuration file. Replace the old lines by the new ones. Don't forget to restart your web server.
 
 ### How to change the proxy path?
 
 If you're already running something under `/couchdb`, it's recommended to change the `proxy` field in `etc/config.json`.
 
-You also have to change your proxy configuration. If you open `/install.html#/proxy`, after having changed `etc/config.json`, you'll see an updated version of the code you have to add to XAMPP's `httpd.conf`. Replace the old lines by the new ones. Don't forget to restart XAMPP.
+You also have to change your proxy configuration. If you open `/install.html#/proxy`, after having changed `etc/config.json`, you'll see an updated version of the code you have to add to your web server's configuration file. Replace the old lines by the new ones. Don't forget to restart your web server.
