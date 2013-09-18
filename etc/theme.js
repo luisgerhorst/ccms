@@ -32,8 +32,8 @@ var theme = new (function () {
 	
 	/* get CCMS path from an URL */
 	var getCurrentPath = function (string) {
-		string = /#.+$/.test(string) ? string.replace(/^.*#/, '') : '/';
-		string = string === '/' ? string : string.replace(/\/$/, '');
+		string = /ccms\/.+$/.test(string) ? string.replace(/^.*ccms\//, '') : '/';
+		string = string == '/' ? string : string.replace(/\/$/, '');
 		return string;
 	};
 	
@@ -222,7 +222,7 @@ var theme = new (function () {
 	
 	function updateTheme(path) {
 		
-		consol.info.log('Updating theme ...');
+		consol.info.log('Updating theme ...', path);
 		
 		$('body').addClass('changing');
 		
@@ -232,7 +232,7 @@ var theme = new (function () {
 		
 		if (!route) {
 			
-			consol.error.log('No route was found.', 'Current path:', path, 'Routes:', routes);
+			consol.error.log('No route was found.', 'Current path:', path, 'Routes:', Theme.routes);
 			fatalError('Page not found', 'The page you were looking for doesn\'t exist.');
 			
 		} else {
