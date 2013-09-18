@@ -32,8 +32,8 @@ var theme = new (function () {
 	
 	/* get CCMS path from an URL */
 	var getCurrentPath = function (string) {
-		string = /#!.+$/.test(string) ? string.replace(/^.*#!/, '') : '/'; // anything behind the "#!" -> remove everything before
-		string = string === '/' ? string : string.replace(/\/$/, ''); // remove / from end
+		string = /#.+$/.test(string) ? string.replace(/^.*#/, '') : '/';
+		string = string === '/' ? string : string.replace(/\/$/, '');
 		return string;
 	};
 	
@@ -90,7 +90,8 @@ var theme = new (function () {
 			},
 			error: function () {
 				consol.error.log(Template.name + ': Error, unable to load template.');
-				fatalError('Error', 'Unable to load template <code>' + Template.name + '</code>.')
+				template = Template.fallbackTemplate;
+				chunkReceived();
 			}
 		});
 		

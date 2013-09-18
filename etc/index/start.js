@@ -5,7 +5,7 @@ $(document).ready(function () {
 			path: ['/', /^\/page\/\d+$/],
 			templates: ['header.html', 'posts.html', 'footer.html'],
 			before: function (path) {
-				if (path === '/page/0') window.location = '#!/';
+				if (path === '/page/0') window.location = '#/';
 			},
 			title: '{{header_html.title}}'
 		},
@@ -140,7 +140,7 @@ $(document).ready(function () {
 					else if (!response.rows.length) callback(null, {
 						title: 'Not Found',
 						heading: 'Post not found',
-						message: 'The post you were looking for wasn\'t found. Go back <a href="#!/">home</a>.'
+						message: 'The post you were looking for wasn\'t found. Go back <a href="#/">home</a>.'
 					});
 					else {
 						var post = response.rows[0].value;

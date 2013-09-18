@@ -1,7 +1,7 @@
 var login = function (redirectPath, config) {
 	
 	var foundValid = function (c, d) {
-		window.location = '#!' + redirectPath;
+		window.location = '#' + redirectPath;
 		couchdb = c;
 		database = d;
 	};
