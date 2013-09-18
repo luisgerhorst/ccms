@@ -7,7 +7,7 @@ var metaDoc = new (function () {
 			for (var i in doc) meta[i] = doc[i];
 	
 			database.save('meta', meta, function (response, error) {
-				if (!error && redirect !== false) window.location = '#/';
+				if (!error && redirect !== false) window.location = '#!/';
 			});
 	
 		}});

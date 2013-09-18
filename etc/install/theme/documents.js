@@ -42,7 +42,7 @@ function saveDocuments(database) {
 							}
 					
 							toSave--;
-							if (!toSave) window.location = '#/finished';
+							if (!toSave) window.location = '#!/finished';
 					
 						});
 					

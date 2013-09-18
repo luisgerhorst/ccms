@@ -43,7 +43,7 @@ var PostDoc = function (documentID) {
 	
 					database.save(doc, function (res, err) { if (!err) {
 						documentID = res.id;
-						window.location = '#/';
+						window.location = '#!/';
 					}});
 					
 				}
@@ -69,7 +69,7 @@ var PostDoc = function (documentID) {
 				else {
 	
 					database.save(documentID, doc, function (res, err) { if (!err) {
-						window.location = '#/';
+						window.location = '#!/';
 					}});
 	
 				}
@@ -87,7 +87,7 @@ var PostDoc = function (documentID) {
 		notifications.confirm('Do you really want to delete this post?', 'Cancel', 'Delete', function (confirmed) { if (confirmed) {
 			
 			database.remove(documentID, function (res, err) {
-				if (!err) window.location = '#/';
+				if (!err) window.location = '#!/';
 			});
 			
 		}});

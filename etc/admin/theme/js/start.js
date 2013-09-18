@@ -2,7 +2,7 @@ var getRedirectPath = function () {
 	
 	var p = document.URL;
 	
-	p = /#.+$/.test(p) ? p.replace(/^.*#/, '') : '/';
+	p = /#!.+$/.test(p) ? p.replace(/^.*#!/, '') : '/';
 	
 	p = p === '/login' ? '/' : p;
 	p = /^\/login\/.*/.test(p) ? '/' : p;
@@ -15,4 +15,4 @@ var getRedirectPath = function () {
 	
 };
 
-window.location = '#/login/redirect=' + getRedirectPath();
+window.location = '#!/login/redirect=' + getRedirectPath();
