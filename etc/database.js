@@ -25,9 +25,9 @@ var CouchDB = function (proxy) {
 	
 	var credentials = new Credentials(null);
 	
-	// Utilities
+	// Utils
 	
-	var parseError = function (jqXHR) {
+	function parseError(jqXHR) {
 		
 		var code = jqXHR.status;
 		
@@ -38,7 +38,8 @@ var CouchDB = function (proxy) {
 		};
 		
 		else return false;
-	};
+		
+	}
 	
 	// Methods
 	
@@ -60,24 +61,20 @@ var CouchDB = function (proxy) {
 	
 	CouchDB.remember = function (callback) {
 			
-		if (credentials.username && credentials.password) {
-			
-			var options = {
-				url: proxy + '/_session/',
-				type: 'POST',
-				data: 'name=' +  encodeURIComponent(credentials.username) + '&password=' +  encodeURIComponent(credentials.password),
-				contentType: 'application/x-www-form-urlencoded',
-			};
-			
-			$.ajax(options).fail(function (jqXHR, textStatus) {
+		if (credentials.username && credentials.password) $.ajax({
+			url: proxy + '/_session/',
+			type: 'POST',
+			data: 'name=' +  encodeURIComponent(credentials.username) + '&password=' +  encodeURIComponent(credentials.password),
+			contentType: 'application/x-www-form-urlencoded',
+			error: function (jqXHR, textStatus) {
 				console.log('Error "' + textStatus + '" occured while ' + options.type + ' request to ' + options.url, jqXHR);
 				if (callback) callback(parseError(jqXHR));
-			}).done(function () {
+			},
+			success: function () {
 				credentials.cookie = true;
 				if (callback) callback(false);
-			});
-	
-		}
+			}
+		});
 		
 		return CouchDB;
 			
@@ -85,17 +82,17 @@ var CouchDB = function (proxy) {
 	
 	CouchDB.forget = function (callback) {
 		
-		var options = {
+		$.ajax({
 			url: proxy + '/_session/',
-			type: 'DELETE'
-		};
-		
-		$.ajax(options).fail(function (jqXHR, textStatus) {
-			console.log('Error "' + textStatus + '" occured while ' + options.type + ' request to ' + options.url, jqXHR);
-			if (callback) callback(parseError(jqXHR));
-		}).done(function () {
-			credentials.cookie = false;
-			if (callback) callback(false);
+			type: 'DELETE',
+			error: function (jqXHR, textStatus) {
+				console.log('Error "' + textStatus + '" occured while ' + options.type + ' request to ' + options.url, jqXHR);
+				if (callback) callback(parseError(jqXHR));
+			},
+			success: function () {
+				credentials.cookie = false;
+				if (callback) callback(false);
+			}
 		});
 		
 		return CouchDB;
@@ -106,7 +103,7 @@ var CouchDB = function (proxy) {
 		
 		var Database = this;
 		
-		var AjaxOptions = function (options, complete) {
+		function AjaxOptions(options, complete) {
 			
 			var documentPath = options.document ? options.document : '';
 			
@@ -127,13 +124,13 @@ var CouchDB = function (proxy) {
 				complete(null, jqXHR);
 			};
 			
-		};
+		}
 		
-		var request = function (options, complete) {
+		function request(options, complete) {
 			
 			$.ajax(new AjaxOptions(options, complete));
 			
-		};
+		}
 		
 		Database.read = function (document, callback) {
 			

@@ -1,6 +1,6 @@
-var notifications = new (function () {
+var notifications = {
 
-	this.alert = function (message, callback) {
+	alert: function (message, callback) {
 		
 		var id = Math.round(Math.pow(2, 32) * Math.random());
 
@@ -11,9 +11,9 @@ var notifications = new (function () {
 			callback();
 		});
 
-	};
+	},
 
-	this.confirm = function (question, no, yes, callback) {
+	confirm: function (question, no, yes, callback) {
 		
 		var id = Math.round(Math.pow(2, 32) * Math.random());
 
@@ -29,6 +29,6 @@ var notifications = new (function () {
 			callback(false);
 		});
 
-	};
+	}
 
-})();
+}

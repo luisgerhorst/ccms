@@ -1,4 +1,4 @@
-- No more fragments with history.pushState()`
+- No more fragments with `history.pushState()`
 - RSS Feed
 - User management
 - Fix timeout errors while loading older posts

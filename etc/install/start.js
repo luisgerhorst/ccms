@@ -25,7 +25,7 @@ $(document).ready(function () {
 		
 	];
 	
-	var views = function (config) {
+	function views(config) {
 	
 		var views = {};
 	
@@ -38,19 +38,18 @@ $(document).ready(function () {
 	$.ajax({
 		url: 'etc/config.json',
 		dataType: 'json',
+		success: function (config) {
+			
+			theme.setup({
+				path: 'etc/install/theme',
+				routes: routes,
+				views: views(config)
+			});
+			
+		},
 		error: function (jqXHR, textStatus, errorThrown) {
-			
 			fatalError('Ajax Error', 'Error <code>' + textStatus + ' ' + errorThrown + '</code> occured while loading <code>' + this.url + '</code>.');
-			
 		}
-	}).done(function (config) {
-		
-		theme.setup({
-			path: 'etc/install/theme',
-			routes: routes,
-			views: views(config)
-		});
-		
 	});
 
 });

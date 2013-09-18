@@ -48,7 +48,7 @@ code {
 	padding-bottom: 40px;
 }
 
-#content.-before-disappear { /* the class -theme-update is added to all body elements when the path changes and before the new body is being loaded */
+body.changing #content { /* the class "changing" is added to the body when the path changes and before the new body is being loaded */
 	opacity: 0.5;
 }
 

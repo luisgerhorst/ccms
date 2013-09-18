@@ -1,7 +1,8 @@
-var fatalError = function (header, text) {
+function fatalError(title, message) {
 	
-	document.title = header;
+	document.title = title;
 	
-	$('body').html('<div id="error"><h1>'+ header + '</h1><p>'+ text + '</p></div>');
+	$('body').html('<div id="error"><h1>'+ title + '</h1><p>'+ message + '</p></div>');
+	$('body').removeClass('changing');
 	
 }

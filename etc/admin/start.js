@@ -38,7 +38,7 @@ $(document).ready(function () {
 		
 	];
 	
-	var views = function (database, config) {
+	function views(database, config) {
 	
 		var views = {};
 	
@@ -173,7 +173,7 @@ $(document).ready(function () {
 	
 		return views;
 	
-	};
+	}
 	
 	$.ajax({
 		url: 'etc/config.json',
@@ -182,18 +182,19 @@ $(document).ready(function () {
 			
 			fatalError('Ajax Error', 'Error <code>' + textStatus + ' ' + errorThrown + '</code> occured while loading <code>' + this.url + '</code>.');
 			
+		},
+		success: function (config) {
+			
+			var database = new (new CouchDB(config.proxy)).Database(config.database);
+			
+			theme.setup({
+				path: 'etc/admin/theme', 
+				routes: routes, 
+				views: views(database, config),
+				log: ['error', 'performance', 'info']
+			});
+			
 		}
-	}).done(function (config) {
-		
-		var database = new (new CouchDB(config.proxy)).Database(config.database);
-		
-		theme.setup({
-			path: 'etc/admin/theme', 
-			routes: routes, 
-			views: views(database, config),
-			log: ['error', 'performance', 'info']
-		});
-		
 	});
 
 });

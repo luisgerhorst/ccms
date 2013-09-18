@@ -1,7 +1,6 @@
 $(document).ready(function () {
 	
 	var routes = [
-	
 		{
 			path: ['/', /^\/page\/\d+$/],
 			templates: ['header.html', 'posts.html', 'footer.html'],
@@ -15,10 +14,9 @@ $(document).ready(function () {
 			templates: ['header.html', 'post.html', 'footer.html'],
 			title: '{{header_html.title}} - {{post_html.title}}'
 		}
-		
 	];
 	
-	var views = function (database, meta) {
+	function views(database, meta) {
 	
 		var views = {};
 	
@@ -174,7 +172,7 @@ $(document).ready(function () {
 	
 		return views;
 	
-	};
+	}
 
 	$.ajax({
 		url: 'etc/config.json',
@@ -183,30 +181,31 @@ $(document).ready(function () {
 			
 			fatalError('Ajax Error', 'Error <code>' + textStatus + ' ' + errorThrown + '</code> occured while loading <code>' + this.url + '</code>.');
 			
+		},
+		success: function (config) {
+		
+			couchdb = new CouchDB(config.proxy);
+			database = new couchdb.Database(config.database);
+		
+			database.read('meta', function (meta, error) {
+				
+				if (error) {
+					
+					fatalError('CouchDB Error', 'Error <code>' + error.code + ' ' + error.message + '</code> occured while loading loading document <code>meta</code>.');
+					
+				} else {
+					
+					theme.setup({
+						path: 'themes/' + meta.theme,
+						routes: routes,
+						views: views(database, meta)
+					});
+					
+				}
+				
+			});
+		
 		}
-	}).done(function (config) {
-
-		couchdb = new CouchDB(config.proxy);
-		database = new couchdb.Database(config.database);
-
-		database.read('meta', function (meta, error) {
-			
-			if (error) {
-				
-				fatalError('CouchDB Error', 'Error <code>' + error.code + ' ' + error.message + '</code> occured while loading loading document <code>meta</code>.');
-				
-			} else {
-				
-				theme.setup({
-					path: 'themes/' + meta.theme,
-					routes: routes,
-					views: views(database, meta)
-				});
-				
-			}
-			
-		});
-
 	});
 
 });
