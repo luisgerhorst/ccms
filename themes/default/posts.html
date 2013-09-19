@@ -2,7 +2,7 @@
 
 	{{#posts}}
 	<li class="post">
-		<h2 class="title"><a href="/ccms/post/{{postID}}">{{title}}</a></h2>
+		<h2 class="title"><a href="{{documentRoot}}/post/{{postID}}">{{title}}</a></h2>
 		<span class="content">{{{content}}}</span>
 	</li>
 	{{/posts}}
@@ -16,5 +16,5 @@
 
 </ol>
 
-{{#previousPage}}<a href="#/page/{{number}}"><button class="page-nav previous-page grey">← Previous</button></a>{{/previousPage}}
-{{#nextPage}}<a href="#/page/{{number}}"><button class="page-nav next-page grey">Next →</button></a>{{/nextPage}}
+{{#previousPage}}<a href="{{documentRoot}}/page/{{number}}"><button class="page-nav previous-page grey">← Previous</button></a>{{/previousPage}}
+{{#nextPage}}<a href="{{documentRoot}}/page/{{number}}"><button class="page-nav next-page grey">Next →</button></a>{{/nextPage}}

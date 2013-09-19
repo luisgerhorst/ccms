@@ -1,0 +1,18 @@
+# URLs
+
+Options -Multiviews
+RewriteEngine On
+
+RewriteCond %{REQUEST_FILENAME} -f [OR] # if file exists, serve the file
+RewriteCond %{REQUEST_FILENAME} -d [OR]
+RewriteCond %{REQUEST_FILENAME} -l
+RewriteRule ^ - [L]
+
+RewriteRule _root/(.*)$ $1 [L]
+
+RewriteRule ^couchdb/_session/(.*)$ http://127.0.0.1:5984/_session/$1 [P,L]
+RewriteRule ^couchdb/_config/admins/(.*)$ http://127.0.0.1:5984/_config/admins/$1 [P,L]
+RewriteRule ^couchdb/ccms/(.*)$ http://127.0.0.1:5984/ccms/$1 [P,L]
+
+RewriteRule ^admin/ admin.html [L] # if request is for admin, load admin.html
+RewriteRule ^ index.html [L] # everything else gets routed to index.html

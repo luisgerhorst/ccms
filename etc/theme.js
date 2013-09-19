@@ -33,7 +33,8 @@ var theme = new (function () {
 	/* get CCMS path from an URL */
 	var getCurrentPath = function (string) {
 		string = /ccms\/.+$/.test(string) ? string.replace(/^.*ccms\//, '') : '/';
-		string = string == '/' ? string : string.replace(/\/$/, '');
+		string = string.replace(/\/$/, '');
+		consol.info.log('Path:', '"' + string + '"');
 		return string;
 	};
 	
@@ -75,6 +76,7 @@ var theme = new (function () {
 		function chunkReceived() {
 			toLoad--;
 			if (!toLoad) { // done
+				view.documentRoot = Theme.documentRoot;
 				view.themePath = Theme.path;
 				loaded(Mustache.render(template, view), view);
 			}
@@ -83,7 +85,7 @@ var theme = new (function () {
 		/* template */
 	
 		$.ajax({
-			url: Theme.path + '/' + Template.name,
+			url: Theme.documentRoot + Theme.path + '/' + Template.name,
 			success: function (response) {
 				template = response;
 				chunkReceived();
@@ -277,6 +279,7 @@ var theme = new (function () {
 		/* path */
 		
 		Theme.path = options.path;
+		Theme.documentRoot = options.documentRoot;
 		
 		/* templates from views */
 		
@@ -314,8 +317,35 @@ var theme = new (function () {
 			
 			updateTheme(path);
 			
-			// URL-change detection via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js
-			if ('onhashchange' in window) {
+			function supportsHistoryAPI() {
+				return !!(window.history && history.pushState);
+			}
+			
+			if (!supportsHistoryAPI()) return;
+			
+			$('a').click(function() {
+				consol.info.log('Click handler called', this.href);
+				history.pushState(null, null, this.href);
+				var currentPath = getCurrentPath(document.URL); // compare using path, not hash!
+				if (currentPath != path) {
+					path = currentPath;
+					updateTheme(path);
+				}
+			});
+			
+			/*setTimeout(function() {
+				
+				window.onpopstate = function (event) {
+					var currentPath = getCurrentPath(document.URL); // compare using path, not hash!
+					if (currentPath != path) {
+						path = currentPath;
+						updateTheme(path);
+					}
+				}
+				
+			}, 1);*/
+			
+			/*if ('onhashchange' in window) {
 				window.onhashchange = function () {
 					var currentPath = getCurrentPath(document.URL); // compare using path, not hash!
 					if (currentPath != path) {
@@ -331,7 +361,7 @@ var theme = new (function () {
 						updateTheme(path);
 					}
 				}, 100);
-			}
+			}*/
 			
 		});
 		

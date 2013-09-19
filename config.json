@@ -1,4 +1,4 @@
 {
-	"proxy": "/couchdb",
+	"root": "/ccms",
 	"database": "ccms"
 }
