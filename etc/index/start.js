@@ -2,7 +2,7 @@ $(document).ready(function () {
 	
 	var routes = [
 		{
-			path: ['', /^page\/\d+$/],
+			path: ['/', /^\/page\/\d+$/],
 			templates: ['header.html', 'posts.html', 'footer.html'],
 			before: function (path) {
 				if (path === '/page/0') window.location = '#/';
@@ -10,7 +10,7 @@ $(document).ready(function () {
 			title: '{{header_html.title}}'
 		},
 		{
-			path: /^post\/.+$/,
+			path: /^\/post\/.+$/,
 			templates: ['header.html', 'post.html', 'footer.html'],
 			title: '{{header_html.title}} - {{post_html.title}}'
 		}
@@ -98,7 +98,7 @@ $(document).ready(function () {
 			// Actions
 	
 			var postsPerPage = meta.postsPerPage,
-				pageIndex = path === '' ? 0 : parseInt(path.replace(/^page\//, '')),
+				pageIndex = path === '/' ? 0 : parseInt(path.replace(/^\/page\//, '')),
 				skip = postsPerPage * pageIndex;
 	
 			var page = cache.index[pageIndex];
@@ -154,7 +154,7 @@ $(document).ready(function () {
 	
 			// Actions
 	
-			var postID = path.replace(/^post\//, '');
+			var postID = path.replace(/^\/post\//, '');
 	
 			var post = cache.post[postID];
 	
@@ -197,9 +197,10 @@ $(document).ready(function () {
 					
 				} else {
 					
-					theme.setup({
-						documentRoot: config.root,
-						path: '/themes/' + meta.theme,
+					window.theme.setup({
+						root: config.root,
+						urlRoot: config.root,
+						docRoot: config.root + '/themes/' + meta.theme,
 						routes: routes,
 						views: views(database, meta),
 						log: ['error', 'info']

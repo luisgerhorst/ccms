@@ -36,14 +36,17 @@ $(document).ready(function () {
 	}
 	
 	$.ajax({
-		url: 'etc/config.json',
+		url: '_root/config.json',
 		dataType: 'json',
 		success: function (config) {
 			
-			theme.setup({
-				path: 'etc/install/theme',
+			window.theme.setup({
+				root: config.root,
+				urlRoot: config.root + '/install',
+				docRoot: config.root + '/etc/install/theme',
 				routes: routes,
-				views: views(config)
+				views: views(config),
+				log: ['error', 'info']
 			});
 			
 		},

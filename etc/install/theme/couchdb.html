@@ -33,14 +33,10 @@
 
 </div>
 
-<p><a href="#/proxy"><button class="previous grey">Previous</button></a></p>
-
-<script src="{{themePath}}/documents.js"></script>
-<script src="{{themePath}}/database.js"></script>
-<script src="{{themePath}}/admin.js"></script>
+<p><a href="{{_urlRoot}}/proxy"><button class="previous grey">Previous</button></a></p>
 
 <style>
-	
+
 	#wrapper {
 		width: 350px;
 	}
@@ -48,28 +44,28 @@
 	#login, #signup {
 		display: none;
 	}
-	
+
 	form {
 		width: 100%;
 	}
-	
+
 	form p.help {
 		text-align: left;
 		display: inline;
 	}
-	
+
 	form p {
 		display: block;
 		text-align: center;
 	}
-	
+
 	form input[name="username"], form input[type="password"], input[name="title"] {
 		width: 100%;
 		margin: 0 auto;
 		display: inline;
 		box-sizing: border-box;
 	}
-	
+
 	form input[type="submit"] {
 		float: right;
 		margin: 0;
@@ -77,3 +73,6 @@
 
 </style>
 
+<script src="{{_docRoot}}/documents.js"></script>
+<script src="{{_docRoot}}/database.js"></script>
+<script src="{{_docRoot}}/admin.js"></script>

@@ -1,4 +1,4 @@
-var theme = new (function () {
+window.theme = new (function () {
 	
 	var Theme = this;
 	
@@ -6,7 +6,6 @@ var theme = new (function () {
 	
 	Theme.templates = {};
 	Theme.routes = [];
-	Theme.path = '';
 	
 	/* logging */
 	
@@ -30,12 +29,16 @@ var theme = new (function () {
 		return validatedObject;
 	};
 	
+	/* check if HTML5 History API is supported */
+	function historyAPISupport() {
+		return !!(window.history && history.pushState);
+	}
+	
 	/* get CCMS path from an URL */
-	var getCurrentPath = function (string) {
-		string = /ccms\/.+$/.test(string) ? string.replace(/^.*ccms\//, '') : '/';
-		string = string.replace(/\/$/, '');
-		consol.info.log('Path:', '"' + string + '"');
-		return string;
+	var getCurrentPath = function (s) {
+		s = s.replace(new RegExp('^.*' + Theme.urlRoot), '') || '/'; // extract content after url root
+		s = s == '/' ? '/' : s.replace(/\/$/, ''); // remove '/' from end if is not = '/'
+		return s;
 	};
 	
 	/* create string from array */
@@ -76,8 +79,11 @@ var theme = new (function () {
 		function chunkReceived() {
 			toLoad--;
 			if (!toLoad) { // done
-				view.documentRoot = Theme.documentRoot;
-				view.themePath = Theme.path;
+				
+				view._root = Theme.root;
+				view._urlRoot = Theme.urlRoot;
+				view._docRoot = Theme.docRoot;
+				
 				loaded(Mustache.render(template, view), view);
 			}
 		}
@@ -85,7 +91,7 @@ var theme = new (function () {
 		/* template */
 	
 		$.ajax({
-			url: Theme.documentRoot + Theme.path + '/' + Template.name,
+			url: Theme.docRoot + '/' + Template.name,
 			success: function (response) {
 				template = response;
 				chunkReceived();
@@ -183,7 +189,7 @@ var theme = new (function () {
 	
 	/* search route that matches the path. */
 	
-	function searchRoute(path) {
+	Theme.searchRoute = function (path) {
 		
 		for (i = Theme.routes.length; i--;) {
 			
@@ -218,24 +224,45 @@ var theme = new (function () {
 		
 		return null;
 		
+	};
+	
+	Theme.open = function (url) {
+		
+		if (historyAPISupport() && isIntern(url)) {
+			
+			Theme.load(getCurrentPath(url));
+			history.pushState(null, null, url);
+			
+		} else {
+			
+			window.location = url;
+			
+		}
+		
+		function isIntern(n) {
+			var r = Theme.urlRoot,
+				fr = window.location.href.replace(new RegExp(location.pathname + '$'), '') + Theme.urlRoot; // full CCMS root URL = url - path + urlRoot
+			return fr == n || new RegExp('^'+fr+'/.*$').test(n) || r == n || new RegExp('^'+r+'/.*$').test(n); // prot://host/root, prot://host/root/, prot://host/root/..., root root/ root/...
+		}
+		
 	}
 	
 	/* update the body */
 	
-	function updateTheme(path) {
+	Theme.load = function (path) {
 		
 		consol.info.log('Updating theme ...', path);
 		
 		$('body').addClass('changing');
 		
-		var route = searchRoute(path);
+		var route = Theme.searchRoute(path);
 		
 		consol.info.log('Found route');
 		
 		if (!route) {
 			
 			consol.error.log('No route was found.', 'Current path:', path, 'Routes:', Theme.routes);
-			fatalError('Page not found', 'The page you were looking for doesn\'t exist.');
+			fatalError('Page not found', "The page you were looking for doesn't exist.");
 			
 		} else {
 			
@@ -249,6 +276,12 @@ var theme = new (function () {
 				$('body').removeClass('changing');
 				document.title = Mustache.render(route.title, validateObjectKeys(views));
 				
+				if (historyAPISupport()) $('a').click(function () {
+					var url = this.href;
+					Theme.open(url);
+					return false;
+				});
+				
 				route.done(views, path);
 				
 			}, path); else {
@@ -260,7 +293,7 @@ var theme = new (function () {
 			
 		}
 		
-	}
+	};
 	
 	/* setup */
 	
@@ -278,8 +311,9 @@ var theme = new (function () {
 		
 		/* path */
 		
-		Theme.path = options.path;
-		Theme.documentRoot = options.documentRoot;
+		Theme.root = options.root; // 		/ccms					/ccms
+		Theme.docRoot = options.docRoot; // 	/ccms/themes/default	 	/ccms/etc/install/theme
+		Theme.urlRoot = options.urlRoot; // 	/ccms					/ccms/install
 		
 		/* templates from views */
 		
@@ -313,55 +347,11 @@ var theme = new (function () {
 			
 			/* path change detection */
 			
-			var path = getCurrentPath(document.URL);
+			Theme.load(getCurrentPath(location.href));
 			
-			updateTheme(path);
-			
-			function supportsHistoryAPI() {
-				return !!(window.history && history.pushState);
-			}
-			
-			if (!supportsHistoryAPI()) return;
-			
-			$('a').click(function() {
-				consol.info.log('Click handler called', this.href);
-				history.pushState(null, null, this.href);
-				var currentPath = getCurrentPath(document.URL); // compare using path, not hash!
-				if (currentPath != path) {
-					path = currentPath;
-					updateTheme(path);
-				}
+			if (historyAPISupport()) window.addEventListener('popstate', function (event) { // back
+				Theme.load(getCurrentPath(location.href));
 			});
-			
-			/*setTimeout(function() {
-				
-				window.onpopstate = function (event) {
-					var currentPath = getCurrentPath(document.URL); // compare using path, not hash!
-					if (currentPath != path) {
-						path = currentPath;
-						updateTheme(path);
-					}
-				}
-				
-			}, 1);*/
-			
-			/*if ('onhashchange' in window) {
-				window.onhashchange = function () {
-					var currentPath = getCurrentPath(document.URL); // compare using path, not hash!
-					if (currentPath != path) {
-						path = currentPath;
-						updateTheme(path);
-					}
-				};
-			} else {
-				window.setInterval(function () {
-					var currentPath = getCurrentPath(document.URL);
-					if (currentPath != path) {
-						path = currentPath;
-						updateTheme(path);
-					}
-				}, 100);
-			}*/
 			
 		});
 		

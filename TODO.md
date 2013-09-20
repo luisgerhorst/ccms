@@ -1,4 +1,5 @@
-- No more fragments with `history.pushState()`
+- better security, only store hash in CouchDB()
 - RSS Feed
 - User management
-- Fix timeout errors while loading older posts
+
+- admin: fix redirect

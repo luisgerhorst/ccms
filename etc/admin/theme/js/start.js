@@ -15,4 +15,4 @@ var getRedirectPath = function () {
 	
 };
 
-window.location = '#/login/redirect=' + getRedirectPath();
+window.theme.open(window.theme.urlRoot + '/login/redirect=' + getRedirectPath());

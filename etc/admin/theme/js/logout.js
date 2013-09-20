@@ -1,2 +1,2 @@
 couchdb.forget().deauthorize();
-window.location = '#/login';
+window.theme.open(window.theme.urlRoot + '/login');
