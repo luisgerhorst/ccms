@@ -298,7 +298,7 @@ window.theme = new (function () {
 	
 	/* Load the body for a path */
 	
-	Theme.load = function (path, loaded) {
+	Theme.load = function (path) {
 		
 		consol.info.log('Load', path);
 		
@@ -322,7 +322,6 @@ window.theme = new (function () {
 				var title = Mustache.render(route.title, validateObjectKeys(views));
 				Theme.update(title, body);
 				route.done(views, path);
-				if (loaded) loaded();
 				
 			}, path); else if (!stop) {
 				

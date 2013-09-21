@@ -6,7 +6,7 @@ $(document).ready(function () {
 			templates: ['header.html', 'posts.html', 'footer.html'],
 			before: function (path) {
 				if (path === '/page/0') {
-					theme.open(theme.host+theme.rootPath+theme.sitePath);
+					window.theme.open(theme.host+theme.rootPath+theme.sitePath);
 					return false;
 				}
 			},
@@ -103,20 +103,20 @@ $(document).ready(function () {
 			var postsPerPage = meta.postsPerPage,
 				pageIndex = path === '/' ? 0 : parseInt(path.replace(/^\/page\//, '')),
 				skip = postsPerPage * pageIndex;
-	
+			
 			var page = cache.index[pageIndex];
-	
+			
 			if (page) callback(new View(pageIndex, page));
 			else fromDatabase(skip, postsPerPage, pageIndex);
-	
+			
 		};
-	
+		
 		views['post.html'] = function (callback, path) {
-	
+			
 			var parseIndexCache = function (postID) {
-	
+				
 				var index = false, indexCache = cache.index;
-	
+				
 				for (var i = indexCache.length; i--;) {
 					for (var j = indexCache[i].posts.length; j--;) {
 						if (indexCache[i].posts[j].postID === postID) {
@@ -126,13 +126,13 @@ $(document).ready(function () {
 						}
 					}
 				}
-	
+				
 				return index;
-	
+				
 			};
-	
+			
 			var fromDatabase = function (postID) {
-	
+				
 				database.view('posts', 'byPostID?key="' + postID + '"', function (response, error) {
 					
 					if (error) callback(null, {
