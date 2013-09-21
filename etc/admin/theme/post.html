@@ -12,11 +12,11 @@
 	
 	<p class="margin10px"><code>/post/</code><input type="text" class="postID post-postID" data-old-post-id="{{postID}}" value="{{postID}}" placeholder="post-id" readonly="readonly" ></p>
 	
-	<p><a href="{{_root}}/post/{{postID}}" target="_blank">Visit</a> this post on your site.</a></p>
+	<p><a href="{{_rootPath}}/post/{{postID}}" target="_blank">Visit</a> this post on your site.</a></p>
 	
 	<input class="delete" type="button" value="Delete" class="grey">
 	<input type="submit" value="Save">
 	
 </form>
 
-<script type="text/javascript" src="{{_docRoot}}/js/post-events.js"></script>
+<script type="text/javascript" src="{{_fileURL}}/js/post-events.js"></script>

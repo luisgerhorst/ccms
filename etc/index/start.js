@@ -6,7 +6,7 @@ $(document).ready(function () {
 			templates: ['header.html', 'posts.html', 'footer.html'],
 			before: function (path) {
 				if (path === '/page/0') {
-					window.theme.open(window.theme.urlRoot+'/');
+					theme.open(theme.host+theme.rootPath+theme.sitePath);
 					return false;
 				}
 			},
@@ -143,7 +143,7 @@ $(document).ready(function () {
 					else if (!response.rows.length) callback(null, {
 						title: 'Not Found',
 						heading: 'Post not found',
-						message: 'The post you were looking for wasn\'t found. Go back <a href="' + window.theme.urlRoot + '">home</a>.'
+						message: 'The post you were looking for wasn\'t found. Go back <a href="' + theme.rootPath+theme.sitePath + '">home</a>.'
 					});
 					else {
 						var post = response.rows[0].value;
@@ -201,9 +201,9 @@ $(document).ready(function () {
 				} else {
 					
 					window.theme.setup({
-						root: config.root,
-						urlRoot: config.root,
-						docRoot: config.root + '/themes/' + meta.theme,
+						rootPath: config.root,
+						sitePath: '',
+						filePath: '/themes/' + meta.theme,
 						routes: routes,
 						views: views(database, meta),
 						log: ['error', 'info']

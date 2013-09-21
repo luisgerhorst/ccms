@@ -36,9 +36,9 @@ $(document).ready(function () {
 		success: function (config) {
 			
 			window.theme.setup({
-				root: config.root,
-				urlRoot: config.root + '/install',
-				docRoot: config.root + '/etc/install/theme',
+				rootPath: config.root,
+				sitePath: '/install',
+				filePath: '/etc/install/theme',
 				routes: routes,
 				views: views(config),
 				log: ['error', 'info']

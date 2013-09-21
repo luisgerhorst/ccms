@@ -23,7 +23,7 @@ $(document).ready(function () {
 			templates: ['header.html', 'posts.html', 'footer.html'],
 			before: function (path) {
 				if (path === '/page/0') {
-					window.theme.open(window.theme.urlRoot);
+					theme.open(theme.host+theme.rootPath+theme.sitePath);
 					return false;
 				}
 			},
@@ -197,9 +197,9 @@ $(document).ready(function () {
 			var database = new (new CouchDB(config.root + '/couchdb')).Database(config.database);
 			
 			window.theme.setup({
-				root: config.root,
-				urlRoot: config.root + '/admin',
-				docRoot: config.root + '/etc/admin/theme',
+				rootPath: config.root,
+				sitePath: '/admin',
+				filePath: '/etc/admin/theme',
 				routes: routes,
 				views: views(database, config),
 				log: ['error', 'performance', 'info']

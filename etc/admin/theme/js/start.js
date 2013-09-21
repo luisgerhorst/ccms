@@ -1,9 +1,11 @@
 console.log('start');
 
-if (window.theme.currentPath() != '/login') window.theme.open(window.theme.urlRoot + '/login?redirect=' + getRedirectPath());
+if (theme.currentPath() != '/login') theme.open(theme.host+theme.rootPath+theme.sitePath + '/login?redirect=' + getRedirectPath());
 
 function getRedirectPath() {
-	var p = location.pathname.replace(new RegExp('^' + window.theme.urlRoot), '');
+	var p = location.pathname.replace(new RegExp('^' + theme.rootPath+theme.sitePath), '');
+	console.log('rdrkt1', p);
 	p = !p || /^\/login[(\/.+$)($)]/.test(p) ? '/' : p;
+	console.log('rdrkt2', p);
 	return encodeURIComponent(p);
 }

@@ -41,9 +41,13 @@ window.theme = new (function () {
 		e.href = s;
 		s = e.pathname; // path
 		
-		s = s.replace(new RegExp('^' + Theme.urlRoot), '') || '/'; // extract content after url root
-		s = s == '/' ? '/' : s.replace(/\/$/, ''); // remove / from end
+		console.log('fuul path', s);
+		
+		s = s.replace(new RegExp('^'+Theme.rootPath+Theme.sitePath), ''); // extract content after url root
+		s = s.replace(/\/$/, ''); // remove / from end
 		s = s.replace(/\?.*$/, ''); // remove query
+		
+		if (!s) s = '/';
 		
 		consol.info.log('Extracted path', s);
 		
@@ -90,9 +94,13 @@ window.theme = new (function () {
 			toLoad--;
 			if (!toLoad) { // done
 				
-				view._root = Theme.root;
-				view._urlRoot = Theme.urlRoot;
-				view._docRoot = Theme.docRoot;
+				view._host = Theme.host;
+				view._rootPath = Theme.rootPath;
+				view._sitePath = Theme.sitePath;
+				view._filePath = Theme.filePath;
+				
+				view._siteURL = Theme.host+Theme.rootPath+Theme.sitePath;
+				view._fileURL = Theme.host+Theme.rootPath+Theme.filePath;
 				
 				loaded(Mustache.render(template, view), view);
 			}
@@ -101,7 +109,7 @@ window.theme = new (function () {
 		/* template */
 	
 		$.ajax({
-			url: Theme.docRoot + '/' + Template.name,
+			url: Theme.rootPath+Theme.filePath + '/' + Template.name,
 			success: function (response) {
 				template = response;
 				chunkReceived();
@@ -261,8 +269,8 @@ window.theme = new (function () {
 		}
 		
 		function isIntern(n) {
-			var r = Theme.urlRoot,
-				fr = window.location.href.replace(new RegExp(location.pathname + '$'), '') + Theme.urlRoot; // full CCMS root URL = url - path + urlRoot
+			var r = Theme.rootPath+Theme.sitePath,
+				fr = window.location.href.replace(new RegExp(location.pathname + '$'), '') + Theme.rootPath+Theme.sitePath; // full CCMS root URL = url - path + urlRoot
 			return fr == n || new RegExp('^'+fr+'/.*$').test(n) || r == n || new RegExp('^'+r+'/.*$').test(n); // prot://host/root, prot://host/root/, prot://host/root/..., root root/ root/...
 		}
 		
@@ -348,10 +356,18 @@ window.theme = new (function () {
 		
 		console.log(options);
 		
-		Theme.host = location.href.replace(new RegExp(location.pathname + '$'), '');
-		Theme.root = options.root; // 		/ccms					/ccms
-		Theme.docRoot = options.docRoot; // 	/ccms/themes/default	 	/ccms/etc/install/theme
-		Theme.urlRoot = options.urlRoot; // 	/ccms					/ccms/install
+		Theme.host = location.protocol + '//' + location.host;
+		consol.info.log('host', Theme.host);
+		Theme.rootPath = options.rootPath;
+		Theme.filePath = options.filePath;
+		Theme.sitePath = options.sitePath;
+		
+		console.log(Theme);
+		
+		/*
+		Theme.root = options.rootPath;
+		Theme.docRoot = Theme.root+options.filePath;
+		Theme.urlRoot = Theme.root+options.sitePath;*/
 		
 		/* templates from views */
 		

@@ -45,6 +45,8 @@ var CouchDB = function (proxy) {
 	
 	CouchDB.authorize = function (object) {
 		
+		console.log('db-auth');
+		
 		credentials = new Credentials(object);
 		
 		return CouchDB;
@@ -53,6 +55,8 @@ var CouchDB = function (proxy) {
 	
 	CouchDB.deauthorize = function () {
 		
+		console.log('db-de-auth');
+		
 		credentials = new Credentials(null);
 		
 		return CouchDB;
@@ -60,6 +64,8 @@ var CouchDB = function (proxy) {
 	};
 	
 	CouchDB.remember = function (callback) {
+		
+		console.log('db-remember');
 			
 		if (credentials.username && credentials.password) $.ajax({
 			url: proxy + '/_session/',
@@ -71,6 +77,8 @@ var CouchDB = function (proxy) {
 				if (callback) callback(parseError(jqXHR));
 			},
 			success: function () {
+				
+				console.log('db-remember-success');
 				credentials.cookie = true;
 				if (callback) callback(false);
 			}
@@ -81,6 +89,8 @@ var CouchDB = function (proxy) {
 	};
 	
 	CouchDB.forget = function (callback) {
+		
+		console.log('db-forget');
 		
 		$.ajax({
 			url: proxy + '/_session/',
@@ -109,13 +119,15 @@ var CouchDB = function (proxy) {
 			
 			this.type = options.type || 'GET';
 			this.url = proxy + '/' + databaseName + '/' + documentPath;
-			console.log(this.url);
 			this.data = JSON.stringify(options.data) || undefined;
 			this.contentType = this.data ? 'application/json' : undefined;
 			
 			if (!credentials.cookie && credentials.username && credentials.password && this.type !== 'HEAD' && this.type !== 'GET') this.headers = { // important: only use if no cookie is set
 				Authorization: 'Basic ' + btoa(credentials.username + ':' + credentials.password)
 			};
+			
+			
+			console.log('Database req', this);
 			
 			this.success = function (data, textStatus, jqXHR) {
 				complete(data, jqXHR);

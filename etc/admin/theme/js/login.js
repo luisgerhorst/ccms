@@ -29,17 +29,28 @@ function login(redirectPath, config) {
 	
 	tryCookie();
 	
-	$('#login').submit(tryUsernamePassword);
+	function tryCookie() {
 	
-	function foundValid(c, d) {
-		window.theme.open(window.theme.urlRoot + redirectPath);
-		couchdb = c;
-		database = d;
+		var c = new CouchDB(theme.rootPath + '/couchdb');
+		c.authorize({ cookie: true });
+		var d = new c.Database(config.database);
+	
+		d.save('test', { time: new Date().getTime() }, function (response, error) {
+			
+			if (error && error.code != 403 && error.code != 409) console.log('Error occured while testing cookie authorization.', error);
+			
+			if (error) $('#login').show();
+			else foundValid(c, d);
+			
+		});
+	
 	}
+	
+	$('#login').submit(tryUsernamePassword);
 	
 	function tryUsernamePassword() { // case: username and password auth
 	
-		var c = new CouchDB(config.root + '/couchdb');
+		var c = new CouchDB(theme.rootPath + '/couchdb');
 		c.authorize({
 			username: $('#login-username').val(),
 			password: $('#login-password').val()
@@ -63,21 +74,10 @@ function login(redirectPath, config) {
 	
 	}
 	
-	function tryCookie() {
-	
-		var c = new CouchDB(config.root + '/couchdb');
-		c.authorize({ cookie: true });
-		var d = new c.Database(config.database);
-	
-		d.save('test', { time: new Date().getTime() }, function (response, error) {
-			
-			if (error && error.code != 403 && error.code != 409) console.log('Error occured while testing cookie authorization.', error);
-			
-			if (error) $('#login').show();
-			else foundValid(c, d);
-			
-		});
-	
+	function foundValid(c, d) {
+		couchdb = c;
+		database = d;
+		theme.open(theme.rootPath+theme.sitePath + redirectPath);
 	}
 	
 }

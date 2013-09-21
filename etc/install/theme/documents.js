@@ -1,7 +1,7 @@
 function saveDocuments(database) {
 	
 	$.ajax({
-		url: window.theme.docRoot + '/documents.json',
+		url: theme.rootPath+theme.filePath + '/documents.json',
 		dataType: 'json',
 		error: function (jqXHR, textStatus, errorThrown) {
 			console.log(jqXHR);
@@ -10,7 +10,7 @@ function saveDocuments(database) {
 		success: function (docs, textStatus, jqXHR) {
 			
 			$.ajax({
-				url: window.theme.root + '/etc/system.json',
+				url: theme.rootPath + '/etc/system.json',
 				dataType: 'json',
 				error: function (jqXHR, textStatus, errorThrown) {
 					notifications.alert('Error ' + textStatus + ' ' + errorThrown + ' occured while loading ' + this.url);
@@ -43,7 +43,7 @@ function saveDocuments(database) {
 					
 							toSave--;
 							
-							if (!toSave) window.theme.open(window.theme.urlRoot + '/finished');
+							if (!toSave) window.theme.open(theme.rootPath+theme.sitePath + '/finished');
 					
 						});
 					
