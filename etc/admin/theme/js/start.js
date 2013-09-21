@@ -1,18 +1,9 @@
-var getRedirectPath = function () {
-	
-	var p = document.URL;
-	
-	p = /#.+$/.test(p) ? p.replace(/^.*#/, '') : '/';
-	
-	p = p === '/login' ? '/' : p;
-	p = /^\/login\/.*/.test(p) ? '/' : p;
-	p = p === '/logout' ? '/' : p;
-	
-	p = p === '/' ? p : p.replace(/\/$/, '');
-	p = encodeURIComponent(p);
-	
-	return p;
-	
-};
+console.log('start');
 
-window.location = '#/login/redirect=' + getRedirectPath();
+if (window.theme.currentPath() != '/login') window.theme.open(window.theme.urlRoot + '/login?redirect=' + getRedirectPath());
+
+function getRedirectPath() {
+	var p = location.pathname.replace(new RegExp('^' + window.theme.urlRoot), '');
+	p = !p || /^\/login[(\/.+$)($)]/.test(p) ? '/' : p;
+	return encodeURIComponent(p);
+}

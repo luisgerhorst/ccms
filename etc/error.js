@@ -4,5 +4,6 @@ function fatalError(title, message) {
 	
 	$('body').html('<div id="error"><h1>'+ title + '</h1><p>'+ message + '</p></div>');
 	$('body').removeClass('changing');
+	$('body').attr('status', 'filled');
 	
 }

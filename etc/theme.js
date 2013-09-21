@@ -1,4 +1,4 @@
-var theme = new (function () {
+window.theme = new (function () {
 	
 	var Theme = this;
 	
@@ -6,7 +6,6 @@ var theme = new (function () {
 	
 	Theme.templates = {};
 	Theme.routes = [];
-	Theme.path = '';
 	
 	/* logging */
 	
@@ -30,11 +29,20 @@ var theme = new (function () {
 		return validatedObject;
 	};
 	
+	/* check if HTML5 History API is supported */
+	function historyAPISupport() {
+		return !!(window.history && history.pushState);
+	}
+	
 	/* get CCMS path from an URL */
-	var getCurrentPath = function (string) {
-		string = /#.+$/.test(string) ? string.replace(/^.*#/, '') : '/';
-		string = string === '/' ? string : string.replace(/\/$/, '');
-		return string;
+	var extractPath = function (s) {
+		s = s.replace(new RegExp('^.*' + Theme.urlRoot), '') || '/'; // extract content after url root
+		s = s == '/' ? '/' : s.replace(/\/$/, ''); // remove / from end
+		s = s.replace(/\?.*$/, ''); // remove query
+		consol.info.log('Extracted path', s);
+		return s;
+		throw 'Error, double login';
+		
 	};
 	
 	/* create string from array */
@@ -75,7 +83,11 @@ var theme = new (function () {
 		function chunkReceived() {
 			toLoad--;
 			if (!toLoad) { // done
-				view.themePath = Theme.path;
+				
+				view._root = Theme.root;
+				view._urlRoot = Theme.urlRoot;
+				view._docRoot = Theme.docRoot;
+				
 				loaded(Mustache.render(template, view), view);
 			}
 		}
@@ -83,7 +95,7 @@ var theme = new (function () {
 		/* template */
 	
 		$.ajax({
-			url: Theme.path + '/' + Template.name,
+			url: Theme.docRoot + '/' + Template.name,
 			success: function (response) {
 				template = response;
 				chunkReceived();
@@ -105,8 +117,8 @@ var theme = new (function () {
 				viewSource(function (response, error) {
 					
 					if (error) {
-						consol.error.log('View source returned error.', 'Error:', error, 'View source:', viewSource);
-						fatalError('Error', 'Unable to get the content of this page.');
+						consol.error.log('View source returned error.', 'Error:', error);
+						fatalError(error.heading || 'Error', error.message || 'Could not load page content.');
 					} else {
 						view = response;
 						chunkReceived();
@@ -179,9 +191,13 @@ var theme = new (function () {
 		
 	};
 	
+	Theme.currentPath = function () {
+		return extractPath(location.href);
+	}
+	
 	/* search route that matches the path. */
 	
-	function searchRoute(path) {
+	Theme.searchRoute = function (path) {
 		
 		for (i = Theme.routes.length; i--;) {
 			
@@ -216,49 +232,99 @@ var theme = new (function () {
 		
 		return null;
 		
-	}
+	};
 	
-	/* update the body */
+	/* Open an URL, use Ajax if possible */
 	
-	function updateTheme(path) {
+	Theme.open = function (href, target) {
 		
-		consol.info.log('Updating theme ...');
+		consol.info.log('Open', href, target);
 		
-		$('body').addClass('changing');
-		
-		var route = searchRoute(path);
-		
-		consol.info.log('Found route');
-		
-		if (!route) {
+		if ((!target || target == '_self') && historyAPISupport() && isIntern(href)) {
 			
-			consol.error.log('No route was found.', 'Current path:', path, 'Routes:', routes);
-			fatalError('Page not found', 'The page you were looking for doesn\'t exist.');
+			href = href.replace(/\/$/, '').replace(/\/\?/, '?'); // remove / from pathname end
+			
+			Theme.load(extractPath(href));
+			history.pushState(null, null, href);
 			
 		} else {
 			
+			target = target || '_self';
+			window.open(href, target);
+			
+		}
+		
+		function isIntern(n) {
+			var r = Theme.urlRoot,
+				fr = window.location.href.replace(new RegExp(location.pathname + '$'), '') + Theme.urlRoot; // full CCMS root URL = url - path + urlRoot
+			return fr == n || new RegExp('^'+fr+'/.*$').test(n) || r == n || new RegExp('^'+r+'/.*$').test(n); // prot://host/root, prot://host/root/, prot://host/root/..., root root/ root/...
+		}
+		
+	}
+	
+	/* Update body & title and set link event handlers for Ajax */
+	
+	Theme.update = function (title, body) {
+		
+		consol.info.log('Update to "' + title + '"');
+		
+		document.title = title;
+		
+		if (body) {
+			
+			$('body').html(body);
+			$('body').removeClass('changing');
+			$('body').attr('status', 'filled');
+			
+			if (historyAPISupport()) $('a').click(function () {
+				Theme.open(this.href, this.target);
+				return false;
+			});
+			
+		}
+		
+	}
+	
+	/* Load the body for a path */
+	
+	Theme.load = function (path) {
+		
+		consol.info.log('Load', path);
+		
+		$('body').addClass('changing');
+		$('body').attr('status', 'changing');
+		
+		var route = Theme.searchRoute(path);
+		
+		if (!route) {
+			
+			consol.error.log('No route was found.', 'Current path:', path, 'Routes:', Theme.routes);
+			fatalError('Page not found', "The page you were looking for doesn't exist.");
+			
+		} else {
+			
+			consol.info.log('... Route Found');
+			
 			route.before(path);
 			
-			if (route.templates.length) route.load(function (bodyContent, views) {
+			if (route.templates.length) route.load(function (body, views) {
 				
-				var body = '<body>' + bodyContent + '</body>';
+				var title = Mustache.render(route.title, validateObjectKeys(views));
 				
-				$('body').html(bodyContent);
-				$('body').removeClass('changing');
-				document.title = Mustache.render(route.title, validateObjectKeys(views));
+				Theme.update(title, body);
 				
 				route.done(views, path);
 				
 			}, path); else {
 				
-				document.title = route.title;
+				Theme.update(route.title);
 				route.done(null, path);
 				
 			}
 			
 		}
 		
-	}
+	};
 	
 	/* setup */
 	
@@ -274,9 +340,11 @@ var theme = new (function () {
 			
 		}
 		
-		/* path */
+		/* roots */
 		
-		Theme.path = options.path;
+		Theme.root = options.root; // 		/ccms					/ccms
+		Theme.docRoot = options.docRoot; // 	/ccms/themes/default	 	/ccms/etc/install/theme
+		Theme.urlRoot = options.urlRoot; // 	/ccms					/ccms/install
 		
 		/* templates from views */
 		
@@ -306,32 +374,18 @@ var theme = new (function () {
 		 
 		new Template('head.html').load(function (output) {
 			
+			$('body').attr('status', 'empty');
 			$('head').append(output);
 			
-			/* path change detection */
+			var isEmpty = $('body').attr('status') == 'empty';
 			
-			var path = getCurrentPath(document.URL);
+			consol.info.log('Head ready, load body?', isEmpty);
 			
-			updateTheme(path);
+			if (isEmpty) Theme.load(extractPath(location.href));
 			
-			// URL-change detection via http://stackoverflow.com/questions/2161906/handle-url-anchor-change-event-in-js
-			if ('onhashchange' in window) {
-				window.onhashchange = function () {
-					var currentPath = getCurrentPath(document.URL); // compare using path, not hash!
-					if (currentPath != path) {
-						path = currentPath;
-						updateTheme(path);
-					}
-				};
-			} else {
-				window.setInterval(function () {
-					var currentPath = getCurrentPath(document.URL);
-					if (currentPath != path) {
-						path = currentPath;
-						updateTheme(path);
-					}
-				}, 100);
-			}
+			if (historyAPISupport()) window.addEventListener('popstate', function (event) { // back
+				Theme.load(extractPath(location.href));
+			});
 			
 		});
 		

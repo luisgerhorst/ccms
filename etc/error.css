@@ -3,6 +3,10 @@
 	padding: 0;
 }
 
+#error h1, #error p {
+	color: #000;
+}
+
 #error h1 {
 	font: normal 24px "Helvetica Neue", Arial, Helvetica, sans-serif;
 	line-height: 32px;
@@ -21,6 +25,11 @@
 }
 
 #error a {
+	color: #00e;
+	text-decoration: underline;
+}
+
+#error a:hover {
 	color: #00e;
 }
 

@@ -44,7 +44,7 @@ var PostDoc = function (documentID) {
 					database.save(doc, function (res, err) { if (!err) {
 
 						documentID = res.id;
-						window.location = '#/';
+						window.theme.open('/');
 
 					}});
 
@@ -72,7 +72,7 @@ var PostDoc = function (documentID) {
 
 					database.save(documentID, doc, function (res, err) { if (!err) {
 
-						window.location = '#/';
+						window.theme.open('/');
 
 					}});
 
@@ -95,7 +95,7 @@ var PostDoc = function (documentID) {
 		if (confirmed) {
 
 			database.remove(documentID, function (res, err) {
-				if (!err) window.location = '#/';
+				if (!err) window.theme.open('/');
 			});
 
 		}

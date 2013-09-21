@@ -140,7 +140,7 @@ $(document).ready(function () {
 					else if (!response.rows.length) callback(null, {
 						title: 'Not Found',
 						heading: 'Post not found',
-						message: 'The post you were looking for wasn\'t found. Go back <a href="#/">home</a>.'
+						message: 'The post you were looking for wasn\'t found. Go back <a href="' + window.theme.urlRoot + '">home</a>.'
 					});
 					else {
 						var post = response.rows[0].value;
@@ -173,9 +173,11 @@ $(document).ready(function () {
 		return views;
 	
 	}
+	
+	
 
 	$.ajax({
-		url: 'etc/config.json',
+		url: '_root/config.json',
 		dataType: 'json',
 		error: function (jqXHR, textStatus, errorThrown) {
 			
@@ -184,7 +186,7 @@ $(document).ready(function () {
 		},
 		success: function (config) {
 		
-			couchdb = new CouchDB(config.proxy);
+			couchdb = new CouchDB(config.root + '/couchdb');
 			database = new couchdb.Database(config.database);
 		
 			database.read('meta', function (meta, error) {
@@ -195,10 +197,13 @@ $(document).ready(function () {
 					
 				} else {
 					
-					theme.setup({
-						path: 'themes/' + meta.theme,
+					window.theme.setup({
+						root: config.root,
+						urlRoot: config.root,
+						docRoot: config.root + '/themes/' + meta.theme,
 						routes: routes,
-						views: views(database, meta)
+						views: views(database, meta),
+						log: ['error', 'info']
 					});
 					
 				}

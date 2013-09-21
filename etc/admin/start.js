@@ -3,9 +3,15 @@ $(document).ready(function () {
 	var routes = [
 	
 		{
-			path: ['/login', /^\/login\/redirect=.+/],
+			path: ['/login'],
 			templates: ['login.html'],
-			title: 'Login'
+			title: 'Login',
+			before: function () {
+				console.log('before login');
+			},
+			done: function () {
+				console.log('done login');
+			}
 		},
 		{
 			path: '/logout',
@@ -16,7 +22,7 @@ $(document).ready(function () {
 			path: ['/', /^\/page\/\d+$/],
 			templates: ['header.html', 'posts.html', 'footer.html'],
 			before: function (path) {
-				if (path === '/page/0') window.location = '#/';
+				if (path === '/page/0') window.theme.open('/');
 			},
 			title: '{{header_html.title}}'
 		},
@@ -79,7 +85,7 @@ $(document).ready(function () {
 		views['posts.html'] = function (callback, path) {
 	
 			var postsPerPage = 10,
-				pageIndex = path === '/' ? 0 : parseInt(path.replace(/^\/page\//, '')),
+				pageIndex = path == '/' ? 0 : parseInt(path.replace(/^\/page\//, '')),
 				skip = postsPerPage * pageIndex;
 	
 			function View(pageIndex, page) {
@@ -176,7 +182,7 @@ $(document).ready(function () {
 	}
 	
 	$.ajax({
-		url: 'etc/config.json',
+		url: '_root/config.json',
 		dataType: 'json',
 		error: function (jqXHR, textStatus, errorThrown) {
 			
@@ -185,11 +191,13 @@ $(document).ready(function () {
 		},
 		success: function (config) {
 			
-			var database = new (new CouchDB(config.proxy)).Database(config.database);
+			var database = new (new CouchDB(config.root + '/couchdb')).Database(config.database);
 			
-			theme.setup({
-				path: 'etc/admin/theme', 
-				routes: routes, 
+			window.theme.setup({
+				root: config.root,
+				urlRoot: config.root + '/admin',
+				docRoot: config.root + '/etc/admin/theme',
+				routes: routes,
 				views: views(database, config),
 				log: ['error', 'performance', 'info']
 			});
