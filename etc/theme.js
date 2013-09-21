@@ -244,8 +244,11 @@ window.theme = new (function () {
 			
 			href = href.replace(/\/$/, '').replace(/\/\?/, '?'); // remove / from pathname end
 			
-			Theme.load(extractPath(href));
-			history.pushState(null, null, href);
+			Theme.load(extractPath(href), function () {
+				
+				history.pushState(null, null, href);
+				
+			});
 			
 		} else {
 			
@@ -287,7 +290,7 @@ window.theme = new (function () {
 	
 	/* Load the body for a path */
 	
-	Theme.load = function (path) {
+	Theme.load = function (path, loaded) {
 		
 		consol.info.log('Load', path);
 		
@@ -304,18 +307,16 @@ window.theme = new (function () {
 		} else {
 			
 			consol.info.log('... Route Found');
-			
-			route.before(path);
-			
-			if (route.templates.length) route.load(function (body, views) {
+			var stop = route.before(path) === false;
+				
+			if (!stop && route.templates.length) route.load(function (body, views) {
 				
 				var title = Mustache.render(route.title, validateObjectKeys(views));
-				
 				Theme.update(title, body);
-				
 				route.done(views, path);
+				if (loaded) loaded();
 				
-			}, path); else {
+			}, path); else if (!stop) {
 				
 				Theme.update(route.title);
 				route.done(null, path);

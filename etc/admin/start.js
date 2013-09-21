@@ -22,7 +22,10 @@ $(document).ready(function () {
 			path: ['/', /^\/page\/\d+$/],
 			templates: ['header.html', 'posts.html', 'footer.html'],
 			before: function (path) {
-				if (path === '/page/0') window.theme.open('/');
+				if (path === '/page/0') {
+					window.theme.open(window.theme.urlRoot);
+					return false;
+				}
 			},
 			title: '{{header_html.title}}'
 		},
