@@ -39,11 +39,14 @@ window.theme = new (function () {
 		
 		var e = document.createElement('a');
 		e.href = s;
-		s = e.pathname;
+		s = e.pathname; // path
+		
 		s = s.replace(new RegExp('^' + Theme.urlRoot), '') || '/'; // extract content after url root
 		s = s == '/' ? '/' : s.replace(/\/$/, ''); // remove / from end
 		s = s.replace(/\?.*$/, ''); // remove query
+		
 		consol.info.log('Extracted path', s);
+		
 		return s;
 		
 	};
@@ -245,13 +248,10 @@ window.theme = new (function () {
 		
 		if ((!target || target == '_self') && historyAPISupport() && isIntern(href)) {
 			
-			href = href.replace(/\/$/, '').replace(/\/\?/, '?'); // remove / from pathname end
+			//href = href.replace(/\/$/, '').replace(/\/\?/, '?'); // remove / from pathname end
 			
-			Theme.load(extractPath(href), function () {
-				
-				history.pushState(null, null, href);
-				
-			});
+			history.pushState(null, null, href);
+			Theme.load(extractPath(href));
 			
 		} else {
 			
@@ -348,6 +348,7 @@ window.theme = new (function () {
 		
 		console.log(options);
 		
+		Theme.host = location.href.replace(new RegExp(location.pathname + '$'), '');
 		Theme.root = options.root; // 		/ccms					/ccms
 		Theme.docRoot = options.docRoot; // 	/ccms/themes/default	 	/ccms/etc/install/theme
 		Theme.urlRoot = options.urlRoot; // 	/ccms					/ccms/install

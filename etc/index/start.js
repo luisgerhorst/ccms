@@ -6,7 +6,7 @@ $(document).ready(function () {
 			templates: ['header.html', 'posts.html', 'footer.html'],
 			before: function (path) {
 				if (path === '/page/0') {
-					window.theme.open(window.theme.urlRoot);
+					window.theme.open(window.theme.urlRoot+'/');
 					return false;
 				}
 			},
