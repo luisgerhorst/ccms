@@ -36,12 +36,15 @@ window.theme = new (function () {
 	
 	/* get CCMS path from an URL */
 	var extractPath = function (s) {
-		s = s.replace(new RegExp('^.*' + Theme.urlRoot), '') || '/'; // extract content after url root
+		
+		var e = document.createElement('a');
+		e.href = s;
+		s = e.pathname;
+		s = s.replace(new RegExp('^' + Theme.urlRoot), '') || '/'; // extract content after url root
 		s = s == '/' ? '/' : s.replace(/\/$/, ''); // remove / from end
 		s = s.replace(/\?.*$/, ''); // remove query
 		consol.info.log('Extracted path', s);
 		return s;
-		throw 'Error, double login';
 		
 	};
 	
@@ -342,6 +345,8 @@ window.theme = new (function () {
 		}
 		
 		/* roots */
+		
+		console.log(options);
 		
 		Theme.root = options.root; // 		/ccms					/ccms
 		Theme.docRoot = options.docRoot; // 	/ccms/themes/default	 	/ccms/etc/install/theme

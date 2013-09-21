@@ -109,6 +109,7 @@ var CouchDB = function (proxy) {
 			
 			this.type = options.type || 'GET';
 			this.url = proxy + '/' + databaseName + '/' + documentPath;
+			console.log(this.url);
 			this.data = JSON.stringify(options.data) || undefined;
 			this.contentType = this.data ? 'application/json' : undefined;
 			

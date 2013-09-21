@@ -20,4 +20,4 @@ Afterwards, open `install-htaccess.html` in your browser and copy the new code i
 
 ### Installing in a subdirectory
 
-Open `config.json` and change `root`, don't enter a slash at the end.
+Open `config.json` and change `root`, don't enter a slash at the end. If you're running CCMS in `/` enter an empty string.

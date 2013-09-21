@@ -188,7 +188,7 @@ $(document).ready(function () {
 			
 		},
 		success: function (config) {
-		
+			
 			couchdb = new CouchDB(config.root + '/couchdb');
 			database = new couchdb.Database(config.database);
 		
