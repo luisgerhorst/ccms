@@ -1,21 +1,17 @@
-# URLs
-
+# ccms
 Options -Multiviews
 RewriteEngine On
-
-RewriteCond %{REQUEST_FILENAME} -f [OR] # if file exists, serve the file
+RewriteCond %{REQUEST_FILENAME} -f [OR] # file
 RewriteCond %{REQUEST_FILENAME} -d [OR]
 RewriteCond %{REQUEST_FILENAME} -l
 RewriteRule ^ - [L]
-
-RewriteRule _root/(.*)$ $1 [L] # get root from everywhere
-
-RewriteRule ^couchdb/_session/(.*)$ http://127.0.0.1:5984/_session/$1 [P,L]
+RewriteRule _root/(.*)$ $1 [L] # root everywhere
+RewriteRule ^couchdb/_session/(.*)$ http://127.0.0.1:5984/_session/$1 [P,L] # couchdb proxy
 RewriteRule ^couchdb/_config/admins/(.*)$ http://127.0.0.1:5984/_config/admins/$1 [P,L]
 RewriteRule ^couchdb/ccms/(.*)$ http://127.0.0.1:5984/ccms/$1 [P,L]
-
-RewriteRule ^install$ install.html [L]
+RewriteRule ^install$ install.html [L] # install
 RewriteRule ^install/.*$ install.html [L]
-RewriteRule ^admin$ admin.html [L]
+RewriteRule ^admin$ admin.html [L] # admin
 RewriteRule ^admin/.*$ admin.html [L]
-RewriteRule ^ index.html [L]
+RewriteRule ^ index.html [L] # blog
+# ccms end

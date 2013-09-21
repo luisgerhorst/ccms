@@ -35,10 +35,14 @@ window.theme = new (function () {
 	}
 	
 	/* get CCMS path from an URL */
-	var getCurrentPath = function (s) {
+	var extractPath = function (s) {
 		s = s.replace(new RegExp('^.*' + Theme.urlRoot), '') || '/'; // extract content after url root
-		s = s == '/' ? '/' : s.replace(/\/$/, ''); // remove '/' from end if is not = '/'
+		s = s == '/' ? '/' : s.replace(/\/$/, ''); // remove / from end
+		s = s.replace(/\?.*$/, ''); // remove query
+		consol.info.log('Extracted path', s);
 		return s;
+		throw 'Error, double login';
+		
 	};
 	
 	/* create string from array */
@@ -113,8 +117,8 @@ window.theme = new (function () {
 				viewSource(function (response, error) {
 					
 					if (error) {
-						consol.error.log('View source returned error.', 'Error:', error, 'View source:', viewSource);
-						fatalError('Error', 'Unable to get the content of this page.');
+						consol.error.log('View source returned error.', 'Error:', error);
+						fatalError(error.heading || 'Error', error.message || 'Could not load page content.');
 					} else {
 						view = response;
 						chunkReceived();
@@ -187,6 +191,10 @@ window.theme = new (function () {
 		
 	};
 	
+	Theme.currentPath = function () {
+		return extractPath(location.href);
+	}
+	
 	/* search route that matches the path. */
 	
 	Theme.searchRoute = function (path) {
@@ -226,16 +234,23 @@ window.theme = new (function () {
 		
 	};
 	
-	Theme.open = function (url) {
+	/* Open an URL, use Ajax if possible */
+	
+	Theme.open = function (href, target) {
 		
-		if (historyAPISupport() && isIntern(url)) {
+		consol.info.log('Open', href, target);
+		
+		if ((!target || target == '_self') && historyAPISupport() && isIntern(href)) {
 			
-			Theme.load(getCurrentPath(url));
-			history.pushState(null, null, url);
+			href = href.replace(/\/$/, '').replace(/\/\?/, '?'); // remove / from pathname end
+			
+			Theme.load(extractPath(href));
+			history.pushState(null, null, href);
 			
 		} else {
 			
-			window.location = url;
+			target = target || '_self';
+			window.open(href, target);
 			
 		}
 		
@@ -247,17 +262,39 @@ window.theme = new (function () {
 		
 	}
 	
-	/* update the body */
+	/* Update body & title and set link event handlers for Ajax */
+	
+	Theme.update = function (title, body) {
+		
+		consol.info.log('Update to "' + title + '"');
+		
+		document.title = title;
+		
+		if (body) {
+			
+			$('body').html(body);
+			$('body').removeClass('changing');
+			$('body').attr('status', 'filled');
+			
+			if (historyAPISupport()) $('a').click(function () {
+				Theme.open(this.href, this.target);
+				return false;
+			});
+			
+		}
+		
+	}
+	
+	/* Load the body for a path */
 	
 	Theme.load = function (path) {
 		
-		consol.info.log('Updating theme ...', path);
+		consol.info.log('Load', path);
 		
 		$('body').addClass('changing');
+		$('body').attr('status', 'changing');
 		
 		var route = Theme.searchRoute(path);
-		
-		consol.info.log('Found route');
 		
 		if (!route) {
 			
@@ -266,27 +303,21 @@ window.theme = new (function () {
 			
 		} else {
 			
+			consol.info.log('... Route Found');
+			
 			route.before(path);
 			
-			if (route.templates.length) route.load(function (bodyContent, views) {
+			if (route.templates.length) route.load(function (body, views) {
 				
-				var body = '<body>' + bodyContent + '</body>';
+				var title = Mustache.render(route.title, validateObjectKeys(views));
 				
-				$('body').html(bodyContent);
-				$('body').removeClass('changing');
-				document.title = Mustache.render(route.title, validateObjectKeys(views));
-				
-				if (historyAPISupport()) $('a').click(function () {
-					var url = this.href;
-					Theme.open(url);
-					return false;
-				});
+				Theme.update(title, body);
 				
 				route.done(views, path);
 				
 			}, path); else {
 				
-				document.title = route.title;
+				Theme.update(route.title);
 				route.done(null, path);
 				
 			}
@@ -309,7 +340,7 @@ window.theme = new (function () {
 			
 		}
 		
-		/* path */
+		/* roots */
 		
 		Theme.root = options.root; // 		/ccms					/ccms
 		Theme.docRoot = options.docRoot; // 	/ccms/themes/default	 	/ccms/etc/install/theme
@@ -343,14 +374,17 @@ window.theme = new (function () {
 		 
 		new Template('head.html').load(function (output) {
 			
+			$('body').attr('status', 'empty');
 			$('head').append(output);
 			
-			/* path change detection */
+			var isEmpty = $('body').attr('status') == 'empty';
 			
-			Theme.load(getCurrentPath(location.href));
+			consol.info.log('Head ready, load body?', isEmpty);
+			
+			if (isEmpty) Theme.load(extractPath(location.href));
 			
 			if (historyAPISupport()) window.addEventListener('popstate', function (event) { // back
-				Theme.load(getCurrentPath(location.href));
+				Theme.load(extractPath(location.href));
 			});
 			
 		});

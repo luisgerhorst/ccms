@@ -3,9 +3,15 @@ $(document).ready(function () {
 	var routes = [
 	
 		{
-			path: ['/login', /^\/login\/redirect=.+/],
+			path: ['/login'],
 			templates: ['login.html'],
-			title: 'Login'
+			title: 'Login',
+			before: function () {
+				console.log('before login');
+			},
+			done: function () {
+				console.log('done login');
+			}
 		},
 		{
 			path: '/logout',

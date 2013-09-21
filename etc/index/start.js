@@ -140,7 +140,7 @@ $(document).ready(function () {
 					else if (!response.rows.length) callback(null, {
 						title: 'Not Found',
 						heading: 'Post not found',
-						message: 'The post you were looking for wasn\'t found. Go back <a href="#/">home</a>.'
+						message: 'The post you were looking for wasn\'t found. Go back <a href="' + window.theme.urlRoot + '">home</a>.'
 					});
 					else {
 						var post = response.rows[0].value;

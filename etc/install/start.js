@@ -8,11 +8,6 @@ $(document).ready(function () {
 			title: 'Install'
 		},
 		{
-			path: '/proxy',
-			templates: ['header.html', 'proxy.html', 'footer.html'],
-			title: 'Install - Proxy'
-		},
-		{
 			path: '/couchdb',
 			templates: ['header.html', 'couchdb.html', 'footer.html'],
 			title: 'Install - CouchDB'
