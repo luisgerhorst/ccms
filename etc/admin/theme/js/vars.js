@@ -1,1 +1,2 @@
-var couchdb, database;
+window.couchdb = null;
+window.database = null;

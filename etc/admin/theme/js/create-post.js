@@ -35,13 +35,13 @@ var PostDoc = function (documentID) {
 
 		else {
 
-			database.view('posts', 'byPostID?key="' + doc.postID + '"', function (res, err) { if (!err) {
+			window.database.view('posts', 'byPostID?key="' + doc.postID + '"', function (res, err) { if (!err) {
 
 				if (res.rows.length) notifications.alert('Post with URL /post/' + doc.postID + ' does already exist.');
 
 				else {
 
-					database.save(doc, function (res, err) { if (!err) {
+					window.database.save(doc, function (res, err) { if (!err) {
 
 						documentID = res.id;
 						window.theme.open(theme.host+theme.rootPath+theme.sitePath);
@@ -64,13 +64,13 @@ var PostDoc = function (documentID) {
 
 		if (doc.postID && doc.title) {
 
-			database.view('posts', 'byPostID?key="' + doc.postID + '"', function (res, err) { if (!err) {
+			window.database.view('posts', 'byPostID?key="' + doc.postID + '"', function (res, err) { if (!err) {
 
 				if (res.rows.length && res.rows[0].value._id !== documentID) notifications.alert('Post with URL /post/' + doc.postID + ' does already exist.');
 
 				else {
 
-					database.save(documentID, doc, function (res, err) { if (!err) {
+					window.database.save(documentID, doc, function (res, err) { if (!err) {
 
 						window.theme.open(theme.host+theme.rootPath+theme.sitePath);
 
@@ -94,7 +94,7 @@ var PostDoc = function (documentID) {
 
 		if (confirmed) {
 
-			database.remove(documentID, function (res, err) {
+			window.database.remove(documentID, function (res, err) {
 				if (!err) window.theme.open(theme.host+theme.rootPath+theme.sitePath);
 			});
 

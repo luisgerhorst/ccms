@@ -2,11 +2,11 @@ var metaDoc = new (function () {
 	
 	this.update = function (doc, redirect) {
 	
-		database.read('meta', function (meta, err) { if (!err) {
+		window.database.read('meta', function (meta, err) { if (!err) {
 	
 			for (var i in doc) meta[i] = doc[i];
 	
-			database.save('meta', meta, function (response, error) {
+			window.database.save('meta', meta, function (response, error) {
 				if (!error && redirect !== false) theme.open(theme.host+theme.rootPath+theme.sitePath);
 			});
 	

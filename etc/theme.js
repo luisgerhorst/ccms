@@ -37,15 +37,14 @@ window.theme = new (function () {
 	/* get CCMS path from an URL */
 	var extractPath = function (s) {
 		
+		consol.info.log('Extracting path of', s);
+		
 		var e = document.createElement('a');
 		e.href = s;
 		s = e.pathname; // path
 		
-		console.log('fuul path', s);
-		
 		s = s.replace(new RegExp('^'+Theme.rootPath+Theme.sitePath), ''); // extract content after url root
 		s = s.replace(/\/$/, ''); // remove / from end
-		s = s.replace(/\?.*$/, ''); // remove query
 		
 		if (!s) s = '/';
 		
@@ -256,8 +255,6 @@ window.theme = new (function () {
 		
 		if ((!target || target == '_self') && historyAPISupport() && isIntern(href)) {
 			
-			//href = href.replace(/\/$/, '').replace(/\/\?/, '?'); // remove / from pathname end
-			
 			history.pushState(null, null, href);
 			Theme.load(extractPath(href));
 			
@@ -270,7 +267,7 @@ window.theme = new (function () {
 		
 		function isIntern(n) {
 			var r = Theme.rootPath+Theme.sitePath,
-				fr = window.location.href.replace(new RegExp(location.pathname + '$'), '') + Theme.rootPath+Theme.sitePath; // full CCMS root URL = url - path + urlRoot
+				fr = Theme.host+Theme.rootPath+Theme.sitePath;
 			return fr == n || new RegExp('^'+fr+'/.*$').test(n) || r == n || new RegExp('^'+r+'/.*$').test(n); // prot://host/root, prot://host/root/, prot://host/root/..., root root/ root/...
 		}
 		
@@ -280,8 +277,6 @@ window.theme = new (function () {
 	
 	Theme.update = function (title, body) {
 		
-		consol.info.log('Update to "' + title + '"');
-		
 		document.title = title;
 		
 		if (body) {
@@ -289,6 +284,8 @@ window.theme = new (function () {
 			$('body').html(body);
 			$('body').removeClass('changing');
 			$('body').attr('status', 'filled');
+			
+			consol.info.log('Updated to "' + title + '"');
 			
 			if (historyAPISupport()) $('a').click(function () {
 				Theme.open(this.href, this.target);
@@ -354,20 +351,10 @@ window.theme = new (function () {
 		
 		/* roots */
 		
-		console.log(options);
-		
 		Theme.host = location.protocol + '//' + location.host;
-		consol.info.log('host', Theme.host);
 		Theme.rootPath = options.rootPath;
 		Theme.filePath = options.filePath;
 		Theme.sitePath = options.sitePath;
-		
-		console.log(Theme);
-		
-		/*
-		Theme.root = options.rootPath;
-		Theme.docRoot = Theme.root+options.filePath;
-		Theme.urlRoot = Theme.root+options.sitePath;*/
 		
 		/* templates from views */
 		

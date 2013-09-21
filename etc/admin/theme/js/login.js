@@ -1,5 +1,3 @@
-console.log('login');
-
 // Events
 
 $('#login p.show-help').click(function () {
@@ -13,7 +11,7 @@ function getParameter(n) {
 	return m && decodeURIComponent(m[1].replace(/\+/g, ' '));
 }
 	
-redirectPath = redirectPath && redirectPath != '/login' ? redirectPath : '/';
+redirectPath = !redirectPath || redirectPath == '/login' || redirectPath == '/' ? '' : redirectPath;
 
 $.ajax({
 	url: '_root/config.json',
@@ -31,16 +29,16 @@ function login(redirectPath, config) {
 	
 	function tryCookie() {
 	
-		var c = new CouchDB(theme.rootPath + '/couchdb');
-		c.authorize({ cookie: true });
-		var d = new c.Database(config.database);
+		var couchdb = new CouchDB(window.theme.rootPath + '/couchdb');
+		couchdb.authorize({ cookie: true });
+		var database = new couchdb.Database(config.database);
 	
-		d.save('test', { time: new Date().getTime() }, function (response, error) {
+		database.save('test', { time: new Date().getTime() }, function (response, error) {
 			
-			if (error && error.code != 403 && error.code != 409) console.log('Error occured while testing cookie authorization.', error);
-			
+			if (error && error.code != 401 && error.code != 403) console.log('Error occured while testing cookie authorization.', error);
 			if (error) $('#login').show();
-			else foundValid(c, d);
+			
+			else foundValid(couchdb, database);
 			
 		});
 	
@@ -50,22 +48,22 @@ function login(redirectPath, config) {
 	
 	function tryUsernamePassword() { // case: username and password auth
 	
-		var c = new CouchDB(theme.rootPath + '/couchdb');
-		c.authorize({
+		var couchdb = new CouchDB(window.theme.rootPath + '/couchdb');
+		couchdb.authorize({
 			username: $('#login-username').val(),
 			password: $('#login-password').val()
 		});
-		var d = new c.Database(config.database);
+		var database = new couchdb.Database(config.database);
 	
-		d.save('test', { time: new Date().getTime() }, function (response, error) {
+		database.save('test', { time: new Date().getTime() }, function (response, error) {
 			
 			if (error && (error.code == 401 || error.code == 403)) notifications.alert('Your username/password seems to be incorrect.', function () {
 				$('#login p.help').show();
 			});
 			else if (error) notifications.alert('Error ' + error.code + ' ' + error.message + ' occured while logging in.', notificationClosed);
-			else if (!error) {
-				c.remember();
-				foundValid(c, d);
+			else {
+				couchdb.remember();
+				foundValid(couchdb, database);
 			}
 	
 		});
@@ -74,10 +72,10 @@ function login(redirectPath, config) {
 	
 	}
 	
-	function foundValid(c, d) {
-		couchdb = c;
-		database = d;
-		theme.open(theme.rootPath+theme.sitePath + redirectPath);
+	function foundValid(couchdb, database) {
+		window.couchdb = couchdb;
+		window.database = database;
+		window.theme.open(window.theme.rootPath+window.theme.sitePath + redirectPath);
 	}
 	
 }

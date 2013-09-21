@@ -45,8 +45,6 @@ var CouchDB = function (proxy) {
 	
 	CouchDB.authorize = function (object) {
 		
-		console.log('db-auth');
-		
 		credentials = new Credentials(object);
 		
 		return CouchDB;
@@ -54,8 +52,6 @@ var CouchDB = function (proxy) {
 	};
 	
 	CouchDB.deauthorize = function () {
-		
-		console.log('db-de-auth');
 		
 		credentials = new Credentials(null);
 		
@@ -65,8 +61,6 @@ var CouchDB = function (proxy) {
 	
 	CouchDB.remember = function (callback) {
 		
-		console.log('db-remember');
-			
 		if (credentials.username && credentials.password) $.ajax({
 			url: proxy + '/_session/',
 			type: 'POST',
@@ -89,8 +83,6 @@ var CouchDB = function (proxy) {
 	};
 	
 	CouchDB.forget = function (callback) {
-		
-		console.log('db-forget');
 		
 		$.ajax({
 			url: proxy + '/_session/',
@@ -126,8 +118,6 @@ var CouchDB = function (proxy) {
 				Authorization: 'Basic ' + btoa(credentials.username + ':' + credentials.password)
 			};
 			
-			
-			console.log('Database req', this);
 			
 			this.success = function (data, textStatus, jqXHR) {
 				complete(data, jqXHR);

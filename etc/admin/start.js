@@ -5,13 +5,7 @@ $(document).ready(function () {
 		{
 			path: ['/login'],
 			templates: ['login.html'],
-			title: 'Login',
-			before: function () {
-				console.log('before login');
-			},
-			done: function () {
-				console.log('done login');
-			}
+			title: 'Login'
 		},
 		{
 			path: '/logout',

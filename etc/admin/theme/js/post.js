@@ -28,19 +28,19 @@ var PostDoc = function (documentID) {
 	};
 	
 	this.create = function (title, content, date, postID) {
-		
+			
 		if (!date || !moment(date, dateFormat).isValid()) notifications.alert('Please enter a valid date.');
 		else if (!encodeURI(postID)) notifications.alert('Please enter an URL.');
 		else if (!title) notifications.alert('Please enter a title.');
 		else {
 			
 			var doc = new Doc(title, content, date, postID);
-	
-			database.view('posts', 'byPostID?key="' + doc.postID + '"', function (res, err) { if (!err) {
-	
+			
+			window.database.view('posts', 'byPostID?key="' + doc.postID + '"', function (res, err) { if (!err) {
+				
 				if (res.rows.length) notifications.alert('Post with URL /post/' + doc.postID + ' does already exist.');
 				else {
-	
+					
 					database.save(doc, function (res, err) { if (!err) {
 						documentID = res.id;
 						theme.open(theme.host+theme.rootPath+theme.sitePath);
@@ -49,7 +49,7 @@ var PostDoc = function (documentID) {
 				}
 				
 			}});
-	
+			
 		}
 	
 	};
@@ -63,7 +63,7 @@ var PostDoc = function (documentID) {
 	
 			var doc = new Doc(title, content, date, postID);
 	
-			database.view('posts', 'byPostID?key="' + doc.postID + '"', function (res, err) { if (!err) {
+			window.database.view('posts', 'byPostID?key="' + doc.postID + '"', function (res, err) { if (!err) {
 	
 				if (res.rows.length && res.rows[0].value._id !== documentID) notifications.alert('Post with URL /post/' + doc.postID + ' does already exist.');
 				else {
@@ -86,7 +86,7 @@ var PostDoc = function (documentID) {
 	
 		notifications.confirm('Do you really want to delete this post?', 'Cancel', 'Delete', function (confirmed) { if (confirmed) {
 			
-			database.remove(documentID, function (res, err) {
+			window.database.remove(documentID, function (res, err) {
 				if (!err) theme.open(theme.host+theme.rootPath+theme.sitePath);
 			});
 			
