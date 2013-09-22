@@ -121,7 +121,7 @@
 			$('#apache-result').html(t).addClass(c);
 		}
 		
-		if (apacheError) displayApache('red', 'Error ocuured, double check your Apache configuration.');
+		if (apacheError) displayApache('red', 'Error ocuured, double check your Apache configuration. Read below.');
 		else displayApache('green', 'Apache well configured.');
 		
 		console.log('Results of Apache configuration test', results);
@@ -138,7 +138,7 @@
 			
 			if      (apacheError)                                   displayCouchDB('yellow', 'Could not connect to CouchDB because Apache isn\'t well configured.');
 			else if (result >= 200 && result < 300 && !apacheError) displayCouchDB('green',  'CouchDB well configured and running.');
-			else if (result >= 500 && result < 600 && !apacheError) displayCouchDB('red',    'Make sure CouchDB is installed and running.');
+			else if (result >= 500 && result < 600 && !apacheError) displayCouchDB('red',    'Make sure CouchDB is installed and running. Read below.');
 			else if (result >= 400 && result < 500 && !apacheError) displayCouchDB('red',    'Unknown Error.');
 			
 			if (result < 200 || result >= 300 || apacheError) var couchdbError = true;
