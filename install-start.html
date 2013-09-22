@@ -1,0 +1,251 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Install - Config</title>
+	
+	<link rel="stylesheet" type="text/css" href="etc/install/theme/buttons.css">
+	<link rel="stylesheet" type="text/css" href="etc/install/theme/style.css">
+	
+	<style>
+	
+		button {
+			float: right;
+			margin-top: 20px;
+		}
+		
+		p.indent {
+			margin-left: 20px;
+			margin-top: -10px;
+		}
+		
+		h3 {
+			display: block;
+			text-align: left;
+			margin-bottom: 20px;
+			margin-top: 20px;
+		}
+		
+		p {
+			margin-bottom: 10px;
+			margin-top: 10px;
+			margin-left: 20px;
+		}
+		
+		li {
+			margin-bottom: 0px;
+		}
+		
+		li p {
+			margin-left: 0;
+		}
+		
+		ul {
+			margin-bottom: 10px;
+			margin-left: 40px;
+		}
+		
+		.green {
+			background: rgb(220,255,220);
+			padding: 4px;
+		}
+		
+		.yellow {
+			background: rgb(255,255,220);
+			padding: 4px;
+		}
+		
+		.red {
+			background: rgb(255,220,220);
+			padding: 4px;
+		}
+	
+	</style>
+	
+</head>
+<body>
+	
+	<div id="wrapper">
+		
+		<h3>config.json</h3>
+		
+		<p id="config-error"></p>
+		
+		<ul>
+			<li>
+				<p><code>"root"</code> is set to <code id="config-root">...</code> <span id="config-root-result"></span></p>
+				<p>CCMS root directory, enter path without slash at the end (empty string for <code>/</code>).</p>
+			</li>
+			<li>
+				<p><code>"database"</code> is set to <code id="config-database">...</code> <span id="config-database-result"></span></p>
+				<p>Name of the CouchDB databse CCMS will use. If database already exists, CCMS will offer you to overwrite the existing database.</p>
+			</li>
+		</ul>
+		
+		<h3>Apache</h3>
+		
+		<p id="apache-result"></p>
+		
+		<p>Required modules:</p>
+		
+		<ul>
+			<li><code>rewrite</code></li>
+			<li><code>proxy</code></li>
+			<li><code>proxy_http</code></li>
+		</ul>
+		
+		<p><code>AllowOverride All</code> is also required for the CCMS root directory.</p>
+		
+		<h3>CouchDB</h3>
+		
+		<p id="couchdb-result"></p>
+		
+		<p>CCMS requires <a href="http://couchdb.apache.org">CouchDB</a> to be installed, install instructions for all systems <a href="http://wiki.apache.org/couchdb/Installation">here</a>. If your CouchDB isn't running on <code>127.0.0.1:5984</code>, change <code>.htaccess</code> line <code>17</code> in CCMS root directory.</p>
+		
+		<a href="install/couchdb"><button>Confirm</button></a>
+	
+	</div> <!-- #wrapper -->
+	
+	
+<script src="etc/libs/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+
+<script>
+	
+	/* test htaccess */
+	
+	test(['_root/', 'install', 'install/', 'install/test', 'admin', 'admin/', 'admin/test', 'test', 'index.html'], function (results) {
+		
+		var apacheError = false;
+		for (var i = results.length; i--;) if (results[i].code < 200 || results[i].code >= 300) apacheError = true;
+		
+		function displayApache(c, t) {
+			$('#apache-result').html(t).addClass(c);
+		}
+		
+		if (apacheError) displayApache('red', 'Error ocuured, double check your Apache configuration.');
+		else displayApache('green', 'Apache well configured.');
+		
+		console.log('Results of Apache configuration test', results);
+		
+		/* test couchdb */
+		
+		test(['couchdb/'], function (results) {
+			
+			var result = results[0].code;
+				
+			function displayCouchDB(c, t) {
+				$('#couchdb-result').html(t).addClass(c);
+			}
+			
+			if      (apacheError)                                   displayCouchDB('yellow', 'Could not connect to CouchDB because Apache isn\'t well configured.');
+			else if (result >= 200 && result < 300 && !apacheError) displayCouchDB('green',  'CouchDB well configured and running.');
+			else if (result >= 500 && result < 600 && !apacheError) displayCouchDB('red',    'Make sure CouchDB is installed and running.');
+			else if (result >= 400 && result < 500 && !apacheError) displayCouchDB('red',    'Unknown Error.');
+			
+			if (result < 200 || result >= 300 || apacheError) var couchdbError = true;
+			else var couchdbError = false;
+			
+			console.log('Results of CouchDB configuration test', results);
+			
+			/* test config */
+			
+			$.ajax({
+				url: 'config.json',
+				dataType: 'json',
+				cache: false,
+				error: function (jqXHR, textStatus, errorThrown) {
+					
+					$('#config-root').text('?');
+					$('#config-database').text('?');
+					
+					$('#config-error').html('Error getting <code>config.json</code></br><code>'+textStatus+' '+errorThrown+'</code>').addClass('red');
+					
+				},
+				success: function (config) {
+					
+					// display values
+					
+					$('#config-root').text('"'+config.root+'"');
+					$('#config-database').text('"'+config.database+'"');
+					
+					// root
+					
+					var currentRoot = location.pathname.replace(/\/install-start.html$/, '');
+					
+					if (currentRoot == config.root) $('#config-root-result').text('Looks good! You don\'t have to change this.').addClass('green');
+					else $('#config-root-result').html('Please change this to <code>"'+currentRoot+'"</code>.').addClass('red');
+					
+					// database
+					
+					function displayDB(c, t) {
+						$('#config-database-result').html(t).addClass(c);
+					}
+					
+					$.ajax({
+						url: 'couchdb/' + config.database,
+						cache: false,
+						success: function (data,  textStatus, jqXHR) {
+							
+							$('#config-database-result').html('Database with name <code>'+config.database+'</code> already exists, change the <code>database</code> field in <code>config.json</code> to use another database, continue and overwrite the existing database, or go directly to the <a href="admin">admin panel</a> to use the existing database with CCMS.').addClass('red');
+							
+						},
+						error: function (jqXHR, textStatus, errorThrown) {
+							
+							console.log(couchdbError);
+							
+							if (jqXHR.status == 404 && !apacheError && !couchdbError) displayDB('green', 'No existing database with this name.');
+							else if (apacheError) displayDB('yellow', 'Unable to check if database exists because Apache isn\'t well configured.');
+							else if (couchdbError) displayDB('yellow', 'Unable to check if database exists because of CouchDB error.');
+							else  displayDB('red', 'Unknown Error.');
+							
+						}
+					});
+					
+				}
+			});
+			
+		});
+		
+	});
+	
+	/* get status codes of URL array */
+	
+	function test(urls, done) {
+		
+		var todo = urls.length;
+		
+		for (var i = urls.length; i--;) (function (i) {
+			
+			$.ajax({
+				url: urls[i],
+				cache: false,
+				success: function (data,  textStatus, jqXHR) {
+					tested(urls[i], jqXHR.status, data);
+				},
+				error: function (jqXHR, textStatus, errorThrown) {
+					tested(urls[i], jqXHR.status, null);
+				}
+			});
+			
+		})(i);
+		
+		var results = [];
+		
+		function tested(url, code, res) {
+			
+			results.push({
+				code: code,
+				url: url,
+				res: res
+			});
+			todo--;
+		
+			if (!todo) done(results);
+			
+		}
+		
+	}
+	
+</script>
+	
+</body>
+</html>

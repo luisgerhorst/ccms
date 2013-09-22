@@ -3,11 +3,6 @@ $(document).ready(function () {
 	var routes = [
 	
 		{
-			path: '/',
-			templates: ['header.html', 'start.html', 'footer.html'],
-			title: 'Install'
-		},
-		{
 			path: '/couchdb',
 			templates: ['header.html', 'couchdb.html', 'footer.html'],
 			title: 'Install - CouchDB'

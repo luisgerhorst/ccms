@@ -6,7 +6,7 @@ CCMS is currently in **BETA**.
 
 # Installation
 
-Just open `install-config.html` in your browser and follow the instructions. If you've got any problems feel free to send me a [mail](mailto:luis@luisgerhorst.de).
+Just open `install-start.html` in your browser and follow the instructions. If you've got any problems feel free to send me a [mail](mailto:luis@luisgerhorst.de).
 
 ## Help
 
@@ -15,8 +15,6 @@ If you have a problem with one step of the install guide this may help.
 ### How to change the database used by CCMS?
 
 If you already have a CouchDB database named `ccms`, change the `database` field in `config.json`. Otherwise CCMS will offer you to overwrite  the existing database.
-
-Afterwards, open `install-htaccess.html` in your browser and copy the new code into the `.htaccess` file in the CCMS root directory.
 
 ### Installing in a subdirectory
 
