@@ -28,40 +28,8 @@ Specs:
 
 function Template(name, view) {
 	
-	/* test */
-	
-	var validName = validate(name, 'string'),
-		noView = !view,
-		validView = validate(view, ['function', 'object']);
-	
-	/* decide */
-	
-	if (validName) this.name = name;
-	else throw 'Invalid view paramenter of Template, name must be a string.';
-	
-	if (noView) this.view = {};
-	else if (validView) this.view = view;
-	else throw 'Invalid view paramenter of Template, view has to be an object, a function or not defined.';
-	
-	/* tools */
-	
-	function validate(variable, type) {
-		
-		var typeOfVariable = typeOf(variable);
-		
-		if (type instanceof Array) {
-			
-			for (var i = type.length; i--;) if (typeOfVariable == type[i]) return true;
-			return false;
-			
-		} else if (typeOf(type) == 'string') {
-			
-			if (typeOfVariable == type) return true;
-			return false;
-			
-		}
-		
-	}
+	this.name = name;
+	this.view = view || {};
 	
 }
 
