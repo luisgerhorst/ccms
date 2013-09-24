@@ -3,11 +3,16 @@
 - RSS Feed
 - User management
 
-# Improvements
+# theme.js
 
 - use native DOM operations in theme.js
 - overwrite window.open with theme.js's version of the function
+- cache Template function in theme.js and use it for rendering
 
-# Admin
+# Blog, Admin & Install
 
-- only redirect to /login if username and password is needed
+- improve loading indicator (GitHub-like)
+
+
+
+
