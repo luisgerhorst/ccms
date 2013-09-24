@@ -18,13 +18,13 @@ var PostDoc = function (documentID) {
 	var dateFormat = 'YYYY-MM-DD HH:mm';
 	
 	var Doc = function (title, content, date, postID) {
-	
+		
 		this.content = content;
 		this.date = moment(date, dateFormat).unix();
 		this.postID = encodeURI(postID);
 		this.title = title;
 		this.type = 'post';
-	
+		
 	};
 	
 	this.create = function (title, content, date, postID) {
@@ -55,29 +55,29 @@ var PostDoc = function (documentID) {
 	};
 	
 	this.update = function (title, content, date, postID) {
-	
+		
 		if (!date || !moment(date, dateFormat).isValid()) notifications.alert('Please enter a valid date.');
 		else if (!encodeURI(postID)) notifications.alert('Please enter an URL.');
 		else if (!title) notifications.alert('Please enter a title.');
 		else {
-	
+			
 			var doc = new Doc(title, content, date, postID);
-	
+			
 			window.database.view('posts', 'byPostID?key="' + doc.postID + '"', function (res, err) { if (!err) {
-	
+			
 				if (res.rows.length && res.rows[0].value._id !== documentID) notifications.alert('Post with URL /post/' + doc.postID + ' does already exist.');
 				else {
-	
+					
 					database.save(documentID, doc, function (res, err) { if (!err) {
 						theme.open(theme.host+theme.rootPath+theme.sitePath);
 					}});
-	
+					
 				}
-	
+				
 			}});
-	
+			
 		}
-	
+		
 	};
 	
 	this.delete = function (newDocumentID) {
