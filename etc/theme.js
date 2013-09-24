@@ -26,10 +26,10 @@ Specs:
 
 /* Template */
 
-function Template(name, view) {
+function Template(name, viewSource) {
 	
 	this.name = name;
-	this.view = view || {};
+	this.viewSource = viewSource || {};
 	
 }
 
@@ -61,7 +61,7 @@ Template.prototype = new (function () {
 		
 		/* view */
 		
-		var viewSource = Template.view;
+		var viewSource = Template.viewSource;
 		
 		switch (typeOf(viewSource)) {
 			
@@ -106,6 +106,8 @@ Template.prototype = new (function () {
 
 })(); // Template prototype
 
+
+/* Theme */
 
 function Theme(options) {
 	
