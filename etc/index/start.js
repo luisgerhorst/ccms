@@ -5,15 +5,22 @@ $(document).ready(function () {
 			path: ['/', /^\/page\/\d+$/],
 			templates: ['header.html', 'posts.html', 'footer.html'],
 			before: function (path) {
-				if (path === '/page/0') {
-					window.theme.open(theme.host+theme.rootPath+theme.sitePath);
+				
+				if (getParameter('page') == 1) {
+					theme.open(theme.host+theme.rootPath+theme.sitePath);
 					return false;
 				}
+				
+				function getParameter(n) {
+					var m = RegExp('[?&]'+n+'=([^&]*)').exec(window.location.search);
+					return m && decodeURIComponent(m[1].replace(/\+/g, ' '));
+				}
+				
 			},
 			title: '{{header_html.title}}'
 		},
 		{
-			path: /^\/post\/.+$/,
+			path: /^\/posts\/.+$/,
 			templates: ['header.html', 'post.html', 'footer.html'],
 			title: '{{header_html.title}} - {{post_html.title}}'
 		}
@@ -35,24 +42,41 @@ $(document).ready(function () {
 		};
 	
 		views['posts.html'] = function (callback, path) {
+			
+			// Actions
+			
+			var postsPerPage = meta.postsPerPage,
+				urlPageIndex = parseInt(getParameter('page') || 1),
+				pageIndex = urlPageIndex-1;
+				skip = postsPerPage * pageIndex;
+				
+			function getParameter(n) {
+				var m = RegExp('[?&]'+n+'=([^&]*)').exec(window.location.search);
+				return m && decodeURIComponent(m[1].replace(/\+/g, ' '));
+			}
+			
+			var page = cache.index[pageIndex];
+			
+			if (page) callback(new View(pageIndex, page));
+			else fromDatabase(skip, postsPerPage, pageIndex);
 	
-			var View = function (pageIndex, page) {
-	
+			function View(pageIndex, page) {
+			
 				this.previousPage = function () {
-					if (pageIndex === 0) return false;
-					else return { number: pageIndex - 1 };
+					if (pageIndex == 0) return false;
+					else return { number: urlPageIndex - 1 };
 				};
-	
+			
 				this.nextPage = function () {
-					if (page.hasNext) return { number: pageIndex + 1 }; // if there are less posts then possible
+					if (page.hasNext) return { number: urlPageIndex + 1 }; // if there are less posts then possible
 					else return false;
 				};
-	
+			
 				this.posts = page.posts;
+			
+			}
 	
-			};
-	
-			var fromDatabase = function (skip, postsPerPage, pageIndex) {
+			function fromDatabase(skip, postsPerPage, pageIndex) {
 	
 				database.view('posts', 'byDate?descending=true&skip=' + skip + '&limit=' + postsPerPage, function (response, error) {
 	
@@ -97,17 +121,6 @@ $(document).ready(function () {
 				});
 	
 			};
-	
-			// Actions
-	
-			var postsPerPage = meta.postsPerPage,
-				pageIndex = path === '/' ? 0 : parseInt(path.replace(/^\/page\//, '')),
-				skip = postsPerPage * pageIndex;
-			
-			var page = cache.index[pageIndex];
-			
-			if (page) callback(new View(pageIndex, page));
-			else fromDatabase(skip, postsPerPage, pageIndex);
 			
 		};
 		
@@ -157,7 +170,7 @@ $(document).ready(function () {
 	
 			// Actions
 	
-			var postID = path.replace(/^\/post\//, '');
+			var postID = path.replace(/^\/posts\//, '');
 	
 			var post = cache.post[postID];
 	
@@ -205,8 +218,7 @@ $(document).ready(function () {
 						sitePath: '',
 						filePath: '/themes/' + meta.theme,
 						routes: routes,
-						views: views(database, meta),
-						log: ['error', 'info']
+						views: views(database, meta)
 					});
 					
 				}

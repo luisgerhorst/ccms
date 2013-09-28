@@ -5,7 +5,7 @@
 	<ol>
 
 		{{#posts}}
-		<a class="title" href="{{_siteURL}}/post/{{postID}}"><li class="post">
+		<a class="title" href="{{_siteURL}}/posts/{{postID}}"><li class="post">
 			<h2>{{title}}</h2>
 			<time datetime="{{date}}"></time>
 		</li></a>
@@ -20,8 +20,8 @@
 
 	</ol>
 	
-	{{#previousPage}}<a href="{{_siteURL}}/page/{{number}}"><button id="previous-page" class="page-nav grey">← Previous</button></a>{{/previousPage}}
-	{{#nextPage}}<a href="{{_siteURL}}/page/{{number}}"><button id="next-page" class="page-nav grey">Next →</button></a>{{/nextPage}}
+	{{#previousPage}}<a href="{{_siteURL}}?page={{number}}"><button id="previous-page" class="page-nav grey">← Previous</button></a>{{/previousPage}}
+	{{#nextPage}}<a href="{{_siteURL}}?page={{number}}"><button id="next-page" class="page-nav grey">Next →</button></a>{{/nextPage}}
 
 </div> <!-- .posts -->
 

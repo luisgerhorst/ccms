@@ -253,49 +253,8 @@ Theme.prototype = new (function () {
 		function isIntern(n) {
 			var r = Theme.rootPath+Theme.sitePath,
 				fr = Theme.host+Theme.rootPath+Theme.sitePath;
-			return fr == n || new RegExp('^'+fr+'/.*$').test(n) || r == n || new RegExp('^'+r+'/.*$').test(n); // prot://host/root, prot://host/root/, prot://host/root/..., root root/ root/...
+			return fr == n || new RegExp('^'+fr+'/.*$').test(n) || new RegExp('^'+fr+'\?.*$').test(n) || r == n || new RegExp('^'+r+'/.*$').test(n) || new RegExp('^'+r+'\?.*$').test(n); // prot://host/root, prot://host/root/, prot://host/root/..., root root/ root/...
 		}
-	
-	};
-	
-	/* search route that matches the path. */
-	
-	this.searchRoute = function (path) {
-		
-		var Theme = this;
-	
-		for (i = Theme.routes.length; i--;) {
-	
-			var route = Theme.routes[i];
-	
-			switch (route.path instanceof RegExp ? 'regexp' : route.path instanceof Array ? 'array' : typeof route.path) {
-	
-				case 'string':
-					if (route.path === path) return route;
-					break;
-	
-				case 'regexp':
-					if (route.path.test(path)) return route;
-					break;
-	
-				case 'array':
-					var a = route.path;
-					for (var j = a.length; j--;) {
-						var p = a[j];
-						if (typeof p === 'string' && p === path) return route;
-						else if (p instanceof RegExp && p.test(path)) return route;
-					}
-					break;
-	
-				case 'function':
-					if (route.path(path)) return route;
-					break;
-	
-			}
-	
-		}
-	
-		return null;
 	
 	};
 	
@@ -346,6 +305,47 @@ Theme.prototype = new (function () {
 			
 		}
 		
+	};
+	
+	/* Search route that matches path. */
+	
+	this.searchRoute = function (path) {
+		
+		var Theme = this;
+	
+		for (i = Theme.routes.length; i--;) {
+	
+			var route = Theme.routes[i];
+	
+			switch (route.path instanceof RegExp ? 'regexp' : route.path instanceof Array ? 'array' : typeof route.path) {
+	
+				case 'string':
+					if (route.path === path) return route;
+					break;
+	
+				case 'regexp':
+					if (route.path.test(path)) return route;
+					break;
+	
+				case 'array':
+					var a = route.path;
+					for (var j = a.length; j--;) {
+						var p = a[j];
+						if (typeof p === 'string' && p === path) return route;
+						else if (p instanceof RegExp && p.test(path)) return route;
+					}
+					break;
+	
+				case 'function':
+					if (route.path(path)) return route;
+					break;
+	
+			}
+	
+		}
+	
+		return null;
+	
 	};
 	
 	/* Update body & title and set link event handlers for Ajax */

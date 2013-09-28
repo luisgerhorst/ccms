@@ -13,13 +13,20 @@ $(document).ready(function () {
 			title: 'Logging out ...'
 		},
 		{
-			path: ['/', /^\/page\/\d+$/],
+			path: '/',
 			templates: ['header.html', 'posts.html', 'footer.html'],
 			before: function (path) {
-				if (path === '/page/0') {
+				
+				if (getParameter('page') == 1) {
 					theme.open(theme.host+theme.rootPath+theme.sitePath);
 					return false;
 				}
+				
+				function getParameter(n) {
+					var m = RegExp('[?&]'+n+'=([^&]*)').exec(window.location.search);
+					return m && decodeURIComponent(m[1].replace(/\+/g, ' '));
+				}
+				
 			},
 			title: '{{header_html.title}}'
 		},
@@ -29,7 +36,7 @@ $(document).ready(function () {
 			title: '{{header_html.title}} - Meta'
 		},
 		{
-			path: /^\/post\/.+$/,
+			path: /^\/posts\/.+$/,
 			templates: ['header.html', 'post.html', 'footer.html'],
 			title: '{{header_html.title}} - {{post_html.title}}'
 		},
@@ -82,18 +89,24 @@ $(document).ready(function () {
 		views['posts.html'] = function (callback, path) {
 	
 			var postsPerPage = 10,
-				pageIndex = path == '/' ? 0 : parseInt(path.replace(/^\/page\//, '')),
+				urlPageIndex = parseInt(getParameter('page') || 1),
+				pageIndex = urlPageIndex-1;
 				skip = postsPerPage * pageIndex;
+			
+			function getParameter(n) {
+				var m = RegExp('[?&]'+n+'=([^&]*)').exec(window.location.search);
+				return m && decodeURIComponent(m[1].replace(/\+/g, ' '));
+			}
 	
 			function View(pageIndex, page) {
 	
 				this.previousPage = function () {
-					if (pageIndex === 0) return false;
-					else return { number: pageIndex - 1 };
+					if (pageIndex == 0) return false;
+					else return { number: urlPageIndex - 1 };
 				};
 	
 				this.nextPage = function () {
-					if (page.hasNext) return { number: pageIndex + 1 }; // if there are less posts then possible
+					if (page.hasNext) return { number: urlPageIndex + 1 }; // if there are less posts then possible
 					else return false;
 				};
 	
@@ -138,7 +151,7 @@ $(document).ready(function () {
 	
 		views['post.html'] = function (callback, path) {
 	
-			var postID = path.replace(/^\/post\//, '');
+			var postID = path.replace(/^\/posts\//, '');
 	
 			database.view('posts', 'byPostID?key="' + postID + '"', function (response, error) {
 				

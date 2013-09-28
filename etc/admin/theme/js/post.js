@@ -38,7 +38,7 @@ var PostDoc = function (documentID) {
 			
 			window.database.view('posts', 'byPostID?key="' + doc.postID + '"', function (res, err) { if (!err) {
 				
-				if (res.rows.length) notifications.alert('Post with URL /post/' + doc.postID + ' does already exist.');
+				if (res.rows.length) notifications.alert('Post with URL /posts/' + doc.postID + ' does already exist.');
 				else {
 					
 					database.save(doc, function (res, err) { if (!err) {
@@ -65,7 +65,7 @@ var PostDoc = function (documentID) {
 			
 			window.database.view('posts', 'byPostID?key="' + doc.postID + '"', function (res, err) { if (!err) {
 			
-				if (res.rows.length && res.rows[0].value._id !== documentID) notifications.alert('Post with URL /post/' + doc.postID + ' does already exist.');
+				if (res.rows.length && res.rows[0].value._id !== documentID) notifications.alert('Post with URL /posts/' + doc.postID + ' does already exist.');
 				else {
 					
 					database.save(documentID, doc, function (res, err) { if (!err) {
