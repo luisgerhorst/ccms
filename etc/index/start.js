@@ -2,12 +2,12 @@ $(document).ready(function () {
 	
 	var routes = [
 		{
-			path: ['/', /^\/page\/\d+$/],
+			path: ['/'],
 			templates: ['header.html', 'posts.html', 'footer.html'],
 			before: function (path) {
 				
 				if (getParameter('page') == 1) {
-					theme.open(theme.host+theme.rootPath+theme.sitePath);
+					window.open(theme.host+theme.rootPath+theme.sitePath);
 					return false;
 				}
 				

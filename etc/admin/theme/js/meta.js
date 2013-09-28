@@ -7,7 +7,7 @@ var metaDoc = new (function () {
 			for (var i in doc) meta[i] = doc[i];
 	
 			window.database.save('meta', meta, function (response, error) {
-				if (!error && redirect !== false) theme.open(theme.host+theme.rootPath+theme.sitePath);
+				if (!error && redirect !== false) window.open(theme.host+theme.rootPath+theme.sitePath);
 			});
 	
 		}});

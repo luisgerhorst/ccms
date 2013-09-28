@@ -18,7 +18,7 @@ $(document).ready(function () {
 			before: function (path) {
 				
 				if (getParameter('page') == 1) {
-					theme.open(theme.host+theme.rootPath+theme.sitePath);
+					window.open(theme.host+theme.rootPath+theme.sitePath);
 					return false;
 				}
 				

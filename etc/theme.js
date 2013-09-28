@@ -230,34 +230,6 @@ Theme.prototype = new (function () {
 		
 	};
 	
-	/* Open an URL, use Ajax if possible */
-	
-	this.open = function (href, target) {
-		
-		var Theme = this;
-	
-		console.log('Open', href, target);
-	
-		if ((!target || target == '_self') && historyAPISupport() && isIntern(href)) {
-	
-			history.pushState(null, null, href);
-			Theme.load(extractPath(href));
-	
-		} else {
-	
-			target = target || '_self';
-			window.open(href, target);
-	
-		}
-	
-		function isIntern(n) {
-			var r = Theme.rootPath+Theme.sitePath,
-				fr = Theme.host+Theme.rootPath+Theme.sitePath;
-			return fr == n || new RegExp('^'+fr+'/.*$').test(n) || new RegExp('^'+fr+'\?.*$').test(n) || r == n || new RegExp('^'+r+'/.*$').test(n) || new RegExp('^'+r+'\?.*$').test(n); // prot://host/root, prot://host/root/, prot://host/root/..., root root/ root/...
-		}
-	
-	};
-	
 	/* Load the body & title for a path, call update */
 	
 	this.load = function (path) {
@@ -365,7 +337,7 @@ Theme.prototype = new (function () {
 			console.log('Updated to "' + title + '"');
 			
 			if (historyAPISupport()) $('a').click(function () {
-				Theme.open(this.href, this.target);
+				window.open(this.href, this.target);
 				return false;
 			});
 			
@@ -404,8 +376,34 @@ function extractPath(s) {
 
 window.theme = {
 	setup: function (options) {
+		
 		window.theme = new Theme(options);
 		window.theme.setup();
+		
+		/* Open an URL, use Ajax if possible */
+		
+		window._open = window.open;
+		window.open = function (href, target, options) {
+			
+			target = window.open.arguments[1] = target || '_self';
+		
+			console.log('Open', href);
+			
+			var ajaxPossible = target == '_self' && 1 <= window.open.arguments.length <= 2;
+			
+			if (ajaxPossible && historyAPISupport() && isIntern(href)) {
+				history.pushState(null, null, href);
+				window.theme.load(extractPath(href));
+			} else window._open.apply(this, window.open.arguments);
+		
+			function isIntern(n) {
+				var r = window.theme.rootPath+window.theme.sitePath,
+					fr = window.theme.host+window.theme.rootPath+window.theme.sitePath;
+				return fr == n || new RegExp('^'+fr+'/.*$').test(n) || new RegExp('^'+fr+'?.*$').test(n) || r == n || new RegExp('^'+r+'/.*$').test(n) || new RegExp('^'+r+'?.*$').test(n);
+			}
+		
+		};
+		
 	}
 };
 

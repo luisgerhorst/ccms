@@ -44,6 +44,6 @@ function openLoginForm() {
 	console.log('Cookie auth failed, redirecting to login form.');
 
 	var path = (currentPath == '/' || currentPath == '/logout') ? '/login' : '/login?redirect='+encodeURIComponent(currentPath);
-	window.theme.open(theme.host+theme.rootPath+theme.sitePath+path);
+	window.open(theme.host+theme.rootPath+theme.sitePath+path);
 
 }
