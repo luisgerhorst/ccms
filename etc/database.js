@@ -118,7 +118,6 @@ var CouchDB = function (proxy) {
 				Authorization: 'Basic ' + btoa(credentials.username + ':' + credentials.password)
 			};
 			
-			
 			this.success = function (data, textStatus, jqXHR) {
 				complete(data, jqXHR);
 			};

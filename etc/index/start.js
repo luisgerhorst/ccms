@@ -4,16 +4,11 @@ $(document).ready(function () {
 		{
 			path: ['/'],
 			templates: ['header.html', 'posts.html', 'footer.html'],
-			before: function (path) {
+			before: function (path, parameters) {
 				
-				if (getParameter('page') == 1) {
+				if (parameters.page == 1) {
 					window.open(theme.host+theme.rootPath+theme.sitePath);
 					return false;
-				}
-				
-				function getParameter(n) {
-					var m = RegExp('[?&]'+n+'=([^&]*)').exec(window.location.search);
-					return m && decodeURIComponent(m[1].replace(/\+/g, ' '));
 				}
 				
 			},
@@ -36,29 +31,56 @@ $(document).ready(function () {
 	
 		views['head.html'] = meta;
 	
-		var cache = {
-			index: [],
-			post: {}
-		};
-	
-		views['posts.html'] = function (callback, path) {
+		views['posts.html'] = function (callback, path, parameters) {
+			
+			console.log('parameters', parameters);
 			
 			// Actions
 			
 			var postsPerPage = meta.postsPerPage,
-				urlPageIndex = parseInt(getParameter('page') || 1),
+				urlPageIndex = parseInt(parameters.page || 1),
 				pageIndex = urlPageIndex-1;
 				skip = postsPerPage * pageIndex;
+			
+			database.view('posts', 'byDate?descending=true&skip=' + skip + '&limit=' + postsPerPage, function (response, error) {
+			
+				if (error) callback(null, {
+					title: error.message,
+					heading: 'HTTP Error',
+					message: 'The error <code>' + error.code + ' ' + error.message + '</code> occured while loading the posts.'
+				});
 				
-			function getParameter(n) {
-				var m = RegExp('[?&]'+n+'=([^&]*)').exec(window.location.search);
-				return m && decodeURIComponent(m[1].replace(/\+/g, ' '));
-			}
+				else {
+					
+					var loaded = [], rows = response.rows;
+					
+					var l = rows.length;
+					for (var i = 0; i < l; i++) loaded.push(rows[i].value);
+					
+					database.view('posts', 'compactByDate?descending=true&skip=' + ( skip + postsPerPage ) + '&limit=1', function (response, error) {
+					
+						if (error) callback(null, {
+							title: error.message,
+							heading: 'HTTP Error',
+							message: 'The error <code>' + error.code + ' ' + error.message + '</code> occured.'
+						});
+						
+						else {
+							
+							var page = {
+								posts: loaded,
+								hasNext: response.rows.length ? true : false
+							};
+							
+							callback(new View(pageIndex, page));
+							
+						}
+					
+					});
+					
+				}
 			
-			var page = cache.index[pageIndex];
-			
-			if (page) callback(new View(pageIndex, page));
-			else fromDatabase(skip, postsPerPage, pageIndex);
+			});
 	
 			function View(pageIndex, page) {
 			
@@ -75,114 +97,31 @@ $(document).ready(function () {
 				this.posts = page.posts;
 			
 			}
-	
-			function fromDatabase(skip, postsPerPage, pageIndex) {
-	
-				database.view('posts', 'byDate?descending=true&skip=' + skip + '&limit=' + postsPerPage, function (response, error) {
-	
-					if (error) callback(null, {
-						title: error.message,
-						heading: 'HTTP Error',
-						message: 'The error <code>' + error.code + ' ' + error.message + '</code> occured while loading the posts.'
-					});
-					
-					else {
-						
-						var loaded = [], rows = response.rows;
-						
-						var l = rows.length;
-						for (var i = 0; i < l; i++) loaded.push(rows[i].value);
-						
-						database.view('posts', 'compactByDate?descending=true&skip=' + ( skip + postsPerPage ) + '&limit=1', function (response, error) {
-						
-							if (error) callback(null, {
-								title: error.message,
-								heading: 'HTTP Error',
-								message: 'The error <code>' + error.code + ' ' + error.message + '</code> occured.'
-							});
-							
-							else {
-								
-								var page = {
-									posts: loaded,
-									hasNext: response.rows.length ? true : false
-								};
-								
-								cache.index[pageIndex] = page;
-								
-								callback(new View(pageIndex, page));
-								
-							}
-						
-						});
-						
-					}
-	
-				});
-	
-			};
 			
 		};
 		
 		views['post.html'] = function (callback, path) {
 			
-			var parseIndexCache = function (postID) {
-				
-				var index = false, indexCache = cache.index;
-				
-				for (var i = indexCache.length; i--;) {
-					for (var j = indexCache[i].posts.length; j--;) {
-						if (indexCache[i].posts[j].postID === postID) {
-							index = [i, j];
-							i = 0;
-							j = 0;
-						}
-					}
-				}
-				
-				return index;
-				
-			};
-			
-			var fromDatabase = function (postID) {
-				
-				database.view('posts', 'byPostID?key="' + postID + '"', function (response, error) {
-					
-					if (error) callback(null, {
-						title: error.message,
-						heading: 'HTTP Error',
-						message: 'The error <code>' + error.code + ' ' + error.message + '</code> occured.'
-					});
-					else if (!response.rows.length) callback(null, {
-						title: 'Not Found',
-						heading: 'Post not found',
-						message: 'The post you were looking for wasn\'t found. Go back <a href="' + theme.rootPath+theme.sitePath + '">home</a>.'
-					});
-					else {
-						var post = response.rows[0].value;
-						cache.post[postID] = post;
-						callback(post);
-					}
-	
-				});
-	
-			};
-	
-			// Actions
-	
 			var postID = path.replace(/^\/posts\//, '');
 	
-			var post = cache.post[postID];
-	
-			if (post) callback(post);
-			else {
-	
-				var index = parseIndexCache(postID);
-	
-				if (index !== false) callback(cache.index[index[0]].posts[index[1]]);
-				else fromDatabase(postID);
-	
-			}
+			database.view('posts', 'byPostID?key="' + postID + '"', function (response, error) {
+				
+				if (error) callback(null, {
+					title: error.message,
+					heading: 'HTTP Error',
+					message: 'The error <code>' + error.code + ' ' + error.message + '</code> occured.'
+				});
+				else if (!response.rows.length) callback(null, {
+					title: 'Not Found',
+					heading: 'Post not found',
+					message: 'The post you were looking for wasn\'t found. Go back <a href="' + theme.rootPath+theme.sitePath + '">home</a>.'
+				});
+				else {
+					var post = response.rows[0].value;
+					callback(post);
+				}
+			
+			});
 	
 		};
 	
@@ -218,7 +157,11 @@ $(document).ready(function () {
 						sitePath: '',
 						filePath: '/themes/' + meta.theme,
 						routes: routes,
-						views: views(database, meta)
+						views: views(database, meta),
+						cache: {
+							views: true,
+							templates: true
+						}
 					});
 					
 				}

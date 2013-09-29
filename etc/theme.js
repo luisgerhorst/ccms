@@ -8,11 +8,16 @@ function Template(name, viewSource) {
 	this.name = name;
 	this.viewSource = viewSource || {};
 	
+	this.template = null;
+	this.viewCache = {};
+	
 }
 
 Template.prototype = new (function () {
 
-	this.load = function (callback, path) {
+	this.load = function (callback, path, parameters) {
+		
+		console.log('parameters', parameters);
 		
 		console.log('load template', this);
 		
@@ -20,54 +25,81 @@ Template.prototype = new (function () {
 		
 		/* unique vars */
 		
-		var toLoad = 2,
-			template = null,
-			view = {};
+		var reqHash = JSON.stringify({
+			path: path,
+			parameters: parameters
+		});
+		
+		var toLoad = 2;
 		
 		/* template */
 		
-		$.ajax({
-			url: window.theme.rootPath+window.theme.filePath + '/' + Template.name,
-			error: function (jqXHR, textStatus, errorThrown) {
-				fatalError('Rendering Error', 'Unable to load template <code>'+Template.name+'</code>.');
-				throw 'Ajax error';
-			},
-			success: function (response) {
-				template = response;
-				toLoad--;
-				if (!toLoad) done();
-			}
-		});
+		if (Template.template && window.theme.cache.templates) {
+			
+			toLoad--;
+			if (!toLoad) done();
+			
+		} else {
+			
+			$.ajax({
+				url: window.theme.rootPath+window.theme.filePath + '/' + Template.name,
+				error: function (jqXHR, textStatus, errorThrown) {
+					fatalError('Rendering Error', 'Unable to load template <code>'+Template.name+'</code>.');
+					throw 'Ajax error';
+				},
+				success: function (response) {
+					
+					Template.template = response;
+					toLoad--;
+					if (!toLoad) done();
+					
+				}
+			});
+			
+		}
 		
 		/* view */
 		
-		var viewSource = Template.viewSource;
+		if (Template.viewCache[reqHash] && window.theme.cache.views) {
+			
+			toLoad--;
+			if (!toLoad) done();
+			
+		} else {
 		
-		switch (typeOf(viewSource)) {
+			var viewSource = Template.viewSource;
 			
-			case 'function':
-				viewSource(function (response, error) {
+			switch (typeOf(viewSource)) {
+				
+				case 'function':
+					viewSource(function (response, error) {
+						
+						if (error) {
+							fatalError(error.heading || 'Error', error.message || 'Could not load page content.');
+							throw 'View source function returned error.';
+						} else {
+							
+							Template.viewCache[reqHash] = response;
+							toLoad--;
+							if (!toLoad) done();
+							
+						}
+						
+					}, path, parameters);
+					break;
+				
+				case 'object':
+				
+					Template.viewCache[reqHash] = viewSource;
+					toLoad--;
+					if (!toLoad) done();
 					
-					if (error) {
-						fatalError(error.heading || 'Error', error.message || 'Could not load page content.');
-						throw 'View source function returned error.';
-					} else {
-						view = response;
-						toLoad--;
-						if (!toLoad) done();
-					}
-					
-				}, path);
-				break;
-			
-			case 'object':
-				view = viewSource;
-				toLoad--;
-				if (!toLoad) done();
-				break;
-			
-			default:
-				throw 'No valid view source.';
+					break;
+				
+				default:
+					throw 'No valid view source.';
+				
+			}
 			
 		}
 		
@@ -79,7 +111,12 @@ Template.prototype = new (function () {
 		
 		function done() {
 			
+			console.time('create template output');
+			
 			console.log('template done');
+			
+			var view = Template.viewCache[reqHash],
+				template = Template.template;
 			
 			view._host = window.theme.host;
 			view._rootPath = window.theme.rootPath;
@@ -91,7 +128,17 @@ Template.prototype = new (function () {
 			
 			var output = Mustache.render(template, view);
 			
+			console.timeEnd('create template output');
+			
 			callback(output, view);
+			
+		}
+		
+		/* tools */
+		
+		function createHash() {
+			
+			
 			
 		}
 		
@@ -115,7 +162,9 @@ function Route(options) {
 
 Route.prototype = new (function () {
 	
-	this.load = function (loaded, path) {
+	this.load = function (loaded, path, parameters) {
+		
+		console.log('parameters route', parameters);
 		
 		var Route = this;
 		
@@ -151,7 +200,7 @@ Route.prototype = new (function () {
 				views[template.name] = view;
 				templateLoaded();
 				
-			}, path);
+			}, path, parameters);
 			
 		})(i);
 		
@@ -163,6 +212,13 @@ Route.prototype = new (function () {
 /* Theme */
 
 function Theme(options) {
+	
+	console.time('new Theme');
+	
+	this.cache = options.cache || {
+		views: false,
+		templates: true
+	};
 	
 	/* urls */
 	
@@ -200,6 +256,8 @@ function Theme(options) {
 		
 	}
 	
+	console.timeEnd('new Theme');
+	
 }
 
 Theme.prototype = new (function () {
@@ -220,10 +278,10 @@ Theme.prototype = new (function () {
 			
 			var isEmpty = $('body').attr('data-status') == 'empty';
 			
-			if (isEmpty) Theme.load(extractPath(location.href));
+			if (isEmpty) Theme.load(extractPath(location.href), parseParameters(location.href));
 			
 			if (historyAPISupport()) window.addEventListener('popstate', function (event) { // back
-				Theme.load(extractPath(location.href));
+				Theme.load(extractPath(location.href), parseParameters(location.href));
 			});
 			
 		});
@@ -232,14 +290,19 @@ Theme.prototype = new (function () {
 	
 	/* Load the body & title for a path, call update */
 	
-	this.load = function (path) {
+	this.load = function (path, parameters) {
+		
+		console.log('parameters theme', parameters);
+		
+		console.time('Start loading route after .load called');
 		
 		var Theme = this;
 		
 		console.log('Load', path);
 		
-		$('body').addClass('changing');
-		$('body').attr('data-status', 'changing');
+		var body = $('body');
+		body.addClass('changing');
+		body.attr('data-status', 'changing');
 		
 		var route = Theme.searchRoute(path);
 		
@@ -251,15 +314,20 @@ Theme.prototype = new (function () {
 		} else {
 			
 			console.log('... Route Found');
-			var stop = route.before(path) === false;
+			var stop = route.before(path, parameters) === false;
+			
+			console.timeEnd('Start loading route after .load called');
+			console.time('Load route');
 			
 			if (!stop && route.templates.length) route.load(function (body, views) {
+				
+				console.timeEnd('Load route');
 				
 				console.log('route loaded', body, views);
 				
 				var title = Mustache.render(route.title, validateObjectKeys(views));
 				Theme.update(title, body);
-				route.done(views, path);
+				route.done(views, path, parameters);
 				
 				/* replace dots in object keys by _ */
 				function validateObjectKeys(object) {
@@ -268,10 +336,10 @@ Theme.prototype = new (function () {
 					return validatedObject;
 				}
 				
-			}, path); else if (!stop) {
+			}, path, parameters); else if (!stop) {
 				
 				Theme.update(route.title);
-				route.done(null, path);
+				route.done(null, path, parameters);
 				
 			}
 			
@@ -292,7 +360,7 @@ Theme.prototype = new (function () {
 			switch (route.path instanceof RegExp ? 'regexp' : route.path instanceof Array ? 'array' : typeof route.path) {
 	
 				case 'string':
-					if (route.path === path) return route;
+					if (route.path === path || new RegExp('^route.path\?').test(path)) return route;
 					break;
 	
 				case 'regexp':
@@ -322,24 +390,33 @@ Theme.prototype = new (function () {
 	
 	/* Update body & title and set link event handlers for Ajax */
 	
-	this.update = function (title, body) {
+	this.update = function (title, bodyHTML) {
 		
 		var Theme = this;
 		
 		document.title = title;
 		
-		if (body) {
+		if (bodyHTML) {
 			
-			$('body').html(body);
-			$('body').removeClass('changing');
-			$('body').attr('data-status', 'filled');
+			console.time('Update body');
+			
+			var body = $('body');
+			body.html(bodyHTML);
+			body.removeClass('changing');
+			body.attr('data-status', 'filled');
+			
+			console.timeEnd('Update body');
+			console.time('Set click handlers');
 			
 			console.log('Updated to "' + title + '"');
 			
-			if (historyAPISupport()) $('a').click(function () {
+			if (historyAPISupport()) $('a').click(function (event) {
+				event.preventDefault();
+				$(this).addClass('changer');
 				window.open(this.href, this.target);
-				return false;
 			});
+			
+			console.timeEnd('Set click handlers');
 			
 		}
 		
@@ -371,6 +448,25 @@ function extractPath(s) {
 
 }
 
+function parseParameters(string) {
+	
+	var query = string.split('?')[1];
+	var re = /([^&=]+)=?([^&]*)/g;
+	var decodeRE = /\+/g;  // Regex for replacing addition symbol with a space
+	var decode = function (str) {return decodeURIComponent( str.replace(decodeRE, " ") );};
+	var params = {}, e;
+	while (e = re.exec(query)) {
+		var k = decode( e[1] ), v = decode( e[2] );
+		if (k.substring(k.length - 2) === '[]') {
+			k = k.substring(0, k.length - 2);
+			(params[k] || (params[k] = [])).push(v);
+		}
+		else params[k] = v;
+	}
+	return params || {};
+	
+}
+
 
 /* api */
 
@@ -393,7 +489,7 @@ window.theme = {
 			
 			if (ajaxPossible && historyAPISupport() && isIntern(href)) {
 				history.pushState(null, null, href);
-				window.theme.load(extractPath(href));
+				window.theme.load(extractPath(href), parseParameters(href));
 			} else window._open.apply(this, window.open.arguments);
 		
 			function isIntern(n) {

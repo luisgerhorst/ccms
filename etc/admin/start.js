@@ -15,16 +15,11 @@ $(document).ready(function () {
 		{
 			path: '/',
 			templates: ['header.html', 'posts.html', 'footer.html'],
-			before: function (path) {
+			before: function (path, parameters) {
 				
-				if (getParameter('page') == 1) {
+				if (parameters.page == 1) {
 					window.open(theme.host+theme.rootPath+theme.sitePath);
 					return false;
-				}
-				
-				function getParameter(n) {
-					var m = RegExp('[?&]'+n+'=([^&]*)').exec(window.location.search);
-					return m && decodeURIComponent(m[1].replace(/\+/g, ' '));
 				}
 				
 			},
@@ -86,17 +81,12 @@ $(document).ready(function () {
 	
 		};
 	
-		views['posts.html'] = function (callback, path) {
+		views['posts.html'] = function (callback, path, parameters) {
 	
 			var postsPerPage = 10,
-				urlPageIndex = parseInt(getParameter('page') || 1),
+				urlPageIndex = parseInt(parameters.page || 1),
 				pageIndex = urlPageIndex-1;
 				skip = postsPerPage * pageIndex;
-			
-			function getParameter(n) {
-				var m = RegExp('[?&]'+n+'=([^&]*)').exec(window.location.search);
-				return m && decodeURIComponent(m[1].replace(/\+/g, ' '));
-			}
 	
 			function View(pageIndex, page) {
 	
@@ -209,7 +199,10 @@ $(document).ready(function () {
 				filePath: '/etc/admin/theme',
 				routes: routes,
 				views: views(database, config),
-				log: ['error', 'performance', 'info']
+				cache: {
+					views: false,
+					templates: true
+				}
 			});
 			
 		}
