@@ -2,7 +2,7 @@ $(document).ready(function () {
 	
 	var routes = [
 		{
-			path: ['/'],
+			path: '/',
 			templates: ['header.html', 'posts.html', 'footer.html'],
 			before: function (path, parameters) {
 				

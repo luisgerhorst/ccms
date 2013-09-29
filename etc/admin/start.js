@@ -3,7 +3,7 @@ $(document).ready(function () {
 	var routes = [
 	
 		{
-			path: ['/login'],
+			path: '/login',
 			templates: ['login.html'],
 			title: 'Login'
 		},

@@ -258,11 +258,49 @@ Theme.prototype = new (function () {
 			$('head').append(output);
 			
 			var isEmpty = $('body').attr('data-status') == 'empty';
-			
-			if (isEmpty) Theme.load(extractPath(location.href), parseParameters(location.href));
+			if (isEmpty) {
+				
+				var href = location.href;
+				
+				Theme.load(function (title, body) {
+					
+					window.history.replaceState({
+						title: title,
+						body: body
+					}, title, href);
+					
+					Theme.update(title, body);
+					
+				}, extractPath(href), parseParameters(href));
+				
+			}
 			
 			if (historyAPISupport()) window.addEventListener('popstate', function (event) { // back
-				Theme.load(extractPath(location.href), parseParameters(location.href));
+				
+				if (event.state) {
+					
+					var title = event.state.title,
+						body = event.state.body;
+					
+					Theme.update(title, body);
+					
+				} else {
+					
+					var href = location.href;
+					
+					Theme.load(function (title, body) {
+						
+						window.history.replaceState({
+							title: title,
+							body: body
+						}, title, href);
+						
+						Theme.update(title, body);
+						
+					}, extractPath(href), parseParameters(href));
+					
+				}
+				
 			});
 			
 		});
@@ -271,7 +309,7 @@ Theme.prototype = new (function () {
 	
 	/* Load the body & title for a path, call update */
 	
-	this.load = function (path, parameters) {
+	this.load = function (callback, path, parameters) {
 		
 		var Theme = this;
 		
@@ -284,7 +322,7 @@ Theme.prototype = new (function () {
 		if (!route) {
 			
 			fatalError('Page not found', "The page you were looking for doesn't exist.");
-			throw 'No route found';
+			console.error('No route found', Theme.routes, path);
 			
 		} else {
 			
@@ -293,7 +331,8 @@ Theme.prototype = new (function () {
 			if (!stop && route.templates.length) route.load(function (body, views) {
 				
 				var title = Mustache.render(route.title, validateObjectKeys(views));
-				Theme.update(title, body);
+				
+				callback(title, body);
 				
 				function validateObjectKeys(object) {
 					var validatedObject = {};
@@ -449,8 +488,20 @@ window.createTheme = function (options) {
 		var ajaxPossible = target == '_self' && 1 <= window.open.arguments.length <= 2;
 		
 		if (ajaxPossible && historyAPISupport() && isIntern(href)) {
+			
 			history.pushState(null, null, href);
-			theme.load(extractPath(href), parseParameters(href));
+			
+			theme.load(function (title, body) {
+				
+				window.history.replaceState({
+					title: title,
+					body: body
+				}, title, href);
+				
+				theme.update(title, body);
+				
+			}, extractPath(href), parseParameters(href));
+			
 		} else window._open.apply(this, window.open.arguments);
 	
 		function isIntern(url) {
