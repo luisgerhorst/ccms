@@ -152,7 +152,7 @@ function Route(options) {
 
 Route.prototype = new (function () {
 	
-	this.load = function (loaded, path, parameters) {
+	this.load = function (callback, path, parameters) {
 		
 		var Route = this;
 		
@@ -170,7 +170,7 @@ Route.prototype = new (function () {
 				
 				body[i] = output;
 				views[template.name] = view;
-				if (nothingToLoad()) loaded(stringifyArray(body), views);
+				if (nothingToLoad()) callback(stringifyArray(body), views);
 				
 			}, path, parameters);
 			
@@ -279,9 +279,7 @@ Theme.prototype = new (function () {
 		body.addClass('changing');
 		body.attr('data-status', 'changing');
 		
-		console.time('Search route');
 		var route = Theme.searchRoute(path);
-		console.timeEnd('Serach route');
 		
 		if (!route) {
 			
@@ -426,6 +424,12 @@ function parseParameters(string) {
 	
 }
 
+/* enhancements */
+
+String.prototype.startsWith = function(needle) {
+	return(this.indexOf(needle) === 0);
+};
+
 /* api */
 
 window.createTheme = function (options) {
@@ -438,19 +442,24 @@ window.createTheme = function (options) {
 	window._open = window.open;
 	window.open = function (href, target, options) {
 		
+		var theme = window.theme;
+		
 		target = window.open.arguments[1] = target || '_self';
 	
 		var ajaxPossible = target == '_self' && 1 <= window.open.arguments.length <= 2;
 		
 		if (ajaxPossible && historyAPISupport() && isIntern(href)) {
 			history.pushState(null, null, href);
-			window.theme.load(extractPath(href), parseParameters(href));
+			theme.load(extractPath(href), parseParameters(href));
 		} else window._open.apply(this, window.open.arguments);
 	
-		function isIntern(n) {
-			var r = window.theme.rootPath+window.theme.sitePath,
-				fr = window.theme.host+window.theme.rootPath+window.theme.sitePath;
-			return fr == n || new RegExp('^'+fr+'/.*$').test(n) || new RegExp('^'+fr+'?.*$').test(n) || r == n || new RegExp('^'+r+'/.*$').test(n) || new RegExp('^'+r+'?.*$').test(n);
+		function isIntern(url) {
+			
+			var root = theme.rootPath + theme.sitePath,
+				fullRoot = theme.host + theme.rootPath + theme.sitePath;
+			
+			return fullRoot == url || url.startsWith(fullRoot + '/') || url.startsWith(fullRoot + '?') || root == url || url.startsWith(root + '/') || url.startsWith(root + '?');
+			
 		}
 	
 	};

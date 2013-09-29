@@ -32,7 +32,7 @@ function tryCookie(databaseName, currentPath) {
 
 function foundValid(couchdb, database) {
 	
-	console.log('Cookie auth successfull.');
+	console.info('Cookie auth successfull.');
 	
 	window.couchdb = couchdb;
 	window.database = database;
@@ -41,7 +41,7 @@ function foundValid(couchdb, database) {
 
 function openLoginForm() {
 	
-	console.log('Cookie auth failed, redirecting to login form.');
+	console.info('Cookie auth failed, redirecting to login form.');
 
 	var path = (currentPath == '/' || currentPath == '/logout') ? '/login' : '/login?redirect='+encodeURIComponent(currentPath);
 	window.open(theme.host+theme.rootPath+theme.sitePath+path);
