@@ -57,7 +57,7 @@ function login(redirectPath, databaseName) {
 		window.couchdb = couchdb;
 		window.database = database;
 		
-		window.theme.open(window.theme.rootPath+window.theme.sitePath+redirectPath);
+		window.open(window.theme.rootPath+window.theme.sitePath+redirectPath);
 
 	}
 	

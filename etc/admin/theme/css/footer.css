@@ -28,6 +28,6 @@ footer p a:hover {
 	color: rgb(120,120,120);
 }
 
-footer p a:active {
+footer p a.changer, footer p a:active {
 	color: rgb(160,160,160);
 }

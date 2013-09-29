@@ -1,179 +1,170 @@
-window.theme = new (function () {
+(function () { // start
+
+
+/* Template */
+
+function Template(name, viewSource) {
 	
-	var Theme = this;
+	this.name = name;
+	this.viewSource = viewSource || {};
 	
-	/* attributes */
+	this.template = null;
+	this.viewCache = {};
 	
-	Theme.templates = {};
-	Theme.routes = [];
-	
-	/* logging */
-	
-	var consoleImitation = new (function () {
-		var nothing = function () {};
-		for (var method in console) this[method] = nothing;
-	})();
-	
-	var consol = {
-		info: consoleImitation,
-		error: console,
-		performance: consoleImitation
-	};
-	
-	/* utils */
-	
-	/* replace dots in object keys by _ */
-	var validateObjectKeys = function (object) {
-		var validatedObject = {};
-		for (var key in object) validatedObject[key.replace('.', '_')] = object[key];
-		return validatedObject;
-	};
-	
-	/* check if HTML5 History API is supported */
-	function historyAPISupport() {
-		return !!(window.history && history.pushState);
-	}
-	
-	/* get CCMS path from an URL */
-	var extractPath = function (s) {
+}
+
+Template.prototype = new (function () {
+
+	this.load = function (callback, path, parameters) {
 		
-		consol.info.log('Extracting path of', s);
+		console.log('parameters', parameters);
 		
-		var e = document.createElement('a');
-		e.href = s;
-		s = e.pathname; // path
-		
-		s = s.replace(new RegExp('^'+Theme.rootPath+Theme.sitePath), ''); // extract content after url root
-		s = s.replace(/\/$/, ''); // remove / from end
-		
-		if (!s) s = '/';
-		
-		consol.info.log('Extracted path', s);
-		
-		return s;
-		
-	};
-	
-	/* create string from array */
-	var stringifyArray = function (array) {
-		var string = '', length = array.length;
-		for (var i = 0; i < length; i++) string += array[i] || '';
-		return string;
-	};
-	
-	/* Template */
-	
-	var Template = function (name, viewSource, fallbackTemplate) {
+		console.log('load template', this);
 		
 		var Template = this;
 		
-		Template.name = name;
+		/* unique vars */
 		
-		if (viewSource) Template.viewSource = viewSource;
-		if (fallbackTemplate) Template.fallbackTemplate = fallbackTemplate;
-		
-	};
-	
-	/* fallback */
-	
-	Template.prototype.viewSource = {};
-	Template.prototype.fallbackTemplate = '';
-	
-	/* methods */
-	
-	Template.prototype.load = function (loaded, path) {
-		
-		var Template = this;
-	
-		var toLoad = 2,
-			template = null,
-			view = {};
-			
-		function chunkReceived() {
-			toLoad--;
-			if (!toLoad) { // done
-				
-				view._host = Theme.host;
-				view._rootPath = Theme.rootPath;
-				view._sitePath = Theme.sitePath;
-				view._filePath = Theme.filePath;
-				
-				view._siteURL = Theme.host+Theme.rootPath+Theme.sitePath;
-				view._fileURL = Theme.host+Theme.rootPath+Theme.filePath;
-				
-				loaded(Mustache.render(template, view), view);
-			}
-		}
-		
-		/* template */
-	
-		$.ajax({
-			url: Theme.rootPath+Theme.filePath + '/' + Template.name,
-			success: function (response) {
-				template = response;
-				chunkReceived();
-			},
-			error: function () {
-				consol.error.log(Template.name + ': Error, unable to load template.');
-				template = Template.fallbackTemplate;
-				chunkReceived();
-			}
+		var reqHash = JSON.stringify({
+			path: path,
+			parameters: parameters
 		});
 		
-		/* view */
-	
-		var viewSource = Template.viewSource;
-	
-		switch (viewSource === null ? 'null' : typeof viewSource) {
+		var toLoad = 2;
+		
+		/* template */
+		
+		if (Template.template && window.theme.cache.templates) {
 			
-			case 'function':
-				viewSource(function (response, error) {
+			toLoad--;
+			if (!toLoad) done();
+			
+		} else {
+			
+			$.ajax({
+				url: window.theme.rootPath+window.theme.filePath + '/' + Template.name,
+				error: function (jqXHR, textStatus, errorThrown) {
+					fatalError('Rendering Error', 'Unable to load template <code>'+Template.name+'</code>.');
+					throw 'Ajax error';
+				},
+				success: function (response) {
 					
-					if (error) {
-						consol.error.log('View source returned error.', 'Error:', error);
-						fatalError(error.heading || 'Error', error.message || 'Could not load page content.');
-					} else {
-						view = response;
-						chunkReceived();
-					}
+					Template.template = response;
+					toLoad--;
+					if (!toLoad) done();
 					
-				}, path);
-				break;
-				
-			case 'object':
-				view = viewSource;
-				chunkReceived();
-				break;
-				
-			default:
-				consol.error.log(Template.name + ': Error, unable to prozess view source. View source = ', viewSource);
-				view = {};
-				chunkReceived();
-				
+				}
+			});
+			
 		}
-	
+		
+		/* view */
+		
+		if (Template.viewCache[reqHash] && window.theme.cache.views) {
+			
+			toLoad--;
+			if (!toLoad) done();
+			
+		} else {
+		
+			var viewSource = Template.viewSource;
+			
+			switch (typeOf(viewSource)) {
+				
+				case 'function':
+					viewSource(function (response, error) {
+						
+						if (error) {
+							fatalError(error.heading || 'Error', error.message || 'Could not load page content.');
+							throw 'View source function returned error.';
+						} else {
+							
+							Template.viewCache[reqHash] = response;
+							toLoad--;
+							if (!toLoad) done();
+							
+						}
+						
+					}, path, parameters);
+					break;
+				
+				case 'object':
+				
+					Template.viewCache[reqHash] = viewSource;
+					toLoad--;
+					if (!toLoad) done();
+					
+					break;
+				
+				default:
+					throw 'No valid view source.';
+				
+			}
+			
+		}
+		
+		function typeOf(v) {
+			return v === null ? 'null' : typeof v;
+		}
+		
+		/* done */
+		
+		function done() {
+			
+			console.time('create template output');
+			
+			console.log('template done');
+			
+			var view = Template.viewCache[reqHash],
+				template = Template.template;
+			
+			view._host = window.theme.host;
+			view._rootPath = window.theme.rootPath;
+			view._sitePath = window.theme.sitePath;
+			view._filePath = window.theme.filePath;
+			
+			view._siteURL = window.theme.host+window.theme.rootPath+window.theme.sitePath;
+			view._fileURL = window.theme.host+window.theme.rootPath+window.theme.filePath;
+			
+			var output = Mustache.render(template, view);
+			
+			console.timeEnd('create template output');
+			
+			callback(output, view);
+			
+		}
+		
+		/* tools */
+		
+		function createHash() {
+			
+			
+			
+		}
+		
 	};
+
+})();
+
+
+/* Route */
+
+function Route(options) {
+
+	this.path = options.path;
+	this.title = options.title;
+
+	this.before = options.before || function () {};
+	this.done = options.done || function () {};
+	this.templates = options.templates || [];
+
+}
+
+Route.prototype = new (function () {
 	
-	/** Route */
-	
-	var Route = function (options) {
+	this.load = function (loaded, path, parameters) {
 		
-		var Route = this;
-		
-		Route.path = options.path;
-		Route.title = options.title;
-		
-		if (options.before) Route.before = options.before;
-		if (options.done) Route.done = options.done;
-		if (options.templates) Route.templates = options.templates;
-		
-	};
-	
-	Route.prototype.before = function () {};
-	Route.prototype.done = function () {};
-	Route.prototype.templates = [];
-	
-	Route.prototype.load = function (loaded, path) {
+		console.log('parameters route', parameters);
 		
 		var Route = this;
 		
@@ -184,8 +175,19 @@ window.theme = new (function () {
 			views = {};
 		
 		function templateLoaded() {
+			
+			console.log('temaplet loaded (in route)');
+			
 			toLoad--;
 			if (!toLoad) loaded(stringifyArray(body), views);
+			
+			/* create string from array */
+			function stringifyArray(array) {
+				var string = '', length = array.length;
+				for (var i = 0; i < length; i++) string += array[i] || '';
+				return string;
+			}
+			
 		}
 		
 		for (var i = templates.length; i--;) (function (i) {
@@ -198,34 +200,173 @@ window.theme = new (function () {
 				views[template.name] = view;
 				templateLoaded();
 				
-			}, path);
+			}, path, parameters);
 			
 		})(i);
 		
 	};
 	
-	Theme.currentPath = function () {
-		return extractPath(location.href);
+})();
+
+
+/* Theme */
+
+function Theme(options) {
+	
+	console.time('new Theme');
+	
+	this.cache = options.cache || {
+		views: false,
+		templates: true
+	};
+	
+	/* urls */
+	
+	this.host = location.protocol + '//' + location.host;
+	this.rootPath = options.rootPath;
+	this.filePath = options.filePath;
+	this.sitePath = options.sitePath;
+	
+	/* data */
+	
+	this.templates = {};
+	this.routes = [];
+	
+	/* templates from views */
+	
+	for (var name in options.views) this.templates[name] = new Template(name, options.views[name]);
+	
+	/* routes & templates from routes */
+	
+	for (var i = options.routes.length; i--;) {
+		
+		var route = options.routes[i],
+			templateNames = route.templates || [];
+		
+		for (var j = templateNames.length; j--;) {
+			
+			var name = templateNames[j];
+			
+			if (this.templates[name]) route.templates[j] = this.templates[name];
+			else route.templates[j] = this.templates[name] = new Template(name);
+			
+		}
+		
+		this.routes[i] = new Route(route);
+		
 	}
 	
-	/* search route that matches the path. */
+	console.timeEnd('new Theme');
 	
-	Theme.searchRoute = function (path) {
+}
+
+Theme.prototype = new (function () {
+	
+	this.currentPath = function () {
+		return extractPath(location.href);
+	};
+	
+	this.setup = function () {
 		
-		for (i = Theme.routes.length; i--;) {
+		var Theme = this;
+		
+		/* get head */
+		
+		new Template('head.html').load(function (output) {
 			
-			var route = Theme.routes[i];
+			$('head').append(output);
 			
-			switch (route.path instanceof RegExp ? 'regexp' : route.path instanceof Array ? 'array' : typeof route.path) {
+			var isEmpty = $('body').attr('data-status') == 'empty';
+			
+			if (isEmpty) Theme.load(extractPath(location.href), parseParameters(location.href));
+			
+			if (historyAPISupport()) window.addEventListener('popstate', function (event) { // back
+				Theme.load(extractPath(location.href), parseParameters(location.href));
+			});
+			
+		});
+		
+	};
+	
+	/* Load the body & title for a path, call update */
+	
+	this.load = function (path, parameters) {
+		
+		console.log('parameters theme', parameters);
+		
+		console.time('Start loading route after .load called');
+		
+		var Theme = this;
+		
+		console.log('Load', path);
+		
+		var body = $('body');
+		body.addClass('changing');
+		body.attr('data-status', 'changing');
+		
+		var route = Theme.searchRoute(path);
+		
+		if (!route) {
+			
+			fatalError('Page not found', "The page you were looking for doesn't exist.");
+			throw 'No route found';
+			
+		} else {
+			
+			console.log('... Route Found');
+			var stop = route.before(path, parameters) === false;
+			
+			console.timeEnd('Start loading route after .load called');
+			console.time('Load route');
+			
+			if (!stop && route.templates.length) route.load(function (body, views) {
 				
+				console.timeEnd('Load route');
+				
+				console.log('route loaded', body, views);
+				
+				var title = Mustache.render(route.title, validateObjectKeys(views));
+				Theme.update(title, body);
+				route.done(views, path, parameters);
+				
+				/* replace dots in object keys by _ */
+				function validateObjectKeys(object) {
+					var validatedObject = {};
+					for (var key in object) validatedObject[key.replace('.', '_')] = object[key];
+					return validatedObject;
+				}
+				
+			}, path, parameters); else if (!stop) {
+				
+				Theme.update(route.title);
+				route.done(null, path, parameters);
+				
+			}
+			
+		}
+		
+	};
+	
+	/* Search route that matches path. */
+	
+	this.searchRoute = function (path) {
+		
+		var Theme = this;
+	
+		for (i = Theme.routes.length; i--;) {
+	
+			var route = Theme.routes[i];
+	
+			switch (route.path instanceof RegExp ? 'regexp' : route.path instanceof Array ? 'array' : typeof route.path) {
+	
 				case 'string':
-					if (route.path === path) return route;
+					if (route.path === path || new RegExp('^route.path\?').test(path)) return route;
 					break;
-					
+	
 				case 'regexp':
 					if (route.path.test(path)) return route;
 					break;
-					
+	
 				case 'array':
 					var a = route.path;
 					for (var j = a.length; j--;) {
@@ -234,170 +375,133 @@ window.theme = new (function () {
 						else if (p instanceof RegExp && p.test(path)) return route;
 					}
 					break;
-					
+	
 				case 'function':
 					if (route.path(path)) return route;
 					break;
-					
+	
 			}
-			
+	
 		}
-		
+	
 		return null;
-		
+	
 	};
-	
-	/* Open an URL, use Ajax if possible */
-	
-	Theme.open = function (href, target) {
-		
-		consol.info.log('Open', href, target);
-		
-		if ((!target || target == '_self') && historyAPISupport() && isIntern(href)) {
-			
-			history.pushState(null, null, href);
-			Theme.load(extractPath(href));
-			
-		} else {
-			
-			target = target || '_self';
-			window.open(href, target);
-			
-		}
-		
-		function isIntern(n) {
-			var r = Theme.rootPath+Theme.sitePath,
-				fr = Theme.host+Theme.rootPath+Theme.sitePath;
-			return fr == n || new RegExp('^'+fr+'/.*$').test(n) || r == n || new RegExp('^'+r+'/.*$').test(n); // prot://host/root, prot://host/root/, prot://host/root/..., root root/ root/...
-		}
-		
-	}
 	
 	/* Update body & title and set link event handlers for Ajax */
 	
-	Theme.update = function (title, body) {
+	this.update = function (title, bodyHTML) {
+		
+		var Theme = this;
 		
 		document.title = title;
 		
-		if (body) {
+		if (bodyHTML) {
 			
-			$('body').html(body);
-			$('body').removeClass('changing');
-			$('body').attr('status', 'filled');
+			console.time('Update body');
 			
-			consol.info.log('Updated to "' + title + '"');
+			var body = $('body');
+			body.html(bodyHTML);
+			body.removeClass('changing');
+			body.attr('data-status', 'filled');
 			
-			if (historyAPISupport()) $('a').click(function () {
-				Theme.open(this.href, this.target);
-				return false;
+			console.timeEnd('Update body');
+			console.time('Set click handlers');
+			
+			console.log('Updated to "' + title + '"');
+			
+			if (historyAPISupport()) $('a').click(function (event) {
+				event.preventDefault();
+				$(this).addClass('changer');
+				window.open(this.href, this.target);
 			});
 			
-		}
-		
-	}
-	
-	/* Load the body for a path */
-	
-	Theme.load = function (path) {
-		
-		consol.info.log('Load', path);
-		
-		$('body').addClass('changing');
-		$('body').attr('status', 'changing');
-		
-		var route = Theme.searchRoute(path);
-		
-		if (!route) {
-			
-			consol.error.log('No route was found.', 'Current path:', path, 'Routes:', Theme.routes);
-			fatalError('Page not found', "The page you were looking for doesn't exist.");
-			
-		} else {
-			
-			consol.info.log('... Route Found');
-			var stop = route.before(path) === false;
-				
-			if (!stop && route.templates.length) route.load(function (body, views) {
-				
-				var title = Mustache.render(route.title, validateObjectKeys(views));
-				Theme.update(title, body);
-				route.done(views, path);
-				
-			}, path); else if (!stop) {
-				
-				Theme.update(route.title);
-				route.done(null, path);
-				
-			}
+			console.timeEnd('Set click handlers');
 			
 		}
-		
-	};
-	
-	/* setup */
-	
-	Theme.setup = function (options) {
-		
-		/* logging */
-
-		if (options.log) {
-			
-			if (options.log.indexOf('info') > -1) consol.info = console;
-			if (options.log.indexOf('error') > -1) consol.error = console;
-			if (options.log.indexOf('performance') > -1) consol.performance = console;
-			
-		}
-		
-		/* roots */
-		
-		Theme.host = location.protocol + '//' + location.host;
-		Theme.rootPath = options.rootPath;
-		Theme.filePath = options.filePath;
-		Theme.sitePath = options.sitePath;
-		
-		/* templates from views */
-		
-		for (var name in options.views) Theme.templates[name] = new Template(name, options.views[name]);
-		
-		/* routes & templates from routes */
-		
-		for (var i = options.routes.length; i--;) {
-			
-			var route = options.routes[i],
-				templateNames = route.templates || [];
-			
-			for (var j = templateNames.length; j--;) {
-				
-				var name = templateNames[j];
-				
-				if (Theme.templates[name]) route.templates[j] = Theme.templates[name];
-				else route.templates[j] = Theme.templates[name] = new Template(name);
-				
-			}
-			
-			Theme.routes[i] = new Route(route);
-			
-		}
-		
-		/* get head */
-		 
-		new Template('head.html').load(function (output) {
-			
-			$('body').attr('status', 'empty');
-			$('head').append(output);
-			
-			var isEmpty = $('body').attr('status') == 'empty';
-			
-			consol.info.log('Head ready, load body?', isEmpty);
-			
-			if (isEmpty) Theme.load(extractPath(location.href));
-			
-			if (historyAPISupport()) window.addEventListener('popstate', function (event) { // back
-				Theme.load(extractPath(location.href));
-			});
-			
-		});
 		
 	};
 	
 })();
+
+
+/* tools */
+
+/* check if HTML5 History API is supported */
+function historyAPISupport() {
+	return !!(window.history && history.pushState);
+}
+
+/* get CCMS path from an URL */
+function extractPath(s) {
+
+	var e = document.createElement('a');
+	e.href = s;
+	s = e.pathname; // path
+
+	s = s.replace(new RegExp('^'+window.theme.rootPath+window.theme.sitePath), ''); // extract content after url root
+	s = s.replace(/\/$/, ''); // remove / from end
+
+	if (!s) s = '/';
+
+	return s;
+
+}
+
+function parseParameters(string) {
+	
+	var query = string.split('?')[1];
+	var re = /([^&=]+)=?([^&]*)/g;
+	var decodeRE = /\+/g;  // Regex for replacing addition symbol with a space
+	var decode = function (str) {return decodeURIComponent( str.replace(decodeRE, " ") );};
+	var params = {}, e;
+	while (e = re.exec(query)) {
+		var k = decode( e[1] ), v = decode( e[2] );
+		if (k.substring(k.length - 2) === '[]') {
+			k = k.substring(0, k.length - 2);
+			(params[k] || (params[k] = [])).push(v);
+		}
+		else params[k] = v;
+	}
+	return params || {};
+	
+}
+
+
+/* api */
+
+window.theme = {
+	setup: function (options) {
+		
+		window.theme = new Theme(options);
+		window.theme.setup();
+		
+		/* Open an URL, use Ajax if possible */
+		
+		window._open = window.open;
+		window.open = function (href, target, options) {
+			
+			target = window.open.arguments[1] = target || '_self';
+		
+			console.log('Open', href);
+			
+			var ajaxPossible = target == '_self' && 1 <= window.open.arguments.length <= 2;
+			
+			if (ajaxPossible && historyAPISupport() && isIntern(href)) {
+				history.pushState(null, null, href);
+				window.theme.load(extractPath(href), parseParameters(href));
+			} else window._open.apply(this, window.open.arguments);
+		
+			function isIntern(n) {
+				var r = window.theme.rootPath+window.theme.sitePath,
+					fr = window.theme.host+window.theme.rootPath+window.theme.sitePath;
+				return fr == n || new RegExp('^'+fr+'/.*$').test(n) || new RegExp('^'+fr+'?.*$').test(n) || r == n || new RegExp('^'+r+'/.*$').test(n) || new RegExp('^'+r+'?.*$').test(n);
+			}
+		
+		};
+		
+	}
+};
+
+
+})(); // end

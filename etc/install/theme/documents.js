@@ -43,7 +43,7 @@ function saveDocuments(database) {
 					
 							toSave--;
 							
-							if (!toSave) window.theme.open(theme.rootPath+theme.sitePath + '/finished');
+							if (!toSave) window.open(theme.rootPath+theme.sitePath + '/finished');
 					
 						});
 					

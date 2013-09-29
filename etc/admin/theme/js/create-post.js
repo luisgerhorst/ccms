@@ -37,14 +37,14 @@ var PostDoc = function (documentID) {
 
 			window.database.view('posts', 'byPostID?key="' + doc.postID + '"', function (res, err) { if (!err) {
 
-				if (res.rows.length) notifications.alert('Post with URL /post/' + doc.postID + ' does already exist.');
+				if (res.rows.length) notifications.alert('Post with URL /posts/' + doc.postID + ' does already exist.');
 
 				else {
 
 					window.database.save(doc, function (res, err) { if (!err) {
 
 						documentID = res.id;
-						window.theme.open(theme.host+theme.rootPath+theme.sitePath);
+						window.open(theme.host+theme.rootPath+theme.sitePath);
 
 					}});
 
@@ -66,13 +66,13 @@ var PostDoc = function (documentID) {
 
 			window.database.view('posts', 'byPostID?key="' + doc.postID + '"', function (res, err) { if (!err) {
 
-				if (res.rows.length && res.rows[0].value._id !== documentID) notifications.alert('Post with URL /post/' + doc.postID + ' does already exist.');
+				if (res.rows.length && res.rows[0].value._id !== documentID) notifications.alert('Post with URL /posts/' + doc.postID + ' does already exist.');
 
 				else {
 
 					window.database.save(documentID, doc, function (res, err) { if (!err) {
 
-						window.theme.open(theme.host+theme.rootPath+theme.sitePath);
+						window.open(theme.host+theme.rootPath+theme.sitePath);
 
 					}});
 
@@ -95,7 +95,7 @@ var PostDoc = function (documentID) {
 		if (confirmed) {
 
 			window.database.remove(documentID, function (res, err) {
-				if (!err) window.theme.open(theme.host+theme.rootPath+theme.sitePath);
+				if (!err) window.open(theme.host+theme.rootPath+theme.sitePath);
 			});
 
 		}

@@ -28,6 +28,4 @@ form.submit(function () {
 	
 	postDoc.create(titleInput.val(), contentTextarea.val(), dateInput.val(), postIDInput.val());
 	
-	return false;
-	
 });

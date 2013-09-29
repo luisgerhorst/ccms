@@ -36,7 +36,10 @@ $(document).ready(function () {
 				filePath: '/etc/install/theme',
 				routes: routes,
 				views: views(config),
-				log: ['error', 'info']
+				cache: {
+					views: false,
+					templates: false
+				}
 			});
 			
 		},

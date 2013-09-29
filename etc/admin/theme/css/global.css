@@ -3,7 +3,7 @@ html {
 }
 
 body {
-	color: rgb(110,110,110);
+	color: #6e6e6e;
 	font: normal 13px "Lucida Grande", "Lucida Sans Unicode", Geneva, sans-serif;
 	line-height: 16px;
 }
@@ -33,7 +33,7 @@ a:hover {
 	color: rgb(80,80,80);
 }
 
-a:active {
+a.changer, a:active {
 	color: rgb(110,110,110);
 }
 
@@ -70,7 +70,7 @@ button:hover, input[type="submit"]:hover {
 	text-shadow: 0 -1px rgb(63,143,228);
 }
 
-button:active, input[type="submit"]:active {
+.changer button, button:active, input[type="submit"]:active {
 	background: rgb(60,140,213);
 	background: linear-gradient(top, rgb(60,140,215) 0%, rgb(80,160,220) 100%);
 	background: -webkit-linear-gradient(top, rgb(60,140,215) 0%, rgb(80,160,220) 100%);
@@ -97,7 +97,7 @@ button.grey:hover, input[type="button"]:hover {
 	text-shadow: 0 1px rgba(255,255,255,0.44);
 }
 
-button.grey:active, input[type="button"]:active {
+button.grey.changer, button.grey:active, input[type="button"]:active {
 	background: rgb(242,242,242);
 	box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2), inset 0 0 0 2px rgba(255,255,255,0.1);
 	color: rgba(0,0,0,0.44);
@@ -154,8 +154,4 @@ input::input-placeholder, input::-webkit-input-placeholder, textarea::input-plac
 	margin: 20px;
 	width: 660px;
 	border-radius: 4px;
-}
-
-body.changing #content {
-	opacity: 0.5;
 }
