@@ -33,8 +33,6 @@ $(document).ready(function () {
 	
 		views['posts.html'] = function (callback, path, parameters) {
 			
-			console.log('parameters', parameters);
-			
 			// Actions
 			
 			var postsPerPage = meta.postsPerPage,
@@ -152,7 +150,7 @@ $(document).ready(function () {
 					
 				} else {
 					
-					window.theme.setup({
+					window.createTheme({
 						rootPath: config.root,
 						sitePath: '',
 						filePath: '/themes/' + meta.theme,

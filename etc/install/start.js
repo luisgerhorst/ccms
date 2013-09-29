@@ -30,7 +30,7 @@ $(document).ready(function () {
 		dataType: 'json',
 		success: function (config) {
 			
-			window.theme.setup({
+			window.createTheme({
 				rootPath: config.root,
 				sitePath: '/install',
 				filePath: '/etc/install/theme',

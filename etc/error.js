@@ -4,10 +4,9 @@ function fatalError(title, message) {
 	
 	var html = '<div id="error"><h1>'+ title + '</h1><p>'+ message + '</p></div>';
 	
-	$('body').html(html);
-	$('body').removeClass('changing');
-	$('body').attr('data-status', 'filled');
-	
-	console.log('Updated to error page "' + title + '"');
+	var body = $('body');
+	body.html(html);
+	body.removeClass('changing');
+	body.attr('data-status', 'filled');
 	
 }

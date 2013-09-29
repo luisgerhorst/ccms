@@ -193,7 +193,7 @@ $(document).ready(function () {
 			
 			var database = new (new CouchDB(config.root + '/couchdb')).Database(config.database);
 			
-			window.theme.setup({
+			window.createTheme({
 				rootPath: config.root,
 				sitePath: '/admin',
 				filePath: '/etc/admin/theme',
