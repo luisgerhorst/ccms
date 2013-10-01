@@ -25,102 +25,143 @@ $(document).ready(function () {
 	
 		var views = {};
 	
-		views['header.html'] = meta;
+		views['header.html'] = {
+			data: meta
+		};
 	
-		views['footer.html'] = meta;
+		views['footer.html'] = {
+			data: meta
+		};
 	
-		views['head.html'] = meta;
+		views['head.html'] = {
+			data: meta
+		};
 	
-		views['posts.html'] = function (callback, path, parameters) {
-			
-			// Actions
-			
-			var postsPerPage = meta.postsPerPage,
-				urlPageIndex = parseInt(parameters.page || 1),
-				pageIndex = urlPageIndex-1;
-				skip = postsPerPage * pageIndex;
-			
-			database.view('posts', 'byDate?descending=true&skip=' + skip + '&limit=' + postsPerPage, function (response, error) {
-			
-				if (error) callback(null, {
-					title: error.message,
-					heading: 'HTTP Error',
-					message: 'The error <code>' + error.code + ' ' + error.message + '</code> occured while loading the posts.'
-				});
+		views['posts.html'] = {
+			load: function (callback, path, parameters) {
 				
-				else {
-					
-					var loaded = [], rows = response.rows;
-					
-					var l = rows.length;
-					for (var i = 0; i < l; i++) loaded.push(rows[i].value);
-					
-					database.view('posts', 'compactByDate?descending=true&skip=' + ( skip + postsPerPage ) + '&limit=1', function (response, error) {
-					
-						if (error) callback(null, {
-							title: error.message,
-							heading: 'HTTP Error',
-							message: 'The error <code>' + error.code + ' ' + error.message + '</code> occured.'
+				var postsPerPage = meta.postsPerPage,
+					urlPageIndex = parseInt(parameters.page || 1),
+					pageIndex = urlPageIndex-1;
+					skip = postsPerPage * pageIndex;
+				
+				database.view('posts', 'byDate?descending=true&skip=' + skip + '&limit=' + postsPerPage, function (response, error) {
+				
+					if (error) callback(null, {
+						title: error.message,
+						heading: 'HTTP Error',
+						message: 'The error <code>' + error.code + ' ' + error.message + '</code> occured while loading the posts.'
+					}); else {
+						
+						var posts = [];
+						for (var i = 0; i < response.rows.length; i++) posts.push(response.rows[i].value);
+						
+						database.view('posts', 'compactByDate?descending=true&skip=' + ( skip + postsPerPage ) + '&limit=1', function (response, error) {
+							
+							if (error) callback(null, {
+								title: error.message,
+								heading: 'HTTP Error',
+								message: 'The error <code>' + error.code + ' ' + error.message + '</code> occured.'
+							}); else {
+								
+								var page = {
+									posts: posts,
+									hasNext: response.rows.length ? true : false
+								};
+								var view = new View(pageIndex, page);
+								callback(view);
+								
+							}
+							
 						});
 						
-						else {
-							
-							var page = {
-								posts: loaded,
-								hasNext: response.rows.length ? true : false
-							};
-							
-							callback(new View(pageIndex, page));
-							
-						}
-					
-					});
-					
+					}
+				
+				});
+		
+				function View(pageIndex, page) {
+				
+					this.previousPage = function () {
+						if (pageIndex == 0) return false;
+						else return { number: urlPageIndex - 1 };
+					};
+				
+					this.nextPage = function () {
+						if (page.hasNext) return { number: urlPageIndex + 1 }; // if there are less posts then possible
+						else return false;
+					};
+				
+					this.posts = page.posts;
+				
 				}
-			
-			});
-	
-			function View(pageIndex, page) {
-			
-				this.previousPage = function () {
-					if (pageIndex == 0) return false;
-					else return { number: urlPageIndex - 1 };
-				};
-			
-				this.nextPage = function () {
-					if (page.hasNext) return { number: urlPageIndex + 1 }; // if there are less posts then possible
-					else return false;
-				};
-			
-				this.posts = page.posts;
-			
+				
+			},
+			cache: {
+				initial: [], // views by page index in array
+				read: function (globalCache, path, parameters) {
+					var pageIndex = parseInt(parameters.page || 1) - 1;
+					var page = globalCache['posts.html'][pageIndex];
+					if (page) return page;
+					return null;
+				},
+				save: function (view, cache, path, parameters) {
+					var pageIndex = parseInt(parameters.page || 1) - 1;
+					cache[pageIndex] = view;
+					return cache;
+				}
 			}
-			
 		};
 		
-		views['post.html'] = function (callback, path) {
-			
-			var postID = path.replace(/^\/posts\//, '');
-	
-			database.view('posts', 'byPostID?key="' + postID + '"', function (response, error) {
+		views['post.html'] = {
+			load: function (callback, path, parameters) {
 				
-				if (error) callback(null, {
-					title: error.message,
-					heading: 'HTTP Error',
-					message: 'The error <code>' + error.code + ' ' + error.message + '</code> occured.'
+				var postID = path.replace(/^\/posts\//, '');
+		
+				database.view('posts', 'byPostID?key="' + postID + '"', function (response, error) {
+					
+					if (error) callback(null, {
+						title: error.message,
+						heading: 'HTTP Error',
+						message: 'The error <code>' + error.code + ' ' + error.message + '</code> occured.'
+					});
+					else if (!response.rows.length) callback(null, {
+						title: 'Not Found',
+						heading: 'Post not found',
+						message: 'The post you were looking for wasn\'t found. Go back <a href="' + theme.rootPath+theme.sitePath + '">home</a>.'
+					});
+					else {
+						callback(response.rows[0].value);
+					}
+				
 				});
-				else if (!response.rows.length) callback(null, {
-					title: 'Not Found',
-					heading: 'Post not found',
-					message: 'The post you were looking for wasn\'t found. Go back <a href="' + theme.rootPath+theme.sitePath + '">home</a>.'
-				});
-				else {
-					var post = response.rows[0].value;
-					callback(post);
+		
+			},
+			cache: {
+				initial: {}, // posts by post id in object
+				read: function (globalCache, path, parameters) {
+					
+					var postID = path.replace(/^\/posts\//, '');
+					
+					if (globalCache['post.html'][postID]) return globalCache['post.html'][postID];
+					
+					var postsCache = globalCache['posts.html'];
+					for (var i = postsCache.length; i--;) {
+						var posts = postsCache[i].posts;
+						for (var j = posts.length; j--;) {
+							if (posts[j].postID == postID) return posts[j];
+						}
+					}
+					
+					return null;
+					
+				},
+				save: function (view, cache, path, parameters) {
+					var postID = path.replace(/^\/posts\//, '');
+					cache[postID] = view;
+					return cache;
 				}
-			
-			});
-	
+			}
+		
 		};
 	
 		return views;
@@ -168,5 +209,6 @@ $(document).ready(function () {
 		
 		}
 	});
+	
 
 });

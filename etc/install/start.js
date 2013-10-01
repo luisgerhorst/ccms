@@ -19,7 +19,9 @@ $(document).ready(function () {
 	
 		var views = {};
 	
-		views['proxy.html'] = config;
+		views['proxy.html'] = {
+			data: config
+		};
 	
 		return views;
 	
@@ -35,11 +37,7 @@ $(document).ready(function () {
 				sitePath: '/install',
 				filePath: '/etc/install/theme',
 				routes: routes,
-				views: views(config),
-				cache: {
-					views: false,
-					templates: false
-				}
+				views: views(config)
 			});
 			
 		},

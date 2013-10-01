@@ -1,207 +1,213 @@
 (function () { // start
-
-
-/* Template */
-
-function Template(name, viewSource) {
 	
-	this.name = name;
-	this.viewSource = viewSource || {};
-	
-	this.template = null;
-	this.viewCache = {};
-	
-}
-
-Template.prototype = new (function () {
-
-	this.load = function (callback, path, parameters) {
-		
-		var Template = this;
-		
-		/* unique vars */
-		
-		var reqHash = JSON.stringify({
-			path: path,
-			parameters: parameters
-		});
-		
-		var toLoad = 2;
-		
-		/* template */
-		
-		if (Template.template && window.theme.cache.templates) {
-			
-			/* cached */
-			
-			if (nothingToLoad()) done();
-			
-		} else {
-			
-			/* not cached */
-			
-			$.ajax({
-				url: window.theme.rootPath+window.theme.filePath + '/' + Template.name,
-				error: function (jqXHR, textStatus, errorThrown) {
-					fatalError('Rendering Error', 'Unable to load template <code>'+Template.name+'</code>.');
-					throw 'Ajax error';
-				},
-				success: function (response) {
-					
-					Template.template = response;
-					if (nothingToLoad()) done();
-					
-				}
-			});
-			
-		}
-		
-		/* view */
-		
-		if (Template.viewCache[reqHash] && window.theme.cache.views) {
-			
-			/* cached */
-			
-			if (nothingToLoad()) done();
-			
-		} else {
-			
-			/* not cached */
-		
-			var viewSource = Template.viewSource;
-			
-			switch (typeOf(viewSource)) {
-				
-				case 'function':
-					viewSource(function (response, error) {
-						if (error) {
-							fatalError(error.heading || 'Error', error.message || 'Unable to load content of page.');
-							throw 'View source function returned error.';
-						} else {
-							
-							Template.viewCache[reqHash] = response;
-							if (nothingToLoad()) done();
-							
-						}
-						
-					}, path, parameters);
-					break;
-				
-				case 'object':
-					
-					Template.viewCache[reqHash] = viewSource;
-					if (nothingToLoad()) done();
-					
-					break;
-				
-				default:
-					throw 'No valid view source.';
-				
-			}
-			
-			function typeOf(v) {
-				return v === null ? 'null' : typeof v;
-			}
-			
-		}
-		
-		/* done */
-		
-		function done() {
-			
-			var view = Template.viewCache[reqHash],
-				template = Template.template;
-			
-			view._host = window.theme.host;
-			view._rootPath = window.theme.rootPath;
-			view._sitePath = window.theme.sitePath;
-			view._filePath = window.theme.filePath;
-			
-			view._siteURL = window.theme.host+window.theme.rootPath+window.theme.sitePath;
-			view._fileURL = window.theme.host+window.theme.rootPath+window.theme.filePath;
-			
-			var output = Mustache.render(template, view);
-			
-			callback(output, view);
-			
-		}
-		
-		/* tools */
-		
-		function nothingToLoad() {
-			toLoad--;
-			return !toLoad;
-		}
-		
-	};
-
-})();
-
-
-/* Route */
-
-function Route(options) {
-
-	this.path = options.path;
-	this.title = options.title;
-
-	this.before = options.before || function () {};
-	this.templates = options.templates || [];
-
-}
-
-Route.prototype = new (function () {
-	
-	this.load = function (callback, path, parameters) {
-		
-		var Route = this;
-		
-		var templates = Route.templates;
-		
-		var toLoad = templates.length,
-			body = [],
-			views = {};
-		
-		for (var i = templates.length; i--;) (function (i) {
-			
-			var template = templates[i];
-			
-			template.load(function (output, view) {
-				
-				body[i] = output;
-				views[template.name] = view;
-				if (nothingToLoad()) callback(stringifyArray(body), views);
-				
-			}, path, parameters);
-			
-		})(i);
-		
-		/* tools */
-		
-		function nothingToLoad() {
-			toLoad--;
-			return !toLoad;
-		}
-		
-		function stringifyArray(array) {
-			var string = '', length = array.length;
-			for (var i = 0; i < length; i++) string += array[i] || '';
-			return string;
-		}
-		
-	};
-	
-})();
-
-
-/* Theme */
-
 function Theme(options) {
 	
-	this.cache = options.cache || {
+	var Theme = this;
+	
+	/* child classes */
+	
+	Theme.Template = function (name) {
+	
+		this.name = name;
+		this.cached = null;
+	
+	}
+	
+	Theme.Template.prototype = new (function () {
+	
+		this.get = function (callback) {
+			
+			if (this.cached) callback(this.cached);
+			else {
+	
+				var Template = this;
+				$.ajax({
+					url: Theme.rootPath+Theme.filePath + '/' + Template.name,
+					error: function (jqXHR, textStatus, errorThrown) {
+						fatalError('Rendering Error', 'Unable to load template <code>'+Template.name+'</code>.');
+						throw 'Ajax error';
+					},
+					success: function (response) {
+						Template.cached = response;
+						callback(response);
+					}
+				});
+	
+			}
+	
+		}
+	
+	})();
+	
+	Theme.ViewCache = function (initial, read, save, name) {
+	
+		Theme.viewCaches[name] = initial;
+	
+		this.read = read;
+		this.add = save;
+	
+	}
+	
+	Theme.View = function (options, name) {
+		
+		if (!options.load) {
+			
+			this.data = options.data;
+			this.get = function (callback) {
+				callback(this.data);
+			};
+	
+		} else {
+			
+			this.load = options.load;
+			this.cache = options.cache ? new Theme.ViewCache(options.cache.initial, options.cache.read, options.cache.save, name) : false;
+			this.get = function (callback, path, parameters) {
+	
+				var cached = this.cache ? this.cache.read(Theme.viewCaches, path, parameters) : false;
+				
+				if (cached) callback(cached);
+				else {
+				
+					var View = this;
+					this.load(function (response, error) {
+						if (error) {
+							fatalError(error.heading || 'Error', error.message || 'Unable to load content of page.');
+							throw 'View load function returned error.';
+						} else {
+							if (View.cache) {
+								var cache = Theme.viewCaches[name];
+								cache = View.cache.add(response, cache, path, parameters);
+							}
+							callback(response);
+						}
+					}, path, parameters);
+				
+				}
+	
+			}
+	
+		}
+	
+	}
+	
+	
+	/* Segment */
+	
+	Theme.Segment = function (name, view) {
+		
+		this.template = new Theme.Template(name);
+		this.view = new Theme.View(view, name);
+	
+	}
+	
+	Theme.Segment.prototype = new (function () {
+	
+		this.load = function (callback, path, parameters) {
+	
+			var Segment = this;
+	
+			var toLoad = 2,
+				template = null,
+				view = null;
+	
+			Segment.template.get(function (response) {
+				template = response;
+				if (nothingToLoad()) done();
+			});
+	
+			Segment.view.get(function (response) {
+				view = response;
+				if (nothingToLoad()) done();
+			}, path, parameters);
+	
+			function nothingToLoad() {
+				toLoad--;
+				return !toLoad;
+			}
+	
+			function done() {
+				
+				view._host = Theme.host;
+				view._rootPath = Theme.rootPath;
+				view._sitePath = Theme.sitePath;
+				view._filePath = Theme.filePath;
+	
+				view._siteURL = Theme.host+Theme.rootPath+Theme.sitePath;
+				view._fileURL = Theme.host+Theme.rootPath+Theme.filePath;
+	
+				var output = Mustache.render(template, view);
+	
+				callback(output, view);
+	
+			}
+	
+		};
+	
+	})();
+	
+	
+	/* Route */
+	
+	Theme.Route = function (options) {
+	
+		this.path = options.path;
+		this.title = options.title;
+	
+		this.before = options.before || function () {};
+		this.templates = options.templates || [];
+	
+	}
+	
+	Theme.Route.prototype = new (function () {
+	
+		this.load = function (callback, path, parameters) {
+	
+			var Route = this;
+	
+			var templates = Route.templates;
+	
+			var toLoad = templates.length,
+				body = [],
+				views = {};
+	
+			for (var i = templates.length; i--;) (function (i) {
+	
+				var template = templates[i];
+	
+				template.load(function (output, view) {
+	
+					body[i] = output;
+					views[template.template.name] = view;
+					if (nothingToLoad()) callback(stringifyArray(body), views);
+	
+				}, path, parameters);
+	
+			})(i);
+	
+			/* tools */
+	
+			function nothingToLoad() {
+				toLoad--;
+				return !toLoad;
+			}
+	
+			function stringifyArray(array) {
+				var string = '', length = array.length;
+				for (var i = 0; i < length; i++) string += array[i] || '';
+				return string;
+			}
+	
+		};
+	
+	})();
+	
+	
+	this.cacheEnabled = options.cache || {
 		views: false,
 		templates: true
 	};
+	
+	this.viewCaches = {};
 	
 	/* urls */
 	
@@ -217,7 +223,7 @@ function Theme(options) {
 	
 	/* templates from views */
 	
-	for (var name in options.views) this.templates[name] = new Template(name, options.views[name]);
+	for (var name in options.views) this.templates[name] = new Theme.Segment(name, options.views[name]);
 	
 	/* routes & templates from routes */
 	
@@ -231,13 +237,14 @@ function Theme(options) {
 			var name = templateNames[j];
 			
 			if (this.templates[name]) route.templates[j] = this.templates[name];
-			else route.templates[j] = this.templates[name] = new Template(name);
+			else route.templates[j] = this.templates[name] = new Theme.Segment(name, { data: {} });
 			
 		}
 		
-		this.routes[i] = new Route(route);
+		this.routes[i] = new Theme.Route(route);
 		
 	}
+	
 	
 }
 
@@ -253,7 +260,7 @@ Theme.prototype = new (function () {
 		
 		/* get head */
 		
-		new Template('head.html').load(function (output) {
+		new Theme.Segment('head.html', { data: {} }).load(function (output) {
 			
 			$('head').append(output);
 			
@@ -329,6 +336,8 @@ Theme.prototype = new (function () {
 			var stop = route.before(path, parameters) === false;
 			
 			if (!stop && route.templates.length) route.load(function (body, views) {
+				
+				console.log(body, views, route.title);
 				
 				var title = Mustache.render(route.title, validateObjectKeys(views));
 				
@@ -417,6 +426,8 @@ Theme.prototype = new (function () {
 	};
 	
 })();
+
+
 
 /* tools */
 
