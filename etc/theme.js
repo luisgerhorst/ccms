@@ -6,25 +6,24 @@ function Theme(options) {
 	
 	/* child classes */
 	
-	Theme.Template = function (name) {
+	Theme.Template = function (name) { var Template = this;
 	
-		this.name = name;
-		this.cached = null;
+		Template.name = name;
+		Template.cached = null;
 	
 	}
 	
 	Theme.Template.prototype = new (function () {
 	
-		this.get = function (callback) {
+		this.get = function (callback) { var Template = this;
 			
 			if (this.cached) callback(this.cached);
 			else {
 	
-				var Template = this;
 				$.ajax({
-					url: Theme.rootPath+Theme.filePath + '/' + Template.name,
+					url: Theme.rootPath + Theme.filePath + '/' + Template.name,
 					error: function (jqXHR, textStatus, errorThrown) {
-						fatalError('Rendering Error', 'Unable to load template <code>'+Template.name+'</code>.');
+						fatalError('Rendering Error', 'Unable to load template <code>' + Template.name + '</code>.');
 						throw 'Ajax error';
 					},
 					success: function (response) {
@@ -39,37 +38,36 @@ function Theme(options) {
 	
 	})();
 	
-	Theme.ViewCache = function (initial, read, save, name) {
+	Theme.ViewCache = function (initial, read, save, name) { var ViewCache = this;
 	
 		Theme.viewCaches[name] = initial;
 	
-		this.read = read;
-		this.add = save;
+		ViewCache.read = read;
+		ViewCache.add = save;
 	
 	}
 	
-	Theme.View = function (options, name) {
+	Theme.View = function (options, name) { var View = this;
 		
 		if (!options.load) {
 			
-			this.data = options.data;
-			this.get = function (callback) {
-				callback(this.data);
+			View.data = options.data;
+			View.get = function (callback) {
+				callback(View.data);
 			};
 	
 		} else {
 			
-			this.load = options.load;
-			this.cache = options.cache ? new Theme.ViewCache(options.cache.initial, options.cache.read, options.cache.save, name) : false;
-			this.get = function (callback, path, parameters) {
+			View.load = options.load;
+			View.cache = options.cache ? new Theme.ViewCache(options.cache.initial, options.cache.read, options.cache.save, name) : false;
+			View.get = function (callback, path, parameters) {
 	
-				var cached = this.cache ? this.cache.read(Theme.viewCaches, path, parameters) : false;
+				var cached = View.cache ? View.cache.read(Theme.viewCaches, path, parameters) : false;
 				
 				if (cached) callback(cached);
 				else {
 				
-					var View = this;
-					this.load(function (response, error) {
+					View.load(function (response, error) {
 						if (error) {
 							fatalError(error.heading || 'Error', error.message || 'Unable to load content of page.');
 							throw 'View load function returned error.';
@@ -93,18 +91,16 @@ function Theme(options) {
 	
 	/* Segment */
 	
-	Theme.Segment = function (name, view) {
+	Theme.Segment = function (name, view) { var Segment = this;
 		
-		this.template = new Theme.Template(name);
-		this.view = new Theme.View(view, name);
+		Segment.template = new Theme.Template(name);
+		Segment.view = new Theme.View(view, name);
 	
 	}
 	
-	Theme.Segment.prototype = new (function () {
+	Theme.Segment.prototype = new (function () { var Segment = this;
 	
-		this.load = function (callback, path, parameters) {
-	
-			var Segment = this;
+		Segment.load = function (callback, path, parameters) { var Segment = this;
 	
 			var toLoad = 2,
 				template = null,
@@ -132,8 +128,8 @@ function Theme(options) {
 				view._sitePath = Theme.sitePath;
 				view._filePath = Theme.filePath;
 	
-				view._siteURL = Theme.host+Theme.rootPath+Theme.sitePath;
-				view._fileURL = Theme.host+Theme.rootPath+Theme.filePath;
+				view._siteURL = Theme.host + Theme.rootPath + Theme.sitePath;
+				view._fileURL = Theme.host + Theme.rootPath + Theme.filePath;
 	
 				var output = Mustache.render(template, view);
 	
@@ -148,21 +144,19 @@ function Theme(options) {
 	
 	/* Route */
 	
-	Theme.Route = function (options) {
+	Theme.Route = function (options) { var Route = this;
 	
-		this.path = options.path;
-		this.title = options.title;
+		Route.path = options.path;
+		Route.title = options.title;
 	
-		this.before = options.before || function () {};
-		this.templates = options.templates || [];
+		Route.before = options.before || function () {};
+		Route.templates = options.templates || [];
 	
 	}
 	
-	Theme.Route.prototype = new (function () {
+	Theme.Route.prototype = new (function () { var Route = this;
 	
-		this.load = function (callback, path, parameters) {
-	
-			var Route = this;
+		Route.load = function (callback, path, parameters) { var Route = this;
 	
 			var templates = Route.templates;
 	
@@ -202,28 +196,28 @@ function Theme(options) {
 	})();
 	
 	
-	this.cacheEnabled = options.cache || {
+	Theme.cacheEnabled = options.cache || {
 		views: false,
 		templates: true
 	};
 	
-	this.viewCaches = {};
+	Theme.viewCaches = {};
 	
 	/* urls */
 	
-	this.host = location.protocol + '//' + location.host;
-	this.rootPath = options.rootPath;
-	this.filePath = options.filePath;
-	this.sitePath = options.sitePath;
+	Theme.host = location.protocol + '//' + location.host;
+	Theme.rootPath = options.rootPath;
+	Theme.filePath = options.filePath;
+	Theme.sitePath = options.sitePath;
 	
 	/* data */
 	
-	this.templates = {};
-	this.routes = [];
+	Theme.segments = {};
+	Theme.routes = [];
 	
-	/* templates from views */
+	/* segments from views */
 	
-	for (var name in options.views) this.templates[name] = new Theme.Segment(name, options.views[name]);
+	for (var name in options.views) Theme.segments[name] = new Theme.Segment(name, options.views[name]);
 	
 	/* routes & templates from routes */
 	
@@ -236,27 +230,25 @@ function Theme(options) {
 			
 			var name = templateNames[j];
 			
-			if (this.templates[name]) route.templates[j] = this.templates[name];
-			else route.templates[j] = this.templates[name] = new Theme.Segment(name, { data: {} });
+			if (Theme.segments[name]) route.templates[j] = Theme.segments[name];
+			else route.templates[j] = Theme.segments[name] = new Theme.Segment(name, { data: {} });
 			
 		}
 		
-		this.routes[i] = new Theme.Route(route);
+		Theme.routes[i] = new Theme.Route(route);
 		
 	}
 	
 	
 }
 
-Theme.prototype = new (function () {
+Theme.prototype = new (function () { var Theme = this;
 	
-	this.currentPath = function () {
+	Theme.currentPath = function () {
 		return extractPath(location.href);
 	};
 	
-	this.setup = function () {
-		
-		var Theme = this;
+	Theme.setup = function () { var Theme = this;
 		
 		/* get head */
 		
@@ -316,9 +308,7 @@ Theme.prototype = new (function () {
 	
 	/* Load the body & title for a path, call update */
 	
-	this.load = function (callback, path, parameters) {
-		
-		var Theme = this;
+	Theme.load = function (callback, path, parameters) { var Theme = this;
 		
 		var body = $('body');
 		body.addClass('changing');
@@ -336,8 +326,6 @@ Theme.prototype = new (function () {
 			var stop = route.before(path, parameters) === false;
 			
 			if (!stop && route.templates.length) route.load(function (body, views) {
-				
-				console.log(body, views, route.title);
 				
 				var title = Mustache.render(route.title, validateObjectKeys(views));
 				
@@ -361,9 +349,7 @@ Theme.prototype = new (function () {
 	
 	/* Search route that matches path. */
 	
-	this.searchRoute = function (path) {
-		
-		var Theme = this;
+	Theme.searchRoute = function (path) { var Theme = this;
 	
 		for (i = Theme.routes.length; i--;) {
 	
@@ -402,16 +388,17 @@ Theme.prototype = new (function () {
 	
 	/* Update body & title and set link event handlers for Ajax */
 	
-	this.update = function (title, bodyHTML) {
+	Theme.update = function (title, bodyString) { var Theme = this;
 		
-		var Theme = this;
+		console.time('update site');
 		
 		document.title = title;
 		
-		if (bodyHTML) {
+		if (bodyString) {
 			
+			document.body.innerHTML = bodyString; // quick change
 			var body = $('body');
-			body.html(bodyHTML);
+			body.html(bodyString); // real dom update
 			body.removeClass('changing');
 			body.attr('data-status', 'filled');
 			
@@ -493,9 +480,7 @@ window.createTheme = function (options) {
 	window.open = function (href, target, options) {
 		
 		var theme = window.theme;
-		
 		target = window.open.arguments[1] = target || '_self';
-	
 		var ajaxPossible = target == '_self' && 1 <= window.open.arguments.length <= 2;
 		
 		if (ajaxPossible && historyAPISupport() && isIntern(href)) {
@@ -504,24 +489,21 @@ window.createTheme = function (options) {
 			
 			theme.load(function (title, body) {
 				
+				theme.update(title, body);
+				
 				window.history.replaceState({
 					title: title,
 					body: body
 				}, title, href);
-				
-				theme.update(title, body);
 				
 			}, extractPath(href), parseParameters(href));
 			
 		} else window._open.apply(this, window.open.arguments);
 	
 		function isIntern(url) {
-			
 			var root = theme.rootPath + theme.sitePath,
 				fullRoot = theme.host + theme.rootPath + theme.sitePath;
-			
 			return fullRoot == url || url.startsWith(fullRoot + '/') || url.startsWith(fullRoot + '?') || root == url || url.startsWith(root + '/') || url.startsWith(root + '?');
-			
 		}
 	
 	};

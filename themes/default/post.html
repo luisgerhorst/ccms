@@ -4,4 +4,10 @@
 	<time datetime="{{date}}"></time>
 </article>
 
-<script type="text/javascript" src="{{_fileURL}}/post-date.js"></script>
+<script type="text/javascript">
+	
+	$('article.post time').html(function () {
+		return moment.unix( parseInt( $(this).attr('datetime') ) ).format('MMM D, YYYY');
+	});
+	
+</script>
