@@ -150,7 +150,7 @@ function Theme(options) {
 		Route.title = options.title;
 	
 		Route.before = options.before || function () {};
-		Route.templates = options.templates || [];
+		Route.segments = options.templates || [];
 	
 	}
 	
@@ -158,20 +158,20 @@ function Theme(options) {
 	
 		Route.load = function (callback, path, parameters) { var Route = this;
 	
-			var templates = Route.templates;
+			var segments = Route.segments;
 	
-			var toLoad = templates.length,
+			var toLoad = segments.length,
 				body = [],
 				views = {};
 	
-			for (var i = templates.length; i--;) (function (i) {
+			for (var i = segments.length; i--;) (function (i) {
 	
-				var template = templates[i];
+				var segment = segments[i];
 	
-				template.load(function (output, view) {
+				segment.load(function (output, view) {
 	
 					body[i] = output;
-					views[template.template.name] = view;
+					views[segment.template.name] = view;
 					if (nothingToLoad()) callback(stringifyArray(body), views);
 	
 				}, path, parameters);
@@ -194,12 +194,6 @@ function Theme(options) {
 		};
 	
 	})();
-	
-	
-	Theme.cacheEnabled = options.cache || {
-		views: false,
-		templates: true
-	};
 	
 	Theme.viewCaches = {};
 	
@@ -325,7 +319,7 @@ Theme.prototype = new (function () { var Theme = this;
 			
 			var stop = route.before(path, parameters) === false;
 			
-			if (!stop && route.templates.length) route.load(function (body, views) {
+			if (!stop && route.segments.length) route.load(function (body, views) {
 				
 				var title = Mustache.render(route.title, validateObjectKeys(views));
 				
@@ -390,13 +384,12 @@ Theme.prototype = new (function () { var Theme = this;
 	
 	Theme.update = function (title, bodyString) { var Theme = this;
 		
-		console.time('update site');
-		
 		document.title = title;
 		
 		if (bodyString) {
 			
 			document.body.innerHTML = bodyString; // quick change
+			
 			var body = $('body');
 			body.html(bodyString); // real dom update
 			body.removeClass('changing');
@@ -409,6 +402,8 @@ Theme.prototype = new (function () { var Theme = this;
 			});
 			
 		}
+		
+		console.timeEnd('open page');
 		
 	};
 	
@@ -428,7 +423,7 @@ function extractPath(string) {
 	element.href = string;
 	string = element.pathname; // path
 
-	string = string.replace(new RegExp('^'+window.theme.rootPath+window.theme.sitePath), ''); // extract content after url root
+	string = string.replace(new RegExp('^' + window.theme.rootPath + window.theme.sitePath), ''); // extract content after url root
 	string = string.replace(/\/$/, ''); // remove / from end
 
 	if (!string) string = '/';
@@ -478,6 +473,8 @@ window.createTheme = function (options) {
 	
 	window._open = window.open;
 	window.open = function (href, target, options) {
+		
+		console.time('open page');
 		
 		var theme = window.theme;
 		target = window.open.arguments[1] = target || '_self';
