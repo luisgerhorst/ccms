@@ -23,22 +23,22 @@ $(document).ready(function () {
 				}
 				
 			},
-			title: '{{header_html.title}} / Admin'
+			title: '{{{header_html.title}}} / Admin'
 		},
 		{
 			path: '/meta',
 			templates: ['header.html', 'meta.html', 'footer.html'],
-			title: '{{header_html.title}} / Admin - Meta'
+			title: '{{{header_html.title}}} / Admin - Meta'
 		},
 		{
 			path: /^\/posts\/.+$/,
 			templates: ['header.html', 'post.html', 'footer.html'],
-			title: '{{header_html.title}} / Admin - {{post_html.title}}'
+			title: '{{{header_html.title}}} / Admin - {{{post_html.title}}}'
 		},
 		{
 			path: '/create/post',
 			templates: ['header.html', 'create-post.html', 'footer.html'],
-			title: '{{header_html.title}} / Admin - Create Post'
+			title: '{{{header_html.title}}} / Admin - Create Post'
 		}
 		
 	];
