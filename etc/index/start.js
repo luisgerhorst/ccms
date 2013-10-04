@@ -12,12 +12,12 @@ $(document).ready(function () {
 				}
 				
 			},
-			title: '{{header_html.title}}'
+			title: '{{{header_html.title}}}'
 		},
 		{
 			path: /^\/posts\/.+$/,
 			templates: ['header.html', 'post.html', 'footer.html'],
-			title: '{{header_html.title}} - {{post_html.title}}'
+			title: '{{{header_html.title}}} - {{{post_html.title}}}'
 		}
 	];
 	

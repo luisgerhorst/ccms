@@ -321,6 +321,8 @@ Theme.prototype = new (function () { var Theme = this;
 			
 			if (!stop && route.segments.length) route.load(function (body, views) {
 				
+				console.log(route.title, views);
+				
 				var title = Mustache.render(route.title, validateObjectKeys(views));
 				
 				callback(title, body);
@@ -403,8 +405,6 @@ Theme.prototype = new (function () { var Theme = this;
 			
 		}
 		
-		console.timeEnd('open page');
-		
 	};
 	
 })();
@@ -473,8 +473,6 @@ window.createTheme = function (options) {
 	
 	window._open = window.open;
 	window.open = function (href, target, options) {
-		
-		console.time('open page');
 		
 		var theme = window.theme;
 		target = window.open.arguments[1] = target || '_self';
