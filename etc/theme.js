@@ -13,9 +13,9 @@ function Theme(options) {
 	
 	}
 	
-	Theme.Template.prototype = new (function () {
-	
-		this.get = function (callback) { var Template = this;
+	Theme.Template.prototype = new (function () { var Template = this;
+		
+		Template.get = function (callback) { var Template = this;
 			
 			if (this.cached) callback(this.cached);
 			else {
