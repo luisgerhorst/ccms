@@ -1,16 +1,13 @@
 # Features
 
 - RSS Feed
-- User management
 - Pages
+- Post attachments
+- User management
 
-# theme.js
+# Under the hood
 
 - find new name for theme.js, look at other cms
-- use native dom operations for better mobile performance
-
-# Blog, Admin & Install
-
 - improve loading indicator (GitHub-like)
 
 
