@@ -9,7 +9,7 @@ if (currentPath != '/login') {
 			notifications.alert('Error ' + textStatus + ' ' + errorThrown + ' occured while loading ' + this.url);
 		}
 	}).done(function (config) {
-		tryCookie(config.database);
+		tryCookie(config.database, currentPath);
 	});
 	
 }

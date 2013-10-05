@@ -236,7 +236,7 @@ function Theme(options) {
 
 Theme.prototype = new (function () { var Theme = this;
 
-	Theme.currentPath = function () {
+	Theme.currentPath = function () { var Theme = this;
 		return Theme.getPath(location.href);
 	};
 
