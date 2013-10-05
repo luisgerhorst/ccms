@@ -1,4 +1,4 @@
-(function () { // start
+(function () {
 
 function Theme(options) {
 
@@ -552,5 +552,4 @@ window.createTheme = function (options) {
 
 }
 
-
-})(); // end
+})();
