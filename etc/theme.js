@@ -17,7 +17,7 @@ function Theme(options) {
 
 		Template.get = function (callback) { var Template = this;
 
-			if (this.cached) callback(this.cached);
+			if (Template.cached) callback(Template.cached);
 			else {
 
 				$.ajax({
@@ -172,13 +172,11 @@ function Theme(options) {
 
 					body[i] = output;
 					views[segment.template.name] = view;
-					if (nothingToLoad()) callback(stringifyArray(body), views);
+					if (nothingToLoad()) callback(body.join(''), views);
 
 				}, path, parameters);
 
 			})(i);
-
-			/* tools */
 
 			function nothingToLoad() {
 				toLoad--;
@@ -239,7 +237,7 @@ function Theme(options) {
 Theme.prototype = new (function () { var Theme = this;
 
 	Theme.currentPath = function () {
-		return extractPath(location.href);
+		return Theme.getPath(location.href);
 	};
 
 	Theme.setup = function () { var Theme = this;
@@ -264,7 +262,7 @@ Theme.prototype = new (function () { var Theme = this;
 
 					Theme.update(title, body);
 
-				}, extractPath(href), parseParameters(href));
+				}, Theme.getPath(href), new URL(href).query);
 
 			}
 
@@ -290,7 +288,7 @@ Theme.prototype = new (function () { var Theme = this;
 
 						Theme.update(title, body);
 
-					}, extractPath(href), parseParameters(href));
+					}, Theme.getPath(href), new URL(href).query);
 
 				}
 
@@ -403,33 +401,81 @@ Theme.prototype = new (function () { var Theme = this;
 
 		}
 
-		console.timeEnd('open page');
+	};
+
+	Theme.getPath = function (href) { var Theme = this;
+
+		var path = new URL(href).pathname;
+		var base = Theme.rootPath + Theme.sitePath;
+		var sub = extractSubPath(path, base);
+		return sub;
+
+		/** @return {string|null} The relative path to base, staring with a slash, no slash at the end. Null if base it not part of param path. */
+		function extractSubPath(path, base) {
+			var sub = path.replace(new RegExp('^' + base), ''); // extract relative to base
+			if (!sub || sub == '/') return '/'; // set to / if no sub path
+			if (!/^\//.test(sub)) return null; // cancel if doesn't start with /
+			return sub.replace(/\/$/, ''); // remove / from end if is not /	
+		}
+
+	}
+
+})();
+
+/**
+ * @constructor
+ * @param {string} href
+ * @param {string} basePath
+ */
+
+function URL(href, basePath) {
+
+	var element = document.createElement('a');
+		element.href = href;
+
+	this.protocol = element.protocol; // "http:"
+	this.hostname = element.hostname; // "example.com"
+	this.port = element.port; // "3000"
+	this.pathname = element.pathname; // "/pathname/"
+	this.search = element.search; // "?search=test"
+	this.hash = element.hash; // "#hash"
+
+	this.href = href;
+	this.host = element.host; // "example.com:3000"
+
+	this.query = this.getQuery(); // { search: "test" }
+	this.resulting = this.protocol + '//' + this.host + this.pathname + this.search + this.hash;
+
+}
+
+URL.prototype = new (function () {
+
+	this.getQuery = function () {
+
+		var queryString = this.search.substring(1), // remove ? from start
+			queries = queryString.split("&"), // split by &
+			parameters = {};
+
+		for (var i = queries.length; i--;) {
+
+			var query = queries[i].split('='); // spilt by =
+
+			if (query[0] && query[1]) parameters[query[0]] = decodeURIComponent(query[1]);
+			else if (query[0] && !query[1]) parameters[query[0]] = '';
+			else if (!query[0] && query[1]) parameters[''] = query[1];
+
+		}
+
+		return parameters;
 
 	};
 
 })();
 
-
-
 /* tools */
 
 function historyAPISupport() {
 	return !!(window.history && history.pushState);
-}
-
-function extractPath(string) {
-
-	var element = document.createElement('a');
-	element.href = string;
-	string = element.pathname; // path
-
-	string = string.replace(new RegExp('^' + window.theme.rootPath + window.theme.sitePath), ''); // extract content after url root
-	string = string.replace(/\/$/, ''); // remove / from end
-
-	if (!string) string = '/';
-
-	return string;
-
 }
 
 function parseParameters(string) {
@@ -458,8 +504,8 @@ function parseParameters(string) {
 
 /* enhancements */
 
-String.prototype.startsWith = function(needle) {
-	return(this.indexOf(needle) === 0);
+String.prototype.startsWith = function(string) {
+	return this.indexOf(string) === 0;
 };
 
 /* api */
@@ -474,7 +520,7 @@ window.createTheme = function (options) {
 	window._open = window.open;
 	window.open = function (href, target, options) {
 
-		console.time('open page');
+		var url = new URL(href);
 
 		var theme = window.theme;
 		target = window.open.arguments[1] = target || '_self';
@@ -486,21 +532,24 @@ window.createTheme = function (options) {
 
 			theme.load(function (title, body) {
 
-				theme.update(title, body);
-
-				window.history.replaceState({
+				if (url.resulting == new URL(location.href).resulting) window.history.replaceState({
 					title: title,
 					body: body
 				}, title, href);
 
-			}, extractPath(href), parseParameters(href));
+				theme.update(title, body);
+
+			}, theme.getPath(href), url.query);
 
 		} else window._open.apply(this, window.open.arguments);
 
-		function isIntern(url) {
-			var root = theme.rootPath + theme.sitePath,
-				fullRoot = theme.host + theme.rootPath + theme.sitePath;
-			return fullRoot == url || url.startsWith(fullRoot + '/') || url.startsWith(fullRoot + '?') || root == url || url.startsWith(root + '/') || url.startsWith(root + '?');
+		function isIntern(href) {
+
+			var base = new URL(theme.rootPath + theme.sitePath).resulting,
+				url = new URL(href).resulting;
+
+			return url == base || url.startsWith(base + '/') || url.startsWith(base + '?') || url.startsWith(base + '#');
+
 		}
 
 	};
