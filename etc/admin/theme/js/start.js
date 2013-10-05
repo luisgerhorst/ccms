@@ -1,6 +1,6 @@
 var currentPath = window.theme.currentPath();
 
-if (currentPath != '/login') {
+if (currentPath != 'login') {
 
 	$.ajax({
 		url: '_root/config.json',
@@ -16,7 +16,7 @@ if (currentPath != '/login') {
 
 function tryCookie(databaseName, currentPath) {
 
-	var couchdb = new CouchDB(window.theme.rootPath + '/couchdb').authorize({ cookie: true });
+	var couchdb = new CouchDB(window.theme.ccmsBasePath + 'couchdb/').authorize({ cookie: true });
 	var database = new couchdb.Database(databaseName);
 
 	database.save('test', { time: new Date().getTime() }, function (response, error) {
@@ -43,7 +43,7 @@ function openLoginForm() {
 	
 	console.info('Cookie auth failed, redirecting to login form.');
 
-	var path = (currentPath == '/' || currentPath == '/logout') ? '/login' : '/login?redirect='+encodeURIComponent(currentPath);
-	window.open(theme.host+theme.rootPath+theme.sitePath+path);
+	var path = (currentPath === '' || currentPath === 'logout') ? 'login' : 'login?redirect='+encodeURIComponent(currentPath);
+	window.open(theme.siteBasePath+path);
 
 }

@@ -73,7 +73,7 @@
 		<ul>
 			<li>
 				<p><code>"root"</code> is set to <code id="config-root">...</code> <span id="config-root-result"></span></p>
-				<p>CCMS root directory, enter path without slash at the end (empty string for <code>/</code>).</p>
+				<p>CCMS root directory, make sure it ends with a slash.</p>
 			</li>
 			<li>
 				<p><code>"database"</code> is set to <code id="config-database">...</code> <span id="config-database-result"></span></p>
@@ -169,7 +169,7 @@
 					
 					// root
 					
-					var currentRoot = location.pathname.replace(/\/install-start.html$/, '');
+					var currentRoot = location.pathname.replace(/install-start.html$/, '');
 					
 					if (currentRoot == config.root) $('#config-root-result').text('Looks good! You don\'t have to change this.').addClass('green');
 					else $('#config-root-result').html('Please change this to <code>"'+currentRoot+'"</code>.').addClass('red');

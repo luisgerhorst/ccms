@@ -43,7 +43,7 @@ var PostDoc = function (documentID) {
 					
 					database.save(doc, function (res, err) { if (!err) {
 						documentID = res.id;
-						window.open(theme.host+theme.rootPath+theme.sitePath);
+						window.open(theme.siteBasePath);
 					}});
 					
 				}
@@ -69,7 +69,7 @@ var PostDoc = function (documentID) {
 				else {
 					
 					database.save(documentID, doc, function (res, err) { if (!err) {
-						window.open(theme.host+theme.rootPath+theme.sitePath);
+						window.open(theme.siteBasePath);
 					}});
 					
 				}
@@ -87,7 +87,7 @@ var PostDoc = function (documentID) {
 		notifications.confirm('Do you really want to delete this post?', 'Cancel', 'Delete', function (confirmed) { if (confirmed) {
 			
 			window.database.remove(documentID, function (res, err) {
-				if (!err) window.open(theme.host+theme.rootPath+theme.sitePath);
+				if (!err) window.open(theme.siteBasePath);
 			});
 			
 		}});

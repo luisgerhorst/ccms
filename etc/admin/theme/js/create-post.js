@@ -44,7 +44,7 @@ var PostDoc = function (documentID) {
 					window.database.save(doc, function (res, err) { if (!err) {
 
 						documentID = res.id;
-						window.open(theme.host+theme.rootPath+theme.sitePath);
+						window.open(window.theme.siteBasePath);
 
 					}});
 
@@ -72,7 +72,7 @@ var PostDoc = function (documentID) {
 
 					window.database.save(documentID, doc, function (res, err) { if (!err) {
 
-						window.open(theme.host+theme.rootPath+theme.sitePath);
+						window.open(window.theme.siteBasePath);
 
 					}});
 
@@ -95,7 +95,7 @@ var PostDoc = function (documentID) {
 		if (confirmed) {
 
 			window.database.remove(documentID, function (res, err) {
-				if (!err) window.open(theme.host+theme.rootPath+theme.sitePath);
+				if (!err) window.open(window.theme.siteBasePath);
 			});
 
 		}

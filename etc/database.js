@@ -61,7 +61,7 @@ var CouchDB = function (proxy) {
 	CouchDB.remember = function (callback) {
 
 		if (credentials.username && credentials.password) $.ajax({
-			url: proxy + '/_session/',
+			url: proxy + '_session/',
 			type: 'POST',
 			data: 'name=' +  encodeURIComponent(credentials.username) + '&password=' +  encodeURIComponent(credentials.password),
 			contentType: 'application/x-www-form-urlencoded',
@@ -84,7 +84,7 @@ var CouchDB = function (proxy) {
 	CouchDB.forget = function (callback) {
 
 		$.ajax({
-			url: proxy + '/_session/',
+			url: proxy + '_session/',
 			type: 'DELETE',
 			error: function (jqXHR, textStatus) {
 				console.log('Error "' + textStatus + '" occured while ' + options.type + ' request to ' + options.url, jqXHR);
@@ -109,7 +109,7 @@ var CouchDB = function (proxy) {
 			var documentPath = options.document ? options.document : '';
 
 			this.type = options.type || 'GET';
-			this.url = proxy + '/' + databaseName + '/' + documentPath;
+			this.url = proxy + databaseName + '/' + documentPath;
 			this.data = JSON.stringify(options.data) || undefined;
 			this.contentType = this.data ? 'application/json' : undefined;
 
@@ -253,7 +253,7 @@ var CouchDB = function (proxy) {
 	CouchDB.createDatabase = function (name, callback) {
 
 		var options = {
-			url: proxy + '/' + name + '/',
+			url: proxy + name + '/',
 			type: 'PUT',
 			error: function (jqXHR, textStatus, errorThrown) {
 				callback(null, parseError(jqXHR));
@@ -276,7 +276,7 @@ var CouchDB = function (proxy) {
 	CouchDB.deleteDatabase = function (name, callback) {
 
 		var options = {
-			url: proxy + '/' + name + '/',
+			url: proxy + name + '/',
 			type: 'DELETE',
 			error: function (jqXHR, textStatus, errorThrown) {
 				console.log('Error "' + textStatus + '" occured while ' + this.type + ' request to ' + this.url, jqXHR);
@@ -300,7 +300,7 @@ var CouchDB = function (proxy) {
 	CouchDB.getAdmins = function (callback) {
 
 		var options = {
-			url: proxy + '/_config/admins/',
+			url: proxy + '_config/admins/',
 			type: 'GET',
 			error: function (jqXHR, textStatus, errorThrown) {
 				callback(null, parseError(jqXHR));
@@ -323,7 +323,7 @@ var CouchDB = function (proxy) {
 	CouchDB.createAdmin = function (name, password, callback) {
 
 		var options = {
-			url: proxy + '/_config/admins/' + name,
+			url: proxy + '_config/admins/' + name,
 			type: 'PUT',
 			data: '"' + password + '"',
 			error: function (jqXHR, textStatus, errorThrown) {
@@ -348,7 +348,7 @@ var CouchDB = function (proxy) {
 	CouchDB.deleteAdmin = function (name, callback) {
 
 		var options = {
-			url: proxy + '/_config/admins/' + name,
+			url: proxy + '_config/admins/' + name,
 			type: 'DELETE',
 			error: function (jqXHR, textStatus, errorThrown) {
 				console.log('Error "' + textStatus + '" occured while ' + this.type + ' request to ' + this.url, jqXHR);

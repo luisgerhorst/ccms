@@ -2,12 +2,12 @@ $(document).ready(function () {
 
 	var routes = [
 		{
-			path: '/',
+			path: '',
 			templates: ['header.html', 'posts.html', 'footer.html'],
 			before: function (path, parameters) {
 
 				if (parameters.page == 1) {
-					window.open(theme.host+theme.rootPath+theme.sitePath);
+					window.open(window.theme.siteBasePath);
 					return false;
 				}
 
@@ -15,7 +15,7 @@ $(document).ready(function () {
 			title: '{{{header_html.title}}}'
 		},
 		{
-			path: /^\/posts\/.+$/,
+			path: /^posts\/.+$/,
 			templates: ['header.html', 'post.html', 'footer.html'],
 			title: '{{{header_html.title}}} - {{{post_html.title}}}'
 		}
@@ -119,7 +119,7 @@ $(document).ready(function () {
 		views['post.html'] = {
 			load: function (callback, path, parameters) {
 
-				var postID = path.replace(/^\/posts\//, '');
+				var postID = path.replace(/^posts\//, '');
 
 				database.view('posts', 'byPostID?key="' + postID + '"', function (response, error) {
 
@@ -144,7 +144,7 @@ $(document).ready(function () {
 				initial: {}, // posts by post id in object
 				read: function (globalCache, path, parameters) {
 
-					var postID = path.replace(/^\/posts\//, '');
+					var postID = path.replace(/^posts\//, '');
 
 					if (globalCache['post.html'][postID]) return globalCache['post.html'][postID];
 
@@ -160,7 +160,7 @@ $(document).ready(function () {
 
 				},
 				save: function (view, cache, path, parameters) {
-					var postID = path.replace(/^\/posts\//, '');
+					var postID = path.replace(/^posts\//, '');
 					cache[postID] = view;
 					return cache;
 				}
@@ -184,7 +184,7 @@ $(document).ready(function () {
 		},
 		success: function (config) {
 
-			couchdb = new CouchDB(config.root + '/couchdb');
+			couchdb = new CouchDB(config.root + 'couchdb/');
 			database = new couchdb.Database(config.database);
 
 			database.read('meta', function (meta, error) {
@@ -196,15 +196,11 @@ $(document).ready(function () {
 				} else {
 
 					window.createTheme({
-						rootPath: config.root,
-						sitePath: '',
-						filePath: '/themes/' + meta.theme,
+						root: config.root,
+						site: '',
+						theme: 'themes/' + meta.theme + '/',
 						routes: routes,
-						views: views(database, meta),
-						cache: {
-							views: true,
-							templates: true
-						}
+						views: views(database, meta)
 					});
 
 				}

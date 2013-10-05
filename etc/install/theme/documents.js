@@ -1,7 +1,7 @@
 function saveDocuments(database) {
 	
 	$.ajax({
-		url: theme.rootPath+theme.filePath + '/documents.json',
+		url: window.theme.themeDirectoryPath + 'documents.json',
 		dataType: 'json',
 		error: function (jqXHR, textStatus, errorThrown) {
 			console.log(jqXHR);
@@ -10,7 +10,7 @@ function saveDocuments(database) {
 		success: function (docs, textStatus, jqXHR) {
 			
 			$.ajax({
-				url: theme.rootPath + '/etc/system.json',
+				url: window.theme.ccmsBasePath + '/etc/system.json',
 				dataType: 'json',
 				error: function (jqXHR, textStatus, errorThrown) {
 					notifications.alert('Error ' + textStatus + ' ' + errorThrown + ' occured while loading ' + this.url);
@@ -42,8 +42,7 @@ function saveDocuments(database) {
 							}
 					
 							toSave--;
-							
-							if (!toSave) window.open(theme.rootPath+theme.sitePath + '/finished');
+							if (!toSave) window.open(window.theme.siteBasePath + 'finished');
 					
 						});
 					

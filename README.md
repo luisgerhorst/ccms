@@ -18,4 +18,4 @@ If you already have a CouchDB database named `ccms`, change the `database` field
 
 ### Installing in a subdirectory
 
-Open `config.json` and change `root`, don't enter a slash at the end. If you're running CCMS in `/` enter an empty string.
+Open `config.json` and change `root`, make sure the string ends with a slash.

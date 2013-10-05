@@ -3,12 +3,12 @@ $(document).ready(function () {
 	var routes = [
 	
 		{
-			path: '/couchdb',
+			path: 'couchdb',
 			templates: ['header.html', 'couchdb.html', 'footer.html'],
 			title: 'Install - CouchDB'
 		},
 		{
-			path: '/finished',
+			path: 'finished',
 			templates: ['header.html', 'finished.html', 'footer.html'],
 			title: 'Install - Finished'
 		}
@@ -33,9 +33,9 @@ $(document).ready(function () {
 		success: function (config) {
 			
 			window.createTheme({
-				rootPath: config.root,
-				sitePath: '/install',
-				filePath: '/etc/install/theme',
+				root: config.root,
+				site: 'install/',
+				theme: 'etc/install/theme/',
 				routes: routes,
 				views: views(config)
 			});

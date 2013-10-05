@@ -17,7 +17,7 @@ $.ajax({
 function redirectPath() {
 
 	var redirectPath = getParameter('redirect');
-	return (!redirectPath || redirectPath == '/' || redirectPath == '/login' || redirectPath == '/logout') ? '' : redirectPath;
+	return (!redirectPath || redirectPath == '' || redirectPath == 'login' || redirectPath == 'logout') ? '' : redirectPath;
 
 	function getParameter(n) {
 		var m = RegExp('[?&]'+n+'=([^&]*)').exec(window.location.search);
@@ -32,7 +32,7 @@ function login(redirectPath, databaseName) {
 	
 	function tryUsernamePassword() { // case: username and password auth
 	
-		var couchdb = new CouchDB(window.theme.rootPath + '/couchdb').authorize({
+		var couchdb = new CouchDB(window.theme.ccmsBasePath + 'couchdb/').authorize({
 			username: $('#login-username').val(),
 			password: $('#login-password').val()
 		});
@@ -57,7 +57,7 @@ function login(redirectPath, databaseName) {
 		window.couchdb = couchdb;
 		window.database = database;
 		
-		window.open(window.theme.rootPath+window.theme.sitePath+redirectPath);
+		window.open(window.theme.siteBasePath+redirectPath);
 
 	}
 	

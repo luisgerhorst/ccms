@@ -17,7 +17,7 @@ $.ajax({
 	
 				password = password[0];
 	
-				var couchdb = new CouchDB(config.root + '/couchdb');
+				var couchdb = new CouchDB(config.root + 'couchdb/');
 	
 				couchdb.createAdmin(username, password, function (error) {
 	
@@ -47,7 +47,7 @@ $.ajax({
 			var username = $('#login input[name="username"]').val(),
 				password = $('#login input[name="password"]').val();
 	
-			var couchdb = new CouchDB(config.root + '/couchdb');
+			var couchdb = new CouchDB(config.root + 'couchdb/');
 	
 			couchdb.authorize({ username: username, password: password }).getAdmins(function (admins, error) {
 	
@@ -61,7 +61,7 @@ $.ajax({
 	
 		// instantly
 	
-		var couchdb = new CouchDB(config.root + '/couchdb');
+		var couchdb = new CouchDB(config.root + 'couchdb/');
 	
 		couchdb.getAdmins(function (admins, error) {
 	

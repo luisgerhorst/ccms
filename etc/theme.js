@@ -21,7 +21,7 @@ function Theme(options) {
 			else {
 
 				$.ajax({
-					url: Theme.rootPath + Theme.filePath + '/' + Template.name,
+					url: Theme.themeDirectoryPath + Template.name,
 					error: function (jqXHR, textStatus, errorThrown) {
 						fatalError('Rendering Error', 'Unable to load template <code>' + Template.name + '</code>.');
 						throw 'Ajax error';
@@ -123,13 +123,11 @@ function Theme(options) {
 
 			function done() {
 
-				view._host = Theme.host;
-				view._rootPath = Theme.rootPath;
-				view._sitePath = Theme.sitePath;
-				view._filePath = Theme.filePath;
-
-				view._siteURL = Theme.host + Theme.rootPath + Theme.sitePath;
-				view._fileURL = Theme.host + Theme.rootPath + Theme.filePath;
+				/* deprecated */ view._host = Theme.host; view._rootPath = Theme.rootPath; view._sitePath = Theme.sitePath; view._filePath = Theme.filePath; view._siteURL = Theme.host + Theme.rootPath + Theme.sitePath; view._fileURL = Theme.host + Theme.rootPath + Theme.filePath;
+				
+				view._ccmsRoot = Theme.ccmsBasePath;
+				view._siteRoot = Theme.siteBasePath;
+				view._themeDirectory = Theme.themeDirectoryPath;
 
 				var output = Mustache.render(template, view);
 
@@ -172,22 +170,13 @@ function Theme(options) {
 
 					body[i] = output;
 					views[segment.template.name] = view;
-					if (nothingToLoad()) callback(body.join(''), views);
+					
+					toLoad--;
+					if (!toLoad) callback(body.join(''), views);
 
 				}, path, parameters);
 
 			})(i);
-
-			function nothingToLoad() {
-				toLoad--;
-				return !toLoad;
-			}
-
-			function stringifyArray(array) {
-				var string = '', length = array.length;
-				for (var i = 0; i < length; i++) string += array[i] || '';
-				return string;
-			}
 
 		};
 
@@ -195,14 +184,15 @@ function Theme(options) {
 
 	Theme.viewCaches = {};
 
-	/* urls */
-
-	Theme.host = location.protocol + '//' + location.host;
-	Theme.rootPath = options.rootPath;
-	Theme.filePath = options.filePath;
-	Theme.sitePath = options.sitePath;
-
-	/* data */
+	/* deprecated: */ //Theme.host = location.protocol + '//' + location.host; Theme.rootPath = options.rootPath; Theme.filePath = options.filePath; Theme.sitePath = options.sitePath;
+	
+	/* paths */
+	
+	Theme.ccmsBasePath = options.root;
+	Theme.siteBasePath = options.root + options.site;
+	Theme.themeDirectoryPath = options.root + options.theme;
+	
+	/* segments & routes */
 
 	Theme.segments = {};
 	Theme.routes = [];
@@ -216,7 +206,7 @@ function Theme(options) {
 	for (var i = options.routes.length; i--;) {
 
 		var route = options.routes[i],
-			templateNames = route.templates || [];
+		    templateNames = route.templates || [];
 
 		for (var j = templateNames.length; j--;) {
 
@@ -231,13 +221,21 @@ function Theme(options) {
 
 	}
 
-
 }
 
 Theme.prototype = new (function () { var Theme = this;
+	
+	/** @return {string} The relative path to base, staring with a slash, no slash at the end. Examples: "/", "/path/to" */
+	Theme.extractPath = function (href) { var Theme = this;
+		var path = new URL(href).pathname; // "/path/to", "/path/to/", "/path/to/something", "/path/to/something/"
+		path = /\/$/.test(path) ? path : path + '/'; // "/path/to/", "/path/to/something/"
+		var sub = path.replace(new RegExp('^' + Theme.siteBasePath), '').replace(/\/$/, ''); // "", "something/"
+		console.log(sub, Theme, path, Theme.siteBasePath);
+		return sub;
+	};
 
 	Theme.currentPath = function () { var Theme = this;
-		return Theme.getPath(location.href);
+		return Theme.extractPath(location.href);
 	};
 
 	Theme.setup = function () { var Theme = this;
@@ -262,7 +260,7 @@ Theme.prototype = new (function () { var Theme = this;
 
 					Theme.update(title, body);
 
-				}, Theme.getPath(href), new URL(href).query);
+				}, Theme.extractPath(href), new URL(href).query);
 
 			}
 
@@ -288,7 +286,7 @@ Theme.prototype = new (function () { var Theme = this;
 
 						Theme.update(title, body);
 
-					}, Theme.getPath(href), new URL(href).query);
+					}, Theme.extractPath(href), new URL(href).query);
 
 				}
 
@@ -314,6 +312,8 @@ Theme.prototype = new (function () { var Theme = this;
 			console.error('No route found', Theme.routes, path);
 
 		} else {
+			
+			console.log('Route found', route);
 
 			var stop = route.before(path, parameters) === false;
 
@@ -403,23 +403,6 @@ Theme.prototype = new (function () { var Theme = this;
 
 	};
 
-	Theme.getPath = function (href) { var Theme = this;
-
-		var path = new URL(href).pathname;
-		var base = Theme.rootPath + Theme.sitePath;
-		var sub = extractSubPath(path, base);
-		return sub;
-
-		/** @return {string|null} The relative path to base, staring with a slash, no slash at the end. Null if base it not part of param path. */
-		function extractSubPath(path, base) {
-			var sub = path.replace(new RegExp('^' + base), ''); // extract relative to base
-			if (!sub || sub == '/') return '/'; // set to / if no sub path
-			if (!/^\//.test(sub)) return null; // cancel if doesn't start with /
-			return sub.replace(/\/$/, ''); // remove / from end if is not /	
-		}
-
-	}
-
 })();
 
 /**
@@ -475,31 +458,7 @@ URL.prototype = new (function () {
 /* tools */
 
 function historyAPISupport() {
-	return !!(window.history && history.pushState);
-}
-
-function parseParameters(string) {
-
-	var query = string.split('?')[1],
-		re = /([^&=]+)=?([^&]*)/g,
-		params = {},
-		e;
-
-	while (e = re.exec(query)) {
-		var k = decode(e[1]),
-			v = decode(e[2]);
-		if (k.substring(k.length - 2) === '[]') {
-			k = k.substring(0, k.length - 2);
-			(params[k] || (params[k] = [])).push(v);
-		} else params[k] = v;
-	}
-
-	return params;
-
-	function decode(string) {
-		return decodeURIComponent(string.replace(/\+/g, " "));
-	}
-
+	return !!(window.history && window.history.pushState && window.history.replaceState);
 }
 
 /* enhancements */
@@ -519,33 +478,36 @@ window.createTheme = function (options) {
 
 	window._open = window.open;
 	window.open = function (href, target, options) {
-
-		var url = new URL(href);
-
+		
 		var theme = window.theme;
+		
 		target = window.open.arguments[1] = target || '_self';
-		var ajaxPossible = target == '_self' && 1 <= window.open.arguments.length <= 2;
 
-		if (ajaxPossible && historyAPISupport() && isIntern(url.resulting)) {
+		var url = new URL(href),
+		    ajaxPossible = target == '_self' && 1 <= window.open.arguments.length <= 2;
 
-			history.pushState(null, null, href);
+		if (ajaxPossible && historyAPISupport() && isIntern(url)) {
+
+			history.pushState(null, null, url.href);
 
 			theme.load(function (title, body) {
 
-				if (url.resulting == new URL(location.href).resulting) window.history.replaceState({
-					title: title,
-					body: body
-				}, title, href);
+				if (url.resulting == new URL(location.href).resulting)
+					window.history.replaceState({
+						title: title,
+						body: body
+					}, title, url.href);
 
 				theme.update(title, body);
 
-			}, theme.getPath(href), url.query);
+			}, theme.extractPath(href), url.query);
 
 		} else window._open.apply(this, window.open.arguments);
 
-		function isIntern(urlRes) {
-			var baseRes = new URL(theme.rootPath + theme.sitePath || '/').resulting;
-			return urlRes.startsWith(baseRes);
+		/** @param {URL} url */
+		function isIntern(url) {
+			var base = new URL(theme.siteBasePath).resulting;
+			return url.resulting.startsWith(base);
 		}
 
 	};

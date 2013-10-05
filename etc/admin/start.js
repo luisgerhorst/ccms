@@ -3,17 +3,17 @@ $(document).ready(function () {
 	var routes = [
 	
 		{
-			path: '/login',
+			path: 'login',
 			templates: ['login.html'],
 			title: 'Login'
 		},
 		{
-			path: '/logout',
+			path: 'logout',
 			templates: ['logout.html'],
 			title: 'Logging out ...'
 		},
 		{
-			path: '/',
+			path: '',
 			templates: ['header.html', 'posts.html', 'footer.html'],
 			before: function (path, parameters) {
 				
@@ -26,17 +26,17 @@ $(document).ready(function () {
 			title: '{{{header_html.title}}} / Admin'
 		},
 		{
-			path: '/meta',
+			path: 'meta',
 			templates: ['header.html', 'meta.html', 'footer.html'],
 			title: '{{{header_html.title}}} / Admin - Meta'
 		},
 		{
-			path: /^\/posts\/.+$/,
+			path: /^posts\/.+$/,
 			templates: ['header.html', 'post.html', 'footer.html'],
 			title: '{{{header_html.title}}} / Admin - {{{post_html.title}}}'
 		},
 		{
-			path: '/create/post',
+			path: 'create/post',
 			templates: ['header.html', 'create-post.html', 'footer.html'],
 			title: '{{{header_html.title}}} / Admin - Create Post'
 		}
@@ -161,8 +161,8 @@ $(document).ready(function () {
 		views['post.html'] = {
 			
 			load: function (callback, path) {
-		
-				var postID = path.replace(/^\/posts\//, '');
+				
+				var postID = path.replace(/^posts\//, '');
 		
 				database.view('posts', 'byPostID?key="' + postID + '"', function (response, error) {
 					
@@ -218,12 +218,12 @@ $(document).ready(function () {
 		},
 		success: function (config) {
 			
-			var database = new (new CouchDB(config.root + '/couchdb')).Database(config.database);
+			var database = new (new CouchDB(config.root + 'couchdb/')).Database(config.database);
 			
 			window.createTheme({
-				rootPath: config.root,
-				sitePath: '/admin',
-				filePath: '/etc/admin/theme',
+				root: config.root,
+				site: 'admin/',
+				theme: 'etc/admin/theme/',
 				routes: routes,
 				views: views(database, config)
 			});

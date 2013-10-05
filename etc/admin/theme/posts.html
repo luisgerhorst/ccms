@@ -1,11 +1,11 @@
 <div class="posts">
 
-	<a href="{{_siteURL}}/create/post" class="create-post"><button id="create-post">Create Post</button></a>
+	<a href="{{_siteRoot}}create/post" class="create-post"><button id="create-post">Create Post</button></a>
 
 	<ol>
 
 		{{#posts}}
-		<a class="title" href="{{_siteURL}}/posts/{{postID}}"><li class="post">
+		<a class="title" href="{{_siteRoot}}posts/{{postID}}"><li class="post">
 			<h2>{{title}}</h2>
 			<time datetime="{{date}}"></time>
 		</li></a>
@@ -20,9 +20,9 @@
 
 	</ol>
 	
-	{{#previousPage}}<a href="{{_siteURL}}?page={{number}}"><button id="previous-page" class="page-nav grey">← Previous</button></a>{{/previousPage}}
-	{{#nextPage}}<a href="{{_siteURL}}?page={{number}}"><button id="next-page" class="page-nav grey">Next →</button></a>{{/nextPage}}
+	{{#previousPage}}<a href="{{_siteRoot}}?page={{number}}"><button id="previous-page" class="page-nav grey">← Previous</button></a>{{/previousPage}}
+	{{#nextPage}}<a href="{{_siteRoot}}?page={{number}}"><button id="next-page" class="page-nav grey">Next →</button></a>{{/nextPage}}
 
 </div> <!-- .posts -->
 
-<script type="text/javascript" src="{{_rootPath}}{{_filePath}}/js/posts.js"></script>
+<script type="text/javascript" src="{{_themeDirectory}}js/posts.js"></script>
