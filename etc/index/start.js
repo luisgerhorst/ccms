@@ -44,42 +44,46 @@ $(document).ready(function () {
 					urlPageIndex = parseInt(parameters.page || 1),
 					pageIndex = urlPageIndex-1;
 					skip = postsPerPage * pageIndex;
+					
+				var toLoad = 2,
+					posts = [],
+					hasNext;
 
 				database.view('posts', 'byDate?descending=true&skip=' + skip + '&limit=' + postsPerPage, function (response, error) {
-
-					if (error) callback(null, {
-						title: error.message,
-						heading: 'HTTP Error',
-						message: 'The error <code>' + error.code + ' ' + error.message + '</code> occured while loading the posts.'
-					}); else {
-
-						var posts = [];
-						for (var i = 0; i < response.rows.length; i++) posts.push(response.rows[i].value);
-
-						database.view('posts', 'compactByDate?descending=true&skip=' + ( skip + postsPerPage ) + '&limit=1', function (response, error) {
-
-							if (error) callback(null, {
-								title: error.message,
-								heading: 'HTTP Error',
-								message: 'The error <code>' + error.code + ' ' + error.message + '</code> occured.'
-							}); else {
-
-								var page = {
-									posts: posts,
-									hasNext: response.rows.length ? true : false
-								};
-								var view = new View(pageIndex, page);
-								callback(view);
-
-							}
-
+					if (error)
+						callback(null, {
+							title: error.message,
+							heading: 'HTTP Error',
+							message: 'The error <code>' + error.code + ' ' + error.message + '</code> occured while loading the posts.'
 						});
-
+					else {
+						for (var i = 0; i < response.rows.length; i++) posts.push(response.rows[i].value);
+						chunkReceived();
 					}
-
 				});
+				
+				database.view('posts', 'compactByDate?descending=true&skip=' + ( skip + postsPerPage ) + '&limit=1', function (response, error) {
+					if (error)
+						callback(null, {
+							title: error.message,
+							heading: 'HTTP Error',
+							message: 'The error <code>' + error.code + ' ' + error.message + '</code> occured.'
+						});
+					else {
+						hasNext = response.rows.length ? true : false;
+						chunkReceived();
+					}
+				});
+				
+				function chunkReceived() {
+					toLoad--;
+					if (!toLoad) {
+						var view = new View(pageIndex, urlPageIndex, posts, hasNext);
+						callback(view);
+					}
+				}
 
-				function View(pageIndex, page) {
+				function View(pageIndex, urlPageIndex, posts, hasNext) {
 
 					this.previousPage = function () {
 						if (pageIndex == 0) return false;
@@ -87,11 +91,11 @@ $(document).ready(function () {
 					};
 
 					this.nextPage = function () {
-						if (page.hasNext) return { number: urlPageIndex + 1 }; // if there are less posts then possible
+						if (hasNext) return { number: urlPageIndex + 1 };
 						else return false;
 					};
 
-					this.posts = page.posts;
+					this.posts = posts;
 
 				}
 
