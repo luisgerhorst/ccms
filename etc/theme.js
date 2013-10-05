@@ -526,7 +526,7 @@ window.createTheme = function (options) {
 		target = window.open.arguments[1] = target || '_self';
 		var ajaxPossible = target == '_self' && 1 <= window.open.arguments.length <= 2;
 
-		if (ajaxPossible && historyAPISupport() && isIntern(href)) {
+		if (ajaxPossible && historyAPISupport() && isIntern(url.resulting)) {
 
 			history.pushState(null, null, href);
 
@@ -543,13 +543,9 @@ window.createTheme = function (options) {
 
 		} else window._open.apply(this, window.open.arguments);
 
-		function isIntern(href) {
-
-			var base = new URL(theme.rootPath + theme.sitePath).resulting,
-				url = new URL(href).resulting;
-
-			return url == base || url.startsWith(base + '/') || url.startsWith(base + '?') || url.startsWith(base + '#');
-
+		function isIntern(urlRes) {
+			var baseRes = new URL(theme.rootPath + theme.sitePath || '/').resulting;
+			return urlRes.startsWith(baseRes);
 		}
 
 	};
