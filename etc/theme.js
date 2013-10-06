@@ -1,8 +1,6 @@
 (function () {
 
-function Theme(options) {
-
-	var Theme = this;
+function Theme(options) { var Theme = this;
 
 	/* child classes */
 
@@ -461,7 +459,7 @@ function historyAPISupport() {
 	return !!(window.history && window.history.pushState && window.history.replaceState);
 }
 
-/* enhancements */
+/* global */
 
 String.prototype.startsWith = function(string) {
 	return this.indexOf(string) === 0;
@@ -504,7 +502,7 @@ window.createTheme = function (options) {
 
 		} else window._open.apply(this, window.open.arguments);
 
-		/** @param {URL} url */
+		/** @param {string} url */
 		function isIntern(url) {
 			var base = new URL(theme.siteBasePath).resulting;
 			return url.resulting.startsWith(base);
