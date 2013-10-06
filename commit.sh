@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Merge changes in dev, optimize.
+# Commit and publish changes.
 
 git checkout dev
 
