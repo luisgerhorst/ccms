@@ -1,8 +1,8 @@
 # Features
 
-- RSS Feed
 - Pages
 - Post attachments
+- RSS Feed
 - User management
 
 # Under the hood
