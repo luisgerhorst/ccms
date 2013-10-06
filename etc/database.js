@@ -1,30 +1,25 @@
-/** @param {string} proxy Path to the CouchDB proxy. */
-
-var CouchDB = function (proxy) {
+/**
+ * @constructor
+ * @param {string} proxy Path to the CouchDB proxy.
+ */
+function CouchDB(proxy) { var CouchDB = this;
 
 	$.ajaxSetup({
 		timeout: 15000
 	});
 
-	var CouchDB = this;
-
-	// Data Constructors
-
-	var Credentials = function (credentials) {
+	/** @constructor */
+	function Credentials(credentials) { var Credentials = this;
 
 		credentials = credentials ? credentials : {}; // if called with null
 
-		this.cookie = credentials.cookie ? true : false;
-		this.username = typeof credentials.username === 'string' ? credentials.username : false;
-		this.password = typeof credentials.password === 'string' ? credentials.password : false;
+		Credentials.cookie = credentials.cookie ? true : false;
+		Credentials.username = typeof credentials.username === 'string' ? credentials.username : false;
+		Credentials.password = typeof credentials.password === 'string' ? credentials.password : false;
 
-	};
-
-	// Vars
+	}
 
 	var credentials = new Credentials(null);
-
-	// Utils
 
 	function parseError(jqXHR) {
 
@@ -228,7 +223,7 @@ var CouchDB = function (proxy) {
 
 			request({
 				document: document,
-				type: 'HEAD',
+				type: 'HEAD'
 			}, function (data, jqXHR) {
 
 				if (jqXHR.status == 200) {
