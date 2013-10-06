@@ -502,7 +502,7 @@ window.createTheme = function (options) {
 
 		} else window._open.apply(this, window.open.arguments);
 
-		/** @param {string} url */
+		/** @param {URL} url */
 		function isIntern(url) {
 			var base = new URL(theme.siteBasePath).resulting;
 			return url.resulting.startsWith(base);
