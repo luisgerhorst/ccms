@@ -9,8 +9,9 @@
 
 # Under the hood
 
-- find new name for theme.js, look at other cms
+- find new name for `theme.js`, look at other cms
 - improve loading indicator (GitHub-like)
+- don't wait for `$(document).ready` in `start.js` anymore
 
 
 
