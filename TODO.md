@@ -1,7 +1,9 @@
 # Features
 
 - Pages
+- Post tags
 - Post attachments
+- Post custom fields that can contain different data types (text, strings, attachments)
 - RSS Feed
 - User management
 
