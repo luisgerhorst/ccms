@@ -15,7 +15,7 @@ $(document).ready(function () {
 			title: '{{{header_html.title}}}'
 		},
 		{
-			path: /^posts\/.+$/,
+			path: /^post\/.+$/,
 			templates: ['header.html', 'post.html', 'footer.html'],
 			title: '{{{header_html.title}}} - {{{post_html.title}}}'
 		}
@@ -119,7 +119,7 @@ $(document).ready(function () {
 		views['post.html'] = {
 			load: function (callback, path, parameters) {
 
-				var postID = path.replace(/^posts\//, '');
+				var postID = path.replace(/^post\//, '');
 
 				database.view('posts', 'byPostID?key="' + postID + '"', function (response, error) {
 
@@ -144,7 +144,7 @@ $(document).ready(function () {
 				initial: {}, // posts by post id in object
 				read: function (globalCache, path, parameters) {
 
-					var postID = path.replace(/^posts\//, '');
+					var postID = path.replace(/^post\//, '');
 
 					if (globalCache['post.html'][postID]) return globalCache['post.html'][postID];
 
@@ -160,7 +160,7 @@ $(document).ready(function () {
 
 				},
 				save: function (view, cache, path, parameters) {
-					var postID = path.replace(/^posts\//, '');
+					var postID = path.replace(/^post\//, '');
 					cache[postID] = view;
 					return cache;
 				}

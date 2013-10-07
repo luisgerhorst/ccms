@@ -31,7 +31,7 @@ $(document).ready(function () {
 			title: '{{{header_html.title}}} / Admin - Meta'
 		},
 		{
-			path: /^posts\/.+$/,
+			path: /^post\/.+$/,
 			templates: ['header.html', 'post.html', 'footer.html'],
 			title: '{{{header_html.title}}} / Admin - {{{post_html.title}}}'
 		},
@@ -162,7 +162,7 @@ $(document).ready(function () {
 			
 			load: function (callback, path) {
 				
-				var postID = path.replace(/^posts\//, '');
+				var postID = path.replace(/^post\//, '');
 		
 				database.view('posts', 'byPostID?key="' + postID + '"', function (response, error) {
 					
