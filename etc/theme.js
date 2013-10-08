@@ -120,8 +120,6 @@ function Theme(options) { var Theme = this;
 			}
 
 			function done() {
-
-				/* deprecated */ view._host = Theme.host; view._rootPath = Theme.rootPath; view._sitePath = Theme.sitePath; view._filePath = Theme.filePath; view._siteURL = Theme.host + Theme.rootPath + Theme.sitePath; view._fileURL = Theme.host + Theme.rootPath + Theme.filePath;
 				
 				view._ccmsRoot = Theme.ccmsBasePath;
 				view._siteRoot = Theme.siteBasePath;
@@ -181,8 +179,6 @@ function Theme(options) { var Theme = this;
 	})();
 
 	Theme.viewCaches = {};
-
-	/* deprecated: */ //Theme.host = location.protocol + '//' + location.host; Theme.rootPath = options.rootPath; Theme.filePath = options.filePath; Theme.sitePath = options.sitePath;
 	
 	/* paths */
 	

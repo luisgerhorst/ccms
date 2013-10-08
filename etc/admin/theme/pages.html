@@ -1,0 +1,22 @@
+<div class="pages list">
+
+	<a href="{{_siteRoot}}create/page" class="create"><button id="create-page">Create Page</button></a>
+
+	<ol>
+
+		{{#pages}}
+		<a class="title" href="{{_siteRoot}}page/{{pageID}}"><li class="post">
+			<h2>{{title}}</h2>
+		</li></a>
+		{{/pages}}
+
+		{{^pages}}
+		<li class="error">
+			<h2>No pages were found</h2>
+			<p>Go and create one.</p>
+		</li>
+		{{/pages}}
+
+	</ol>
+
+</div> <!-- .pages -->

@@ -1,40 +1,40 @@
-a.create-post button {
+.list a.create button {
 	margin: 0 0 20px 0;
 }
 
-.posts ol {
+.list ol {
 	list-style: none;
 }
 
-.posts ol a {
+.list ol a {
 	text-decoration: none;
 }
 
-.posts ol a li {
+.list ol a li {
 	padding: 20px 0 20px 0;
 	border-bottom: 1px rgb(240,240,240) solid;
 }
 
-.posts ol a:last-child li {
+.list ol a:last-child li {
 	border-bottom: none;
 	padding-bottom: 0;
 }
 
-.posts ol li h2 {
+.list ol li h2 {
 	font-size: 16px;
 	line-height: 32px;
 }
 
-.posts ol li {
+.list ol li {
 	font-size: 12px;
 	line-height: 24px;
 }
 
-.posts ol li.error {
+.list ol li.error {
 	padding: 20px 0 0 0;
 }
 
-.posts ol li.error p {
+.list ol li.error p {
 	margin-bottom: 0;
 }
 

@@ -1,4 +1,4 @@
-<form class="post edit" action="javascript:void(0);" data-document-id="{{_id}}">
+<form class="item post edit" action="javascript:void(0);" data-document-id="{{_id}}">
 	
 	<p><input type="text" class="post-title title" name="title" value="{{title}}" placeholder="Title"></p>
 	
@@ -10,9 +10,9 @@
 	
 	<p class="margin10px"><input type="checkbox" class="autoCreatePostID" name="autoCreatePostID" checked> <label for="autoCreatePostID">Create URL automatically using title <span class="light">(uncheck to edit URL)</span></label></p>
 	
-	<p class="margin10px"><code>/posts/</code><input type="text" class="postID post-postID" data-old-post-id="{{postID}}" value="{{postID}}" placeholder="post-id" readonly="readonly" ></p>
+	<p class="margin10px"><code>/post/</code><input type="text" class="url postID post-postID" data-old-post-id="{{postID}}" value="{{postID}}" placeholder="post-id" readonly="readonly" ></p>
 	
-	<p><a href="{{_ccmsRoot}}posts/{{postID}}" target="_blank">Visit</a> this post on your site.</a></p>
+	<p><a href="{{_ccmsRoot}}post/{{postID}}" target="_blank">Visit</a> this post on your site.</a></p>
 	
 	<input class="delete" type="button" value="Delete" class="grey">
 	<input type="submit" value="Save">

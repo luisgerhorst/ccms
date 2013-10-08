@@ -6,26 +6,26 @@ form span.light {
 	color: rgb(160,160,160);
 }
 
-form.post .title {
+form.item .title {
 	width: 100%;
 	box-sizing: border-box;
 }
 
-form.post .content {
+form.item .content {
 	box-sizing: border-box;
 	width: 100%;
 	max-width: 100%;
 	height: 220px;
 }
 
-form.post .postID {
+form.item .url {
 	line-height: 16px;
 	padding: 2px;
 	width: 160px;
 	font-family: Menlo, Consolas, Monaco, "Lucida Console", monospace;
 }
 
-form.post input[type="submit"], .meta form input[type="submit"] {
+form.item input[type="submit"], .meta form input[type="submit"] {
 	float: right;
 }
 

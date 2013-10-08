@@ -10,7 +10,7 @@ function saveDocuments(database) {
 		success: function (docs, textStatus, jqXHR) {
 			
 			$.ajax({
-				url: window.theme.ccmsBasePath + '/etc/system.json',
+				url: window.theme.ccmsBasePath + 'etc/system.json',
 				dataType: 'json',
 				error: function (jqXHR, textStatus, errorThrown) {
 					notifications.alert('Error ' + textStatus + ' ' + errorThrown + ' occured while loading ' + this.url);

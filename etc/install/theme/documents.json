@@ -17,6 +17,23 @@
 			}
 		}
 	},
+	"_design/pages": {
+		"language": "javascript",
+		"views": {
+			"pageIDs": {
+				"map": "function (doc) { if (doc.type == 'page') emit(null, doc.pageID); }"
+			},
+			"indexByPriority": {
+				"map": "function (doc) { if (doc.type == 'page' && doc.priority > 0) emit([doc.priority, doc.title, doc.pageID], { title: doc.title, pageID: doc.pageID }); }"
+			},
+			"byPageID": {
+				"map": "function (doc) { if (doc.type == 'page') emit(doc.pageID, doc); }"
+			},
+			"byPriority": {
+				"map": "function (doc) { if (doc.type == 'page') emit([doc.priority, doc.title, doc.pageID], doc); }"
+			}
+		}
+	},
 	"meta": {
 		"system": null,
 		"copyright": null,

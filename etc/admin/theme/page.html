@@ -1,0 +1,21 @@
+<form class="item page edit" action="javascript:void(0);" data-document-id="{{_id}}">
+
+	<p><input type="text" class="page-title title" name="title" value="{{title}}" placeholder="Title"></p>
+
+	<p><textarea class="page-content content" name="content" placeholder="Content">{{content}}</textarea></p>
+	
+	<p class="margin10px"><label>Priority <span class="light">(defines the position in the navigation, enter <code>0</code> to hide)</label></p>
+	<p><input type="number" class="priority" name="priority" value="{{priority}}" placeholder="Priority"></p>
+
+	<p class="margin10px"><input type="checkbox" class="autoCreatePageID" name="autoCreatePageID" checked> <label for="autoCreatePageID">Create URL automatically using title <span class="light">(uncheck to edit URL)</span></label></p>
+
+	<p class="margin10px"><code>/</code><input type="text" class="url pageID page-pageID" data-old-post-id="{{pageID}}" value="{{pageID}}" placeholder="page-id" readonly="readonly" ></p>
+
+	<p><a href="{{_ccmsRoot}}{{pageID}}" target="_blank">Visit</a> this page on your site.</a></p>
+
+	<input class="delete" type="button" value="Delete" class="grey">
+	<input type="submit" value="Save">
+
+</form>
+
+<script type="text/javascript" src="{{_themeDirectory}}js/page-events.js"></script>

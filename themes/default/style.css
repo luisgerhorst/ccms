@@ -4,7 +4,7 @@ html {
 
 body {
 	font-family: "Lucida Grande", "Helvetica Neue", sans-serif;
-	color: rgb(110,110,110);
+	color: #111;
 	font-size: 13px;
 	line-height: 16px;
 }
@@ -26,16 +26,16 @@ h3 {
 }
 
 a {
-	color: rgb(110,110,110);
+	color: #111;
 	text-decoration: underline;
 }
 
 a:hover {
-	color: rgb(80,80,80);
+	color: #00f;
 }
 
 a:active {
-	color: rgb(110,110,110);
+	color: #111;
 }
 
 code {
@@ -48,8 +48,30 @@ code {
 	padding-bottom: 40px;
 }
 
+nav ol {
+	float: left;
+	list-style: none;
+	display: block;
+	width: 100%;
+	text-align: center;
+	margin: 0 auto 40px auto;
+}
+
+nav ol a {
+	text-decoration: none;
+}
+
+nav ol li {
+	display: inline;
+	font: bold 24px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	line-height: 24px;
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
 ol.posts {
 	list-style: none;
+	float: left;
 }
 
 ol.posts a {
@@ -57,6 +79,7 @@ ol.posts a {
 }
 
 ol.posts li {
+	float: left;
 	padding: 20px 0 20px 0;
 	border-bottom: 1px rgb(240,240,240) solid;
 }
