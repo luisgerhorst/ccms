@@ -1,8 +1,8 @@
-var createPostID = function (string) {
+function createPostID(string) {
 	return string.replace(/[\s\W]+/g, '-').replace(/^-|-$/g, '').toLowerCase();
-};
+}
 
-var autoCreatedPostID = function (title, postIDElement, autoCreatePostIDElement) {
+function autoCreatedPostID(title, postIDElement, autoCreatePostIDElement) {
 	
 	if (createPostID(title) != postIDElement.val()) {
 		
@@ -11,9 +11,9 @@ var autoCreatedPostID = function (title, postIDElement, autoCreatePostIDElement)
 		
 	}
 	
-};
+}
 
-var PostDoc = function (documentID) {
+function PostDoc(documentID) {
 	
 	var dateFormat = 'YYYY-MM-DD HH:mm';
 	
@@ -38,7 +38,7 @@ var PostDoc = function (documentID) {
 			
 			window.database.view('posts', 'byPostID?key="' + doc.postID + '"', function (res, err) { if (!err) {
 				
-				if (res.rows.length) notifications.alert('Post with URL /posts/' + doc.postID + ' does already exist.');
+				if (res.rows.length) notifications.alert('Post with URL /post/' + doc.postID + ' does already exist.');
 				else {
 					
 					database.save(doc, function (res, err) { if (!err) {

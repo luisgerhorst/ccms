@@ -1,43 +1,92 @@
 $(document).ready(function () {
-
-	var routes = [
-		{
-			path: '',
-			templates: ['header.html', 'posts.html', 'footer.html'],
-			before: function (path, parameters) {
-
-				if (parameters.page == 1) {
-					window.open(window.theme.siteBasePath);
-					return false;
-				}
-
-			},
-			title: '{{{header_html.title}}}'
-		},
-		{
-			path: /^post\/.+$/,
-			templates: ['header.html', 'post.html', 'footer.html'],
-			title: '{{{header_html.title}}} - {{{post_html.title}}}'
+	
+	function routes(pageIDs) { var data = [];
+		
+		for (var i = pageIDs.length; i--;) {
+			
+			data.push({
+				path: pageIDs[i],
+				templates: ['header.html', 'page.html', 'footer.html'],
+				title: '{{{header_html.title}}} - {{{page_html.title}}}'
+			});
+			
 		}
-	];
+		
+		data.push(
+			{
+				path: '',
+				templates: ['header.html', 'posts.html', 'footer.html'],
+				before: function (path, parameters) {
+		
+					if (parameters.page == 1) {
+						window.open(window.theme.siteBasePath);
+						return false;
+					}
+		
+				},
+				title: '{{{header_html.title}}}'
+			},
+			{
+				path: /^post\/.+$/,
+				templates: ['header.html', 'post.html', 'footer.html'],
+				title: '{{{header_html.title}}} - {{{post_html.title}}}'
+			}
+		);
+		
+	return data; }
 
-	function views(database, meta) {
+	function Views(database, meta) {
 
-		var views = {};
+		this['header.html'] = {
+			load: function (callback) {
+				
+				database.view('pages', 'indexByPriority', function (response, error) {
+				
+					if (error) {
+						
+						callback(null, {
+							title: error.message,
+							heading: 'HTTP Error',
+							message: 'The error <code>' + error.code + ' ' + error.message + '</code> occured.'
+						});
+						
+					} else {
+						
+						var titles = [];
+						for (var i = 0; i < response.rows.length; i++) titles.push(response.rows[i].value);
+						
+						var view = meta;
+						view.pages = titles;
+						callback(view);
+						
+					}
+				
+				});
+				
+			},
+			cache: {
+				initial: null, // posts by post id in object
+				read: function (globalCache, path, parameters) {
+					var cache = globalCache['header.html'];
+					if (cache) return cache;
+					return null;
+				},
+				save: function (view, cache, path, parameters) {
+					cache = view;
+					return cache;
+				}
+			}
+		};
 
-		views['header.html'] = {
+		this['footer.html'] = {
 			data: meta
 		};
 
-		views['footer.html'] = {
+		this['head.html'] = {
 			data: meta
 		};
 
-		views['head.html'] = {
-			data: meta
-		};
-
-		views['posts.html'] = {
+		this['posts.html'] = {
 			load: function (callback, path, parameters) {
 
 				var postsPerPage = meta.postsPerPage,
@@ -116,7 +165,7 @@ $(document).ready(function () {
 			}
 		};
 
-		views['post.html'] = {
+		this['post.html'] = {
 			load: function (callback, path, parameters) {
 
 				var postID = path.replace(/^post\//, '');
@@ -167,8 +216,47 @@ $(document).ready(function () {
 			}
 
 		};
-
-		return views;
+		
+		this['page.html'] = {
+			load: function (callback, path) {
+				
+				console.info('load page');
+				
+				var pageID = path;
+				
+				database.view('pages', 'byPageID?key="' + pageID + '"', function (response, error) {
+				
+					if (error) {
+						
+						callback(null, {
+							title: error.message,
+							heading: 'HTTP Error',
+							message: 'The error <code>' + error.code + ' ' + error.message + '</code> occured.'
+						});
+						
+					} else {
+						
+						callback(response.rows[0].value);
+						
+					}
+				
+				});
+				
+			},
+			cache: {
+				initial: {}, // posts by post id in object
+				read: function (globalCache, path) {
+					var pageID = path, pageCache = globalCache['page.html'][pageID];
+					if (pageCache) return pageCache;
+					return null;
+				},
+				save: function (view, cache, path) {
+					var pageID = path;
+					cache[pageID] = view;
+					return cache;
+				}
+			}
+		};
 
 	}
 
@@ -184,31 +272,74 @@ $(document).ready(function () {
 		},
 		success: function (config) {
 
-			couchdb = new CouchDB(config.root + 'couchdb/');
-			database = new couchdb.Database(config.database);
-
-			database.read('meta', function (meta, error) {
-
-				if (error) {
-
-					fatalError('CouchDB Error', 'Error <code>' + error.code + ' ' + error.message + '</code> occured while loading loading document <code>meta</code>.');
-
-				} else {
-
-					window.createTheme({
-						root: config.root,
-						site: '',
-						theme: 'themes/' + meta.theme + '/',
-						routes: routes,
-						views: views(database, meta)
-					});
-
-				}
-
-			});
+			var couchdb = new CouchDB(config.root + 'couchdb/');
+			var database = new couchdb.Database(config.database);
+			
+			loadDocs(config, database);
 
 		}
 	});
+	
+	
+	function loadDocs(config, database) {
+		
+		var toLoad = 2,
+		    meta,
+		    pageIDs;
+		
+		database.read('meta', function (response, error) {
+		
+			if (error) {
+		
+				fatalError('CouchDB Error', 'Error <code>' + error.code + ' ' + error.message + '</code> occured while loading loading document <code>meta</code>.');
+				throw 'Ajax error';
+		
+			} else {
+		
+				meta = response;
+				
+				chunkReceived();
+		
+			}
+		
+		});
+		
+		database.view('pages', 'pageIDs', function (response, error) {
+		
+			if (error) {
+				
+				fatalError('CouchDB Error', 'Error <code>' + error.code + ' ' + error.message + '</code> occured while loading loading pageIDs.');
+				throw 'Ajax error';
+				
+			} else {
+				
+				pageIDs = [];
+				for (var i = response.rows.length; i--;) pageIDs.push(response.rows[i].value);
+				
+				chunkReceived();
+				
+			}
+		
+		});
+		
+		function chunkReceived() {
+			
+			toLoad--;
+			if (!toLoad) {
+				
+				window.createTheme({
+					root: config.root,
+					site: '',
+					theme: 'themes/' + meta.theme + '/',
+					routes: routes(pageIDs),
+					views: new Views(database, meta)
+				});
+				
+			}
+			
+		}
+		
+	}
 
 
 });

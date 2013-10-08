@@ -2,4 +2,13 @@
 
 <h1 id="title"><a href="{{_siteRoot}}">{{title}}</a></h1>
 
+<nav><ol>
+{{#pages}}
+	<a href="{{_siteRoot}}{{pageID}}"><li>{{title}}</li></a>
+{{/pages}}
+</ol></nav>
+
+{{^posts}}
+{{/posts}}
+
 <div id="content">

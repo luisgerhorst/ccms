@@ -1,0 +1,18 @@
+<form class="item page create" action="javascript:void(0);">
+
+	<p><input type="text" class="title" name="title" placeholder="Title"></p>
+
+	<p><textarea class="content" name="content" placeholder="Content"></textarea></p>
+	
+	<p class="margin10px"><label>Priority <span class="light">(defines the position in the navigation, enter <code>0</code> to hide)</label></p>
+	<p><input type="number" class="priority" name="priority" value="1" placeholder="Priority"></p>
+
+	<p class="margin10px"><input type="checkbox" class="autoCreatePageID" name="autoCreatePageID" checked> <label for="autoCreatePageID">Create URL automatically using title <span class="light">(uncheck to edit URL)</span></label></p>
+
+	<p><code>/</code><input type="text" class="url pageID" placeholder="page-id" readonly="readonly" ></p>
+
+	<input type="submit" value="Save">
+
+</form>
+
+<script type="text/javascript" src="{{_themeDirectory}}js/create-page-events.js"></script>
