@@ -27,11 +27,12 @@ h3 {
 
 a {
 	color: #111;
+	
 	text-decoration: underline;
 }
 
 a:hover {
-	color: #00f;
+	color: #33f;
 }
 
 a:active {
@@ -108,11 +109,11 @@ ol.posts li.post .content a, article.post span.content a {
 }
 
 ol.posts li.post .content a:hover, article.post span.content a:hover {
-	color: rgb(110,110,255);
+	color: #33f;
 }
 
 ol.posts li.post .content a:active, article.post span.content a:active {
-	color: rgb(80,80,225);
+	color: #111;
 }
 
 article.post time {

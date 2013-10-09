@@ -65,13 +65,13 @@ $(document).ready(function () {
 				
 			},
 			cache: {
-				initial: null, // posts by post id in object
-				read: function (globalCache, path, parameters) {
+				initial: null,
+				read: function (globalCache) {
 					var cache = globalCache['header.html'];
 					if (cache) return cache;
 					return null;
 				},
-				save: function (view, cache, path, parameters) {
+				save: function (view, cache) {
 					cache = view;
 					return cache;
 				}
@@ -219,8 +219,6 @@ $(document).ready(function () {
 		
 		this['page.html'] = {
 			load: function (callback, path) {
-				
-				console.info('load page');
 				
 				var pageID = path;
 				
