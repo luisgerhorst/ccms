@@ -71,8 +71,10 @@ function Theme(options) { var Theme = this;
 							throw 'View load function returned error.';
 						} else {
 							if (View.cache) {
-								var cache = Theme.viewCaches[name];
-								cache = View.cache.add(response, cache, path, parameters);
+								var oldCache = Theme.viewCaches[name];
+								var newCache = View.cache.add(response, oldCache, path, parameters);
+								Theme.viewCaches[name] = newCache;
+								// note: take care, it also has to work with native data types
 							}
 							callback(response);
 						}
@@ -224,7 +226,6 @@ Theme.prototype = new (function () { var Theme = this;
 		var path = new URL(href).pathname; // "/path/to", "/path/to/", "/path/to/something", "/path/to/something/"
 		path = /\/$/.test(path) ? path : path + '/'; // "/path/to/", "/path/to/something/"
 		var sub = path.replace(new RegExp('^' + Theme.siteBasePath), '').replace(/\/$/, ''); // "", "something/"
-		console.log(sub, Theme, path, Theme.siteBasePath);
 		return sub;
 	};
 
@@ -307,8 +308,6 @@ Theme.prototype = new (function () { var Theme = this;
 
 		} else {
 			
-			console.log('Route found', route);
-
 			var stop = route.before(path, parameters) === false;
 
 			if (!stop && route.segments.length) route.load(function (body, views) {
