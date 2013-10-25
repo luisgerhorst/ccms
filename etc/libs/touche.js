@@ -1,3 +1,5 @@
+/* http://github.com/benhowdle89/touche */
+
 (function() {
   var isTouch = 'ontouchstart' in window || 'onmsgesturechange' in window;
 
